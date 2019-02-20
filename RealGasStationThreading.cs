@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
+using ColossalFramework.UI;
 using ICities;
 using RealGasStation.CustomAI;
 using RealGasStation.CustomManager;
@@ -273,7 +274,7 @@ namespace RealGasStation
                             text += string.Format("\n\t{0}", current2);
                         }
                         DebugLog.LogToFileOnly(text);
-                        Debug.LogError(text);
+                        UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", text, true);
                     }
                 }
             }
