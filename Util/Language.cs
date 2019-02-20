@@ -17,6 +17,7 @@ namespace RealGasStation.Util
             "Transfer operation resource to",
             "Going for Fuel to",
             "RealGasStation UI",
+            "Incoming Vehicle Count",
         };
 
 
@@ -30,6 +31,7 @@ namespace RealGasStation.Util
             "运输日常运营材料到",
             "前往加油站",
             "RealGasStation 界面",
+            "正在前往加油的车辆数目",
         };
 
 

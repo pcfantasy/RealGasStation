@@ -140,7 +140,7 @@ namespace RealGasStation.Util
             if (Loader.CurrentLoadMode == LoadMode.LoadGame || Loader.CurrentLoadMode == LoadMode.NewGame)
             {
                 DebugLog.LogToFileOnly("startsave");
-                MainDataStore.saveData = new byte[163840];
+                MainDataStore.saveData = new byte[262144];
                 gather_saveData();
                 SaveAndRestore._serializableData.SaveData("RealGasStation MainDataStore", MainDataStore.saveData);
             }
@@ -149,7 +149,7 @@ namespace RealGasStation.Util
         public override void OnLoadData()
         {
             MainDataStore.DataInit();
-            MainDataStore.saveData = new byte[163840];
+            MainDataStore.saveData = new byte[262144];
             DebugLog.LogToFileOnly("OnLoadData");
             DebugLog.LogToFileOnly("startload");
 

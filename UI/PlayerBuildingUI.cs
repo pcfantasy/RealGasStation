@@ -15,6 +15,8 @@ namespace RealGasStation.UI
 
         private static readonly float SPACING = 15f;
 
+        private static readonly float SPACING22 = 22f;
+
         private Dictionary<string, UILabel> _valuesControlContainer = new Dictionary<string, UILabel>(16);
 
         public CityServiceWorldInfoPanel baseBuildingWindow;
@@ -22,7 +24,7 @@ namespace RealGasStation.UI
         public static bool refeshOnce = false;
 
         private UILabel Petrol;
-        //private UILabel alivevisitcount;
+        private UILabel inComingVehicleCount;
 
         public override void Update()
         {
@@ -63,6 +65,11 @@ namespace RealGasStation.UI
             this.Petrol.text = Language.Strings[2];
             this.Petrol.relativePosition = new Vector3(SPACING, 50f);
             this.Petrol.autoSize = true;
+
+            this.inComingVehicleCount = base.AddUIComponent<UILabel>();
+            this.inComingVehicleCount.text = Language.Strings[7];
+            this.inComingVehicleCount.relativePosition = new Vector3(SPACING, this.Petrol.relativePosition.y + SPACING22);
+            this.inComingVehicleCount.autoSize = true;
         }
 
         private void RefreshDisplayData()
@@ -85,6 +92,8 @@ namespace RealGasStation.UI
                     {
                         this.Petrol.text = "";
                     }
+
+                    this.inComingVehicleCount.text = string.Format(Language.Strings[7] + " [{0}]", MainDataStore.finalVehicleForFuelCount[MainDataStore.lastBuilding]);
                     PlayerBuildingUI.refeshOnce = false;
                     //this.BringToFront();
                 }
