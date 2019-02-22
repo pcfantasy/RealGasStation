@@ -34,7 +34,6 @@ namespace RealGasStation
         }
 
         public static List<Detour> Detours { get; set; }
-        public static List<Detour> Detours1 { get; set; }
 
         public static bool DetourInited = false;
 
@@ -54,23 +53,6 @@ namespace RealGasStation
         public override void OnCreated(ILoading loading)
         {
             Detours = new List<Detour>();
-            Detours1 = new List<Detour>();
-
-            if (RealGasStation.IsEnabled)
-            {
-                DebugLog.LogToFileOnly("Detour1 Building::AddGuestVehicle calls");
-                try
-                {
-                    Detours1.Add(new Detour(typeof(Building).GetMethod("AddGuestVehicle", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                           typeof(CustomBuilding).GetMethod("AddGuestVehicle", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(Building).MakeByRefType(), typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
-
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour1 Building::AddGuestVehicle");
-                }
-            }
-
             base.OnCreated(loading);
         }
 
@@ -113,17 +95,6 @@ namespace RealGasStation
 
         public override void OnReleased()
         {
-            if (RealGasStation.IsEnabled)
-            {
-                DebugLog.LogToFileOnly("Revert detours1");
-                Detours1.Reverse();
-                foreach (Detour d in Detours1)
-                {
-                    RedirectionHelper.RevertRedirect(d.OriginalMethod, d.Redirect);
-                }
-                Detours1.Clear();
-                DebugLog.LogToFileOnly("Reverting detours1 finished.");
-            }
             base.OnReleased();
         }
 
@@ -239,7 +210,7 @@ namespace RealGasStation
                 }
 
                 //2
-                DebugLog.LogToFileOnly("Detour CargoTruckAI::RemoveTarget calls");
+                /*DebugLog.LogToFileOnly("Detour CargoTruckAI::RemoveTarget calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
@@ -249,7 +220,7 @@ namespace RealGasStation
                 {
                     DebugLog.LogToFileOnly("Could not detour CargoTruckAI::RemoveTarget");
                     detourFailed = true;
-                }
+                }*/
 
                 //3
                 DebugLog.LogToFileOnly("Detour PassengerCarAI::SetTarget calls");
@@ -265,7 +236,7 @@ namespace RealGasStation
                 }
 
                 //4
-                DebugLog.LogToFileOnly("Detour PassengerCarAI::RemoveTarget calls");
+                /*DebugLog.LogToFileOnly("Detour PassengerCarAI::RemoveTarget calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType()}, null),
@@ -275,7 +246,7 @@ namespace RealGasStation
                 {
                     DebugLog.LogToFileOnly("Could not detour PassengerCarAI::RemoveTarget");
                     detourFailed = true;
-                }
+                }*/
 
                 //5
                 DebugLog.LogToFileOnly("Detour VehicleAI::CalculateTargetSpeed calls");
@@ -290,20 +261,20 @@ namespace RealGasStation
                     detourFailed = true;
                 }
 
-#if DEBUG
-                DebugLog.LogToFileOnly("Detour Building::RemoveGuestVehicle calls");
+                //public override void UpdateBuildingTargetPositions(ushort vehicleID, ref Vehicle vehicleData, Vector3 refPos, ushort leaderID, ref Vehicle leaderData, ref int index, float minSqrDistance)
+                DebugLog.LogToFileOnly("Detour CargoTruckAI::UpdateBuildingTargetPositions calls");
                 try
                 {
-                    Detours.Add(new Detour(typeof(Building).GetMethod("RemoveGuestVehicle", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                           typeof(CustomBuilding).GetMethod("RemoveGuestVehicle", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(Building).MakeByRefType(), typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
+                    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("UpdateBuildingTargetPositions", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() , typeof(Vector3), typeof(ushort), typeof(Vehicle).MakeByRefType() , typeof(int).MakeByRefType(), typeof(float) }, null),
+                                           typeof(CustomCargoTruckAI).GetMethod("UpdateBuildingTargetPositions", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(int).MakeByRefType(), typeof(float) }, null)));
 
                 }
                 catch (Exception)
                 {
-                    DebugLog.LogToFileOnly("Could not detour Building::RemoveGuestVehicle");
+                    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::UpdateBuildingTargetPositions");
                     detourFailed = true;
                 }
-#endif
+
                 if (!realConstructionRunning && !realCityRunning)
                 {
                     //6

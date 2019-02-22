@@ -16,9 +16,12 @@ namespace RealGasStation.CustomAI
             {
                 MainDataStore.petrolBuffer[data.m_targetBuilding] -= 400;
             }
-            data.m_targetBuilding = 0;
-            SetTarget(vehicleID, ref data, MainDataStore.preTargetBuilding[vehicleID]);
-            MainDataStore.preTargetBuilding[vehicleID] = 0;
+            SetTarget(vehicleID, ref data, 0);
+            MainDataStore.TargetGasBuilding[vehicleID] = 0;
+            if (Loader.realCityRunning)
+            {
+                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level1);
+            }
         }
 
         public bool CustomArriveAtDestination(ushort vehicleID, ref Vehicle vehicleData)
@@ -52,13 +55,9 @@ namespace RealGasStation.CustomAI
 
         public override void SetTarget(ushort vehicleID, ref Vehicle data, ushort targetBuilding)
         {
-            if (data.m_transferType != 112)
-            {
-                RemoveTarget(vehicleID, ref data);
-            }
-
+            RemoveTarget(vehicleID, ref data);
             data.m_targetBuilding = targetBuilding;
-            if (data.m_transferType != 112 &&  targetBuilding != 0)
+            if (targetBuilding != 0)
             {
                 Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].AddGuestVehicle(vehicleID, ref data);
             }
@@ -69,8 +68,8 @@ namespace RealGasStation.CustomAI
                 {
                     data.m_transferType = MainDataStore.preTranferReason[vehicleID];
                     data.m_targetBuilding = 0;
-                    SetTarget(vehicleID, ref data, MainDataStore.preTargetBuilding[vehicleID]);
-                    MainDataStore.preTargetBuilding[vehicleID] = 0;
+                    SetTarget(vehicleID, ref data, 0);
+                    MainDataStore.TargetGasBuilding[vehicleID] = 0;
                     data.Unspawn(vehicleID);
                 }
             }
@@ -148,11 +147,7 @@ namespace RealGasStation.CustomAI
         {
             if (data.m_targetBuilding != 0)
             {
-                //Fuel demand vehicle will not add into GuestVehicle, so do not need to remove them
-                if (data.m_transferType != 112)
-                {
-                    Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
-                }
+                Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
                 data.m_targetBuilding = 0;
             }
         }

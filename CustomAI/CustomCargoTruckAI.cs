@@ -14,30 +14,46 @@ namespace RealGasStation.CustomAI
     {
         public void CargoTruckAIArriveAtTargetForRealGasStationPre(ushort vehicleID, ref Vehicle data)
         {
-            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
-            if (MainDataStore.petrolBuffer[data.m_targetBuilding] > 400)
+            if (MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] > 400)
             {
-                MainDataStore.petrolBuffer[data.m_targetBuilding] -= 400;
+                MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] -= 400;
             }
-            data.m_targetBuilding = 0;
-            SetTarget(vehicleID, ref data, MainDataStore.preTargetBuilding[vehicleID]);
-#if DEBUG
-            DebugLog.LogToFileOnly("CargoTruckAIArriveAtTargetForRealGasStationPre " + vehicleID.ToString() + "transferType = " + data.m_transferType.ToString() + "And MainDataStore.preTargetBuilding[vehicleID] = " + MainDataStore.preTargetBuilding[vehicleID].ToString() + "data.m_targetBuilding = " + data.m_targetBuilding.ToString());
-#endif
-            MainDataStore.preTargetBuilding[vehicleID] = 0;
+            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
+            PathManager instance = Singleton<PathManager>.instance;
+            if (data.m_path != 0u)
+            {
+                instance.ReleasePath(data.m_path);
+                data.m_path = 0;
+            }
+            SetTarget(vehicleID, ref data, data.m_targetBuilding);
+            MainDataStore.TargetGasBuilding[vehicleID] = 0;
+
+            if (Loader.realCityRunning)
+            {
+                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+            }
         }
 
         public void CargoTruckAIArriveAtSourceForRealGasStationPre(ushort vehicleID, ref Vehicle data)
         {
             DebugLog.LogToFileOnly("Error: CargoTruckAIArriveAtSourceForRealGasStationPre will not happen");
-            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
-            if (MainDataStore.petrolBuffer[data.m_targetBuilding] > 400)
+            if (MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] > 400)
             {
-                MainDataStore.petrolBuffer[data.m_targetBuilding] -= 400;
+                MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] -= 400;
             }
-            data.m_targetBuilding = 0;
-            SetTarget(vehicleID, ref data, MainDataStore.preTargetBuilding[vehicleID]);
-            MainDataStore.preTargetBuilding[vehicleID] = 0;
+            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
+            PathManager instance = Singleton<PathManager>.instance;
+            if (data.m_path != 0u)
+            {
+                instance.ReleasePath(data.m_path);
+                data.m_path = 0;
+            }
+            SetTarget(vehicleID, ref data, data.m_targetBuilding);
+            MainDataStore.TargetGasBuilding[vehicleID] = 0;
+            if (Loader.realCityRunning)
+            {
+                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+            }
         }
 
         private bool ArriveAtSource(ushort vehicleID, ref Vehicle data)
@@ -285,9 +301,6 @@ namespace RealGasStation.CustomAI
 
         public override void SetTarget(ushort vehicleID, ref Vehicle data, ushort targetBuilding)
         {
-#if DEBUG
-            DebugLog.LogToFileOnly("SetTarget for Vehicle " + vehicleID.ToString() + "TransferType = " + data.m_transferType.ToString() + "And MainDataStore.preTargetBuilding[vehicleID] = " + MainDataStore.preTargetBuilding[vehicleID].ToString() + "data.m_targetBuilding = " + data.m_targetBuilding.ToString());
-#endif
             if (targetBuilding == data.m_targetBuilding)
             {
                 if (data.m_path == 0)
@@ -304,25 +317,19 @@ namespace RealGasStation.CustomAI
             }
             else
             {
-                if (data.m_transferType != 112 && MainDataStore.preTargetBuilding[vehicleID] == 0)
+                if (data.m_transferType != 112)
                 {
                     RemoveTarget(vehicleID, ref data);
+                    data.m_targetBuilding = targetBuilding;
                 }
-                data.m_targetBuilding = targetBuilding;
                 data.m_flags &= ~Vehicle.Flags.WaitingTarget;
                 data.m_waitCounter = 0;
                 if (targetBuilding != 0)
                 {
-                    if (data.m_transferType != 112 && MainDataStore.preTargetBuilding[vehicleID] == 0)
+                    if (data.m_transferType != 112)
                     {
                         Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].AddGuestVehicle(vehicleID, ref data);
                     }
-#if DEBUG
-                    else
-                    {
-                        DebugLog.LogToFileOnly("Do not AddGuestVehicle for Vehicle " + vehicleID.ToString() + "Because transferType = " + data.m_transferType.ToString() + "And MainDataStore.preTargetBuilding[vehicleID] = " + MainDataStore.preTargetBuilding[vehicleID].ToString() + "data.m_targetBuilding = " +  data.m_targetBuilding.ToString());
-                    }
-#endif
                     if ((Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].m_flags & Building.Flags.IncomingOutgoing) != 0)
                     {
                         if ((data.m_flags & Vehicle.Flags.TransferToTarget) != 0)
@@ -399,18 +406,38 @@ namespace RealGasStation.CustomAI
                         data.m_path = 0u;
                     }
                 }
-                else if (!StartPathFind(vehicleID, ref data))
+                else
                 {
+                    bool success = false;
                     if (data.m_transferType == 112)
                     {
-                        data.m_transferType = MainDataStore.preTranferReason[vehicleID];
-                        data.m_targetBuilding = 0;
-                        SetTarget(vehicleID, ref data, MainDataStore.preTargetBuilding[vehicleID]);
-                        MainDataStore.preTargetBuilding[vehicleID] = 0;
+                        ushort tempTargetBuilding = data.m_targetBuilding;
+                        data.m_targetBuilding = MainDataStore.TargetGasBuilding[vehicleID];
+                        success = StartPathFind(vehicleID, ref data);
+                        data.m_targetBuilding = tempTargetBuilding;
                     }
                     else
                     {
-                        data.Unspawn(vehicleID);
+                        success = StartPathFind(vehicleID, ref data);
+                    }
+                    if (!success)
+                    {
+                        if (data.m_transferType == 112)
+                        {
+                            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
+                            PathManager instance = Singleton<PathManager>.instance;
+                            if (data.m_path != 0u)
+                            {
+                                instance.ReleasePath(data.m_path);
+                                data.m_path = 0;
+                            }
+                            SetTarget(vehicleID, ref data, data.m_targetBuilding);
+                            MainDataStore.TargetGasBuilding[vehicleID] = 0;
+                        }
+                        else
+                        {
+                            data.Unspawn(vehicleID);
+                        }
                     }
                 }
             }
@@ -420,78 +447,70 @@ namespace RealGasStation.CustomAI
         {
             if (data.m_targetBuilding != 0)
             {
-                if (data.m_transferType != 112)
-                {
-                    //Fuel demand vehicle will not add into GuestVehicle, so do not need to remove them
-                    Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
-                }
+                Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
                 data.m_targetBuilding = 0;
             }
         }
-    }
 
 
-    public static class CustomBuilding
-    {
-#if DEBUG
-        public static void RemoveGuestVehicle(ref Building building, ushort vehicleID, ref Vehicle data)
+        public override void UpdateBuildingTargetPositions(ushort vehicleID, ref Vehicle vehicleData, Vector3 refPos, ushort leaderID, ref Vehicle leaderData, ref int index, float minSqrDistance)
         {
-            VehicleManager instance = Singleton<VehicleManager>.instance;
-            DebugLog.LogToFileOnly("Begin to Remove vehicle = " + vehicleID.ToString());
-            DebugLog.LogToFileOnly("Find Vehicle TranferType = " + data.m_transferType.ToString());
-            DebugLog.LogToFileOnly("buildingID = " + data.m_targetBuilding);
-            ushort num = 0;
-            ushort num2 = building.m_guestVehicles;
-            int num3 = 0;
-            while (num2 != 0)
+            if ((leaderData.m_flags & Vehicle.Flags.WaitingTarget) != (Vehicle.Flags)0)
             {
-                if (num2 == vehicleID)
+                return;
+            }
+
+            if ((leaderData.m_flags & Vehicle.Flags.GoingBack) != (Vehicle.Flags)0)
+            {
+                if (leaderData.m_sourceBuilding != 0)
                 {
-                    if (num != 0)
+                    BuildingManager instance = Singleton<BuildingManager>.instance;
+                    BuildingInfo info = instance.m_buildings.m_buffer[(int)leaderData.m_sourceBuilding].Info;
+                    Randomizer randomizer = new Randomizer((int)vehicleID);
+                    Vector3 targetPos;
+                    Vector3 vector;
+                    info.m_buildingAI.CalculateUnspawnPosition(leaderData.m_sourceBuilding, ref instance.m_buildings.m_buffer[(int)leaderData.m_sourceBuilding], ref randomizer, this.m_info, out targetPos, out vector);
+                    vehicleData.SetTargetPos(index++, base.CalculateTargetPoint(refPos, targetPos, minSqrDistance, 4f));
+                    return;
+                }
+            }
+            else if (leaderData.m_targetBuilding != 0)
+            {
+                // NON-STOCK CODE START
+                if (leaderData.m_transferType == 112)
+                {
+                    if (leaderID == vehicleID)
                     {
-                        instance.m_vehicles.m_buffer[(int)num].m_nextGuestVehicle = data.m_nextGuestVehicle;
+                        if (MainDataStore.TargetGasBuilding[leaderID] != 0)
+                        {
+                            BuildingManager instance2 = Singleton<BuildingManager>.instance;
+                            BuildingInfo info2 = instance2.m_buildings.m_buffer[(int)MainDataStore.TargetGasBuilding[leaderID]].Info;
+                            Randomizer randomizer2 = new Randomizer((int)vehicleID);
+                            Vector3 targetPos2;
+                            Vector3 vector2;
+                            info2.m_buildingAI.CalculateUnspawnPosition(MainDataStore.TargetGasBuilding[leaderID], ref instance2.m_buildings.m_buffer[(int)MainDataStore.TargetGasBuilding[leaderID]], ref randomizer2, this.m_info, out targetPos2, out vector2);
+                            vehicleData.SetTargetPos(index++, base.CalculateTargetPoint(refPos, targetPos2, minSqrDistance, 4f));
+                            return;
+                        }
                     }
                     else
                     {
-                        building.m_guestVehicles = data.m_nextGuestVehicle;
+                        DebugLog.LogToFileOnly("Error: No such case for RealGasStation");
                     }
-                    data.m_nextGuestVehicle = 0;
+                }
+                else
+                {
+                    /// NON-STOCK CODE END
+                    BuildingManager instance2 = Singleton<BuildingManager>.instance;
+                    BuildingInfo info2 = instance2.m_buildings.m_buffer[(int)leaderData.m_targetBuilding].Info;
+                    Randomizer randomizer2 = new Randomizer((int)vehicleID);
+                    Vector3 targetPos2;
+                    Vector3 vector2;
+                    info2.m_buildingAI.CalculateUnspawnPosition(leaderData.m_targetBuilding, ref instance2.m_buildings.m_buffer[(int)leaderData.m_targetBuilding], ref randomizer2, this.m_info, out targetPos2, out vector2);
+                    vehicleData.SetTargetPos(index++, base.CalculateTargetPoint(refPos, targetPos2, minSqrDistance, 4f));
                     return;
                 }
-                num = num2;
-                num2 = instance.m_vehicles.m_buffer[(int)num2].m_nextGuestVehicle;
-                DebugLog.LogToFileOnly("m_nextGuestVehicle = " + instance.m_vehicles.m_buffer[(int)num2].m_nextGuestVehicle.ToString());
-                if (++num3 > 16384)
-                {
-                    CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
-                    break;
-                }
             }
-            DebugLog.LogToFileOnly("Fail to find Vehicle ID = " + vehicleID.ToString());
-            DebugLog.LogToFileOnly("Fail to find Vehicle TranferType = " + data.m_transferType.ToString());
-            DebugLog.LogToFileOnly("buildingID = " + data.m_targetBuilding);
-            CODebugBase<LogChannel>.Error(LogChannel.Core, "Vehicle not found!\n" + Environment.StackTrace);
-        }
-#endif
-        public static void AddGuestVehicle(ref Building building,  ushort vehicleID, ref Vehicle data)
-        {
-            if (data.m_transferType != 112 || RealGasStationThreading.isTargetBuildingFix)
-            {
-#if DEBUG
-                DebugLog.LogToFileOnly("AddGuestVehicle VehicleAI = " + data.Info.m_vehicleAI.ToString() + RealGasStationThreading.isTargetBuildingFix.ToString());
-                DebugLog.LogToFileOnly("data.m_transferType = " + data.m_transferType.ToString());
-                DebugLog.LogToFileOnly("MainDataStore.preTargetBuilding[i] = " + MainDataStore.preTargetBuilding[vehicleID].ToString());
-                DebugLog.LogToFileOnly("data.m_targetBuilding = " + data.m_targetBuilding.ToString());
-                DebugLog.LogToFileOnly("vehicleID = " + vehicleID.ToString());
-#endif
-                data.m_nextGuestVehicle = building.m_guestVehicles;
-                building.m_guestVehicles = vehicleID;
-#if DEBUG
-                DebugLog.LogToFileOnly("data.m_nextGuestVehicle = " + data.m_nextGuestVehicle.ToString());
-                DebugLog.LogToFileOnly("building.m_guestVehicles = " + building.m_guestVehicles.ToString());
-#endif
-            }
-
         }
     }
 }

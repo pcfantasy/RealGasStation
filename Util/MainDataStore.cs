@@ -8,7 +8,7 @@ namespace RealGasStation.Util
 {
     public class MainDataStore
     {
-        public static ushort[] preTargetBuilding = new ushort[16384];
+        public static ushort[] TargetGasBuilding = new ushort[16384];
         public static byte[] tempVehicleForFuelCount = new byte[49152];
         public static byte[] finalVehicleForFuelCount = new byte[49152];
         public static byte[] preTranferReason = new byte[16384];
@@ -24,9 +24,9 @@ namespace RealGasStation.Util
 
         public static void DataInit()
         {
-            for (int i = 0; i < MainDataStore.preTargetBuilding.Length; i++)
+            for (int i = 0; i < MainDataStore.TargetGasBuilding.Length; i++)
             {
-                preTargetBuilding[i] = 0;
+                TargetGasBuilding[i] = 0;
                 alreadyAskForFuel[i] = false;
                 preTranferReason[i] = 0;
             }
@@ -43,7 +43,7 @@ namespace RealGasStation.Util
         public static void save()
         {
             int i = 0;
-            SaveAndRestore.save_ushorts(ref i, preTargetBuilding, ref saveData);
+            SaveAndRestore.save_ushorts(ref i, TargetGasBuilding, ref saveData);
             SaveAndRestore.save_bytes(ref i, preTranferReason, ref saveData);
             SaveAndRestore.save_ushorts(ref i, petrolBuffer, ref saveData);
             SaveAndRestore.save_bools(ref i, alreadyAskForFuel, ref saveData);
@@ -54,14 +54,14 @@ namespace RealGasStation.Util
         public static void load()
         {
             int i = 0;
-            preTargetBuilding = SaveAndRestore.load_ushorts(ref i, saveData, preTargetBuilding.Length);
+            TargetGasBuilding = SaveAndRestore.load_ushorts(ref i, saveData, TargetGasBuilding.Length);
             //for (int j = 0; j < MainDataStore.preTargetBuilding.Length; j++)
             //{
             //    DebugLog.LogToFileOnly("preTargetBuilding[j] = " + preTargetBuilding[j].ToString());
             //}
             preTranferReason = SaveAndRestore.load_bytes(ref i, saveData, preTranferReason.Length);
             petrolBuffer = SaveAndRestore.load_ushorts(ref i, saveData, petrolBuffer.Length);
-            alreadyAskForFuel = SaveAndRestore.load_bools(ref i, saveData, preTargetBuilding.Length);
+            alreadyAskForFuel = SaveAndRestore.load_bools(ref i, saveData, TargetGasBuilding.Length);
             tempVehicleForFuelCount = SaveAndRestore.load_bytes(ref i, saveData, tempVehicleForFuelCount.Length);
             finalVehicleForFuelCount = SaveAndRestore.load_bytes(ref i, saveData, finalVehicleForFuelCount.Length);
         }

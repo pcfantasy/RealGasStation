@@ -20,7 +20,7 @@ namespace RealGasStation.CustomManager
                 {
                     CargoTruckAI AI = data.Info.m_vehicleAI as CargoTruckAI;
                     MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
-                    MainDataStore.preTargetBuilding[vehicleID] = data.m_targetBuilding;
+                    MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
                     data.m_transferType = 112;
                     if (offer.Building == data.m_targetBuilding)
                     {
@@ -32,10 +32,9 @@ namespace RealGasStation.CustomManager
                 {
                     PassengerCarAI AI = data.Info.m_vehicleAI as PassengerCarAI;
                     MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
-                    //ushort driverInstance = GetDriverInstance(vehicleID, ref data);
                     if (data.m_targetBuilding == 0)
                     {
-                        MainDataStore.preTargetBuilding[vehicleID] = data.m_targetBuilding;
+                        MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
                         data.m_transferType = 112;
                         AI.SetTarget(vehicleID, ref data, offer.Building);
                     }
