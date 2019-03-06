@@ -275,62 +275,65 @@ namespace RealGasStation
                     detourFailed = true;
                 }
 
-                if (!realConstructionRunning && !realCityRunning)
+                if (!realConstructionRunning || !realCityRunning)
                 {
-                    //6
-                    DebugLog.LogToFileOnly("Detour CargoTruckAI::ArriveAtTarget calls");
-                    try
+                    if (!realConstructionRunning && !realCityRunning)
                     {
-                        Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("ArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                               typeof(CustomCargoTruckAI).GetMethod("ArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
+                        //6
+                        DebugLog.LogToFileOnly("Detour CargoTruckAI::ArriveAtTarget calls");
+                        try
+                        {
+                            Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("ArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
+                                                   typeof(CustomCargoTruckAI).GetMethod("ArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
+                        }
+                        catch (Exception)
+                        {
+                            DebugLog.LogToFileOnly("Could not detour CargoTruckAI::ArriveAtTarget");
+                            detourFailed = true;
+                        }
                     }
-                    catch (Exception)
+                    if (!realConstructionRunning)
                     {
-                        DebugLog.LogToFileOnly("Could not detour CargoTruckAI::ArriveAtTarget");
-                        detourFailed = true;
+                        //7
+                        DebugLog.LogToFileOnly("Detour CargoTruckAI::GetLocalizedStatus calls");
+                        try
+                        {
+                            Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("GetLocalizedStatus", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InstanceID).MakeByRefType() }, null),
+                                                   typeof(CustomCargoTruckAI).GetMethod("GetLocalizedStatus", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InstanceID).MakeByRefType() }, null)));
+                        }
+                        catch (Exception)
+                        {
+                            DebugLog.LogToFileOnly("Could not detour CargoTruckAI::GetLocalizedStatus");
+                            detourFailed = true;
+                        }
                     }
-                }
-                else if (!realConstructionRunning)
-                {
-                    //7
-                    DebugLog.LogToFileOnly("Detour CargoTruckAI::GetLocalizedStatus calls");
-                    try
+                    if (!realCityRunning)
                     {
-                        Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("GetLocalizedStatus", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InstanceID).MakeByRefType() }, null),
-                                               typeof(CustomCargoTruckAI).GetMethod("GetLocalizedStatus", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InstanceID).MakeByRefType() }, null)));
-                    }
-                    catch (Exception)
-                    {
-                        DebugLog.LogToFileOnly("Could not detour CargoTruckAI::GetLocalizedStatus");
-                        detourFailed = true;
-                    }
-                }
-                else if (!realCityRunning)
-                {
-                    //8
-                    DebugLog.LogToFileOnly("Detour CargoTruckAI::ArriveAtSource calls");
-                    try
-                    {
-                        Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("ArriveAtSource", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                               typeof(CustomCargoTruckAI).GetMethod("ArriveAtSource", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
-                    }
-                    catch (Exception)
-                    {
-                        DebugLog.LogToFileOnly("Could not detour CargoTruckAI::ArriveAtSource");
-                        detourFailed = true;
-                    }
+                        //8
+                        DebugLog.LogToFileOnly("Detour CargoTruckAI::ArriveAtSource calls");
+                        try
+                        {
+                            Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("ArriveAtSource", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
+                                                   typeof(CustomCargoTruckAI).GetMethod("ArriveAtSource", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
+                        }
+                        catch (Exception)
+                        {
+                            DebugLog.LogToFileOnly("Could not detour CargoTruckAI::ArriveAtSource");
+                            detourFailed = true;
+                        }
 
-                    //9
-                    DebugLog.LogToFileOnly("Detour PassengerCarAI::ArriveAtDestination calls");
-                    try
-                    {
-                        Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("ArriveAtDestination", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                               typeof(CustomPassengerCarAI).GetMethod("ArriveAtDestination", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
-                    }
-                    catch (Exception)
-                    {
-                        DebugLog.LogToFileOnly("Could not detour PassengerCarAI::ArriveAtDestination");
-                        detourFailed = true;
+                        //9
+                        DebugLog.LogToFileOnly("Detour PassengerCarAI::ArriveAtTarget calls");
+                        try
+                        {
+                            Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("ArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
+                                                   typeof(CustomPassengerCarAI).GetMethod("CustomArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
+                        }
+                        catch (Exception)
+                        {
+                            DebugLog.LogToFileOnly("Could not detour PassengerCarAI::ArriveAtTarget");
+                            detourFailed = true;
+                        }
                     }
                 }
                 else

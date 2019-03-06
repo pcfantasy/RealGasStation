@@ -477,14 +477,15 @@ namespace RealGasStation.CustomAI
             else if (leaderData.m_targetBuilding != 0)
             {
                 // NON-STOCK CODE START
-                if (leaderData.m_transferType == 112)
+                BuildingManager instance2 = Singleton<BuildingManager>.instance;
+                BuildingInfo info2 = instance2.m_buildings.m_buffer[(int)MainDataStore.TargetGasBuilding[leaderID]].Info;
+                float distance = Vector3.Distance(instance2.m_buildings.m_buffer[(int)MainDataStore.TargetGasBuilding[leaderID]].m_position, leaderData.GetLastFramePosition());
+                if (leaderData.m_transferType == 112 && (distance < 50))
                 {
                     if (leaderID == vehicleID)
                     {
                         if (MainDataStore.TargetGasBuilding[leaderID] != 0)
                         {
-                            BuildingManager instance2 = Singleton<BuildingManager>.instance;
-                            BuildingInfo info2 = instance2.m_buildings.m_buffer[(int)MainDataStore.TargetGasBuilding[leaderID]].Info;
                             Randomizer randomizer2 = new Randomizer((int)vehicleID);
                             Vector3 targetPos2;
                             Vector3 vector2;
@@ -501,8 +502,6 @@ namespace RealGasStation.CustomAI
                 else
                 {
                     /// NON-STOCK CODE END
-                    BuildingManager instance2 = Singleton<BuildingManager>.instance;
-                    BuildingInfo info2 = instance2.m_buildings.m_buffer[(int)leaderData.m_targetBuilding].Info;
                     Randomizer randomizer2 = new Randomizer((int)vehicleID);
                     Vector3 targetPos2;
                     Vector3 vector2;

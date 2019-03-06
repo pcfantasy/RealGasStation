@@ -24,34 +24,116 @@ namespace RealGasStation.CustomAI
             }
         }
 
-        public bool CustomArriveAtDestination(ushort vehicleID, ref Vehicle vehicleData)
+        private ushort GetDriverInstance(ushort vehicleID, ref Vehicle data)
         {
-            if (vehicleData.m_transferType == 112)
+            CitizenManager instance = Singleton<CitizenManager>.instance;
+            uint num = data.m_citizenUnits;
+            int num2 = 0;
+            while (num != 0u)
             {
-                PassengerCarAIArriveAtTargetForRealGasStationPre(vehicleID, ref vehicleData);
-                return true;
+                uint nextUnit = instance.m_units.m_buffer[(int)((UIntPtr)num)].m_nextUnit;
+                for (int i = 0; i < 5; i++)
+                {
+                    uint citizen = instance.m_units.m_buffer[(int)((UIntPtr)num)].GetCitizen(i);
+                    if (citizen != 0u)
+                    {
+                        ushort instance2 = instance.m_citizens.m_buffer[(int)((UIntPtr)citizen)].m_instance;
+                        if (instance2 != 0)
+                        {
+                            return instance2;
+                        }
+                    }
+                }
+                num = nextUnit;
+                if (++num2 > 524288)
+                {
+                    CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                    break;
+                }
             }
-
-            BuildingManager instance = Singleton<BuildingManager>.instance;
-            Building building = instance.m_buildings.m_buffer[(int)vehicleData.m_sourceBuilding];
-            Building building1 = instance.m_buildings.m_buffer[(int)vehicleData.m_targetBuilding];
-            BuildingInfo info = instance.m_buildings.m_buffer[(int)vehicleData.m_targetBuilding].Info;
-            var inst = Singleton<PassengerCarAI>.instance;
-            var Method = typeof(PassengerCarAI).GetMethod("ArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
-            //if(Method == null)
-            //{
-            //    DebugLog.LogToFileOnly("call PassengerCarAI.ArriveAtTarget failed, please check");
-            //    return false;
-            //}
-            Vehicle A = vehicleData;
-            ushort B = vehicleID;
-            object[] parameters = new object[] { B, A };
-            bool return_value = (bool)Method.Invoke(inst, parameters);
-            vehicleData = (Vehicle)parameters[1];
-            return return_value;
-            //return false;
+            return 0;
         }
 
+        private bool CustomArriveAtTarget(ushort vehicleID, ref Vehicle data)
+        {
+            // NON-STOCK CODE START
+            //RealGasStation Mod related
+            if (data.m_transferType == 112)
+            {
+                PassengerCarAIArriveAtTargetForRealGasStationPre(vehicleID, ref data);
+                return true;
+            }
+            // NON-STOCK CODE END
+            if ((data.m_flags & Vehicle.Flags.Parking) != (Vehicle.Flags)0)
+            {
+                VehicleManager instance = Singleton<VehicleManager>.instance;
+                CitizenManager instance2 = Singleton<CitizenManager>.instance;
+                ushort driverInstance = this.GetDriverInstance(vehicleID, ref data);
+                if (driverInstance != 0)
+                {
+                    uint citizen = instance2.m_instances.m_buffer[(int)driverInstance].m_citizen;
+                    if (citizen != 0u)
+                    {
+                        ushort parkedVehicle = instance2.m_citizens.m_buffer[(int)((UIntPtr)citizen)].m_parkedVehicle;
+                        if (parkedVehicle != 0)
+                        {
+                            Vehicle.Frame lastFrameData = data.GetLastFrameData();
+                            instance.m_parkedVehicles.m_buffer[(int)parkedVehicle].m_travelDistance = lastFrameData.m_travelDistance;
+                            VehicleParked[] expr_A1_cp_0 = instance.m_parkedVehicles.m_buffer;
+                            ushort expr_A1_cp_1 = parkedVehicle;
+                            expr_A1_cp_0[(int)expr_A1_cp_1].m_flags = (ushort)(expr_A1_cp_0[(int)expr_A1_cp_1].m_flags & 65527);
+                            InstanceID empty = InstanceID.Empty;
+                            empty.Vehicle = vehicleID;
+                            InstanceID empty2 = InstanceID.Empty;
+                            empty2.ParkedVehicle = parkedVehicle;
+                            Singleton<InstanceManager>.instance.ChangeInstance(empty, empty2);
+                        }
+                    }
+                }
+            }
+            this.UnloadPassengers(vehicleID, ref data);
+            if (data.m_targetBuilding == 0)
+            {
+                return true;
+            }
+            data.m_targetPos0 = Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)data.m_targetBuilding].CalculateSidewalkPosition();
+            data.m_targetPos0.w = 2f;
+            data.m_targetPos1 = data.m_targetPos0;
+            data.m_targetPos2 = data.m_targetPos0;
+            data.m_targetPos3 = data.m_targetPos0;
+            this.RemoveTarget(vehicleID, ref data);
+            return true;
+        }
+
+        private void UnloadPassengers(ushort vehicleID, ref Vehicle data)
+        {
+            CitizenManager instance = Singleton<CitizenManager>.instance;
+            uint num = data.m_citizenUnits;
+            int num2 = 0;
+            while (num != 0u)
+            {
+                uint nextUnit = instance.m_units.m_buffer[(int)((UIntPtr)num)].m_nextUnit;
+                for (int i = 0; i < 5; i++)
+                {
+                    uint citizen = instance.m_units.m_buffer[(int)((UIntPtr)num)].GetCitizen(i);
+                    if (citizen != 0u)
+                    {
+                        ushort instance2 = instance.m_citizens.m_buffer[(int)((UIntPtr)citizen)].m_instance;
+                        if (instance2 != 0)
+                        {
+                            CitizenInfo info = instance.m_instances.m_buffer[(int)instance2].Info;
+                            info.m_citizenAI.SetCurrentVehicle(instance2, ref instance.m_instances.m_buffer[(int)instance2], 0, 0u, data.m_targetPos0);
+                        }
+                    }
+                }
+                num = nextUnit;
+                if (++num2 > 524288)
+                {
+                    CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                    break;
+                }
+            }
+        }
 
         public override void SetTarget(ushort vehicleID, ref Vehicle data, ushort targetBuilding)
         {
@@ -111,8 +193,6 @@ namespace RealGasStation.CustomAI
                     object[] parameters = new object[] { B, A,C,D,E,F,G };
                     bool return_value = (bool)Method.Invoke(inst, parameters);
                     vehicleData = (Vehicle)parameters[1];
-
-
                     return return_value;
                 }
             }
