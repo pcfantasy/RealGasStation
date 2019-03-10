@@ -18,7 +18,7 @@ namespace RealGasStation
 
         public string Name
         {
-            get { return "RealGasStation"; }
+            get { return "Real Gas Station"; }
         }
 
         public string Description
