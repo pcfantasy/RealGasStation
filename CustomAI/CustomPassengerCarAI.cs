@@ -137,7 +137,10 @@ namespace RealGasStation.CustomAI
 
         public override void SetTarget(ushort vehicleID, ref Vehicle data, ushort targetBuilding)
         {
-            RemoveTarget(vehicleID, ref data);
+            if (data.m_transferType != 112)
+            {
+                RemoveTarget(vehicleID, ref data);
+            }
             data.m_targetBuilding = targetBuilding;
             if (targetBuilding != 0)
             {
@@ -230,6 +233,8 @@ namespace RealGasStation.CustomAI
                 Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
                 data.m_targetBuilding = 0;
             }
+            MainDataStore.TargetGasBuilding[vehicleID] = 0;
+            MainDataStore.alreadyAskForFuel[vehicleID] = false;
         }
     }
 }

@@ -230,7 +230,6 @@ namespace RealGasStation.CustomAI
             }
         }
 
-
         public override string GetLocalizedStatus(ushort vehicleID, ref Vehicle data, out InstanceID target)
         {
             if ((data.m_flags & Vehicle.Flags.TransferToTarget) != 0)
@@ -297,7 +296,6 @@ namespace RealGasStation.CustomAI
             target = InstanceID.Empty;
             return ColossalFramework.Globalization.Locale.Get("VEHICLE_STATUS_CONFUSED");
         }
-
 
         public override void SetTarget(ushort vehicleID, ref Vehicle data, ushort targetBuilding)
         {
@@ -450,6 +448,8 @@ namespace RealGasStation.CustomAI
                 Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
                 data.m_targetBuilding = 0;
             }
+            MainDataStore.TargetGasBuilding[vehicleID] = 0;
+            MainDataStore.alreadyAskForFuel[vehicleID] = false;
         }
 
 

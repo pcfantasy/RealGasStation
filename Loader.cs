@@ -210,7 +210,7 @@ namespace RealGasStation
                 }
 
                 //2
-                /*DebugLog.LogToFileOnly("Detour CargoTruckAI::RemoveTarget calls");
+                DebugLog.LogToFileOnly("Detour CargoTruckAI::RemoveTarget calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
@@ -220,7 +220,7 @@ namespace RealGasStation
                 {
                     DebugLog.LogToFileOnly("Could not detour CargoTruckAI::RemoveTarget");
                     detourFailed = true;
-                }*/
+                }
 
                 //3
                 DebugLog.LogToFileOnly("Detour PassengerCarAI::SetTarget calls");
@@ -236,7 +236,7 @@ namespace RealGasStation
                 }
 
                 //4
-                /*DebugLog.LogToFileOnly("Detour PassengerCarAI::RemoveTarget calls");
+                DebugLog.LogToFileOnly("Detour PassengerCarAI::RemoveTarget calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType()}, null),
@@ -246,7 +246,7 @@ namespace RealGasStation
                 {
                     DebugLog.LogToFileOnly("Could not detour PassengerCarAI::RemoveTarget");
                     detourFailed = true;
-                }*/
+                }
 
                 //5
                 DebugLog.LogToFileOnly("Detour VehicleAI::CalculateTargetSpeed calls");

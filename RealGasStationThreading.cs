@@ -301,7 +301,6 @@ namespace RealGasStation
             }
         }
 
-
         public static bool IsGasBuilding(ushort id)
         {
             BuildingManager instance = Singleton<BuildingManager>.instance;
@@ -313,8 +312,6 @@ namespace RealGasStation
 
             return false;
         }
-
-
 
         // PassengerCarAI
         private ushort GetDriverInstance(ushort vehicleID, ref Vehicle data)
@@ -356,7 +353,6 @@ namespace RealGasStation
             }
         }
 
-
         public void VehicleStatus(int i, uint currentFrameIndex, ref Vehicle vehicle)
         {
             int num4 = (int)(currentFrameIndex & 255u);
@@ -383,7 +379,7 @@ namespace RealGasStation
                                     instance.ReleasePath(vehicle.m_path);
                                     vehicle.m_path = 0;
                                 }
-                                CargoTruckAI AI = vehicle.Info.m_vehicleAI as CargoTruckAI;
+                                CargoTruckAI AI = (CargoTruckAI)vehicle.Info.m_vehicleAI;
 #if DEBUG
                                 DebugLog.LogToFileOnly("PathFind not success " + i.ToString() + "transferType = " + vehicle.m_transferType.ToString() + "And MainDataStore.TargetGasBuilding[vehicleID] = " + MainDataStore.TargetGasBuilding[i].ToString() + "data.m_targetBuilding = " + vehicle.m_targetBuilding.ToString());
 #endif
@@ -400,7 +396,7 @@ namespace RealGasStation
                             byte pathFindFlags = instance1.m_pathUnits.m_buffer[(int)((UIntPtr)vehicle.m_path)].m_pathFindFlags;
                             if ((pathFindFlags & 8) != 0)
                             {
-                                PassengerCarAI AI = vehicle.Info.m_vehicleAI as PassengerCarAI;
+                                PassengerCarAI AI = (PassengerCarAI)vehicle.Info.m_vehicleAI;
                                 vehicle.m_transferType = MainDataStore.preTranferReason[i];
                                 AI.SetTarget((ushort)i, ref vehicle, 0);
                                 MainDataStore.TargetGasBuilding[i] = 0;
@@ -563,24 +559,6 @@ namespace RealGasStation
                         }
                     }
 
-                    int num7 = (int)(currentFrameIndex & 15u);
-                    int num8 = num7 * 1024;
-                    int num9 = (num7 + 1) * 1024 - 1;
-                    for (int i = num8; i <= num9; i = i + 1)
-                    {
-                        if ((MainDataStore.TargetGasBuilding[i] != 0) || MainDataStore.alreadyAskForFuel[i])
-                        {
-                            if (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[i].m_flags.IsFlagSet(Vehicle.Flags.Created) && !Singleton<VehicleManager>.instance.m_vehicles.m_buffer[i].m_flags.IsFlagSet(Vehicle.Flags.Deleted))
-                            {
-
-                            }
-                            else
-                            {
-                                MainDataStore.TargetGasBuilding[i] = 0;
-                                MainDataStore.alreadyAskForFuel[i] = false;
-                            }
-                        }
-                    }
                     CustomTransferManager.CustomSimulationStepImpl();
                 }
             }
