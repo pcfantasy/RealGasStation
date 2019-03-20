@@ -43,8 +43,6 @@ namespace RealGasStation
             }
         }
 
-
-
         public void DetourAfterLoad()
         {
             //This is for Detour RealCity method
@@ -206,8 +204,7 @@ namespace RealGasStation
             }
         }
 
-
-        void ProcessGasBuildingIncoming(ushort buildingID, ref Building buildingData)
+        public void ProcessGasBuildingIncoming(ushort buildingID, ref Building buildingData)
         {
             int num27 = 0;
             int num28 = 0;
@@ -301,7 +298,6 @@ namespace RealGasStation
             }
         }
 
-
         public static bool IsGasBuilding(ushort id)
         {
             BuildingManager instance = Singleton<BuildingManager>.instance;
@@ -313,8 +309,6 @@ namespace RealGasStation
 
             return false;
         }
-
-
 
         // PassengerCarAI
         private ushort GetDriverInstance(ushort vehicleID, ref Vehicle data)
@@ -347,7 +341,6 @@ namespace RealGasStation
             return 0;
         }
 
-
         public void GetForFuelCount(ushort vehicleID, ref Vehicle data)
         {
             if (data.m_transferType == 112)
@@ -356,52 +349,24 @@ namespace RealGasStation
             }
         }
 
-
         public void VehicleStatus(int i, uint currentFrameIndex, ref Vehicle vehicle)
         {
-            int num4 = (int)(currentFrameIndex & 255u);
-
+            //Reroute passengerCar
             if (vehicle.m_transferType == 112)
             {
-                if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.Created) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.Deleted))
+                if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.Created) && !(vehicle.m_flags.IsFlagSet(Vehicle.Flags.Deleted)))
                 {
                     if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.WaitingPath))
                     {
-                        if (vehicle.Info.m_vehicleAI is CargoTruckAI && (vehicle.m_targetBuilding != 0))
+                        if (vehicle.Info.m_vehicleAI is PassengerCarAI && (vehicle.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow))
                         {
-                            PathManager instance1 = Singleton<PathManager>.instance;
-                            byte pathFindFlags = instance1.m_pathUnits.m_buffer[(int)((UIntPtr)vehicle.m_path)].m_pathFindFlags;
+                            PathManager instance = Singleton<PathManager>.instance;
+                            byte pathFindFlags = instance.m_pathUnits.m_buffer[(int)((UIntPtr)vehicle.m_path)].m_pathFindFlags;
                             if ((pathFindFlags & 8) != 0)
                             {
                                 vehicle.m_transferType = MainDataStore.preTranferReason[i];
-                                PathManager instance = Singleton<PathManager>.instance;
-#if DEBUG
-                                DebugLog.LogToFileOnly("PathFind not success " + i.ToString() + "vehicle.m_path = " + vehicle.m_path.ToString() + vehicle.m_flags.ToString());
-#endif
-                                if (vehicle.m_path != 0u)
-                                {
-                                    instance.ReleasePath(vehicle.m_path);
-                                    vehicle.m_path = 0;
-                                }
-                                CargoTruckAI AI = vehicle.Info.m_vehicleAI as CargoTruckAI;
-#if DEBUG
-                                DebugLog.LogToFileOnly("PathFind not success " + i.ToString() + "transferType = " + vehicle.m_transferType.ToString() + "And MainDataStore.TargetGasBuilding[vehicleID] = " + MainDataStore.TargetGasBuilding[i].ToString() + "data.m_targetBuilding = " + vehicle.m_targetBuilding.ToString());
-#endif
-                                AI.SetTarget((ushort)i, ref vehicle, vehicle.m_targetBuilding);
-#if DEBUG
-                                DebugLog.LogToFileOnly("Reroute to target " + i.ToString() + "vehicle.m_path = " + vehicle.m_path.ToString() + vehicle.m_flags.ToString());
-#endif
-                                MainDataStore.TargetGasBuilding[i] = 0;
-                            }
-                        }
-                        else if (vehicle.Info.m_vehicleAI is PassengerCarAI && vehicle.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow)
-                        {
-                            PathManager instance1 = Singleton<PathManager>.instance;
-                            byte pathFindFlags = instance1.m_pathUnits.m_buffer[(int)((UIntPtr)vehicle.m_path)].m_pathFindFlags;
-                            if ((pathFindFlags & 8) != 0)
-                            {
-                                PassengerCarAI AI = vehicle.Info.m_vehicleAI as PassengerCarAI;
-                                vehicle.m_transferType = MainDataStore.preTranferReason[i];
+                                //DebugLog.LogToFileOnly("Reroute to target PassengercarAI" + vehicleID.ToString() + data.m_flags.ToString());
+                                PassengerCarAI AI = (PassengerCarAI)vehicle.Info.m_vehicleAI;
                                 AI.SetTarget((ushort)i, ref vehicle, 0);
                                 MainDataStore.TargetGasBuilding[i] = 0;
                             }
@@ -414,7 +379,7 @@ namespace RealGasStation
                 }
             }
 
-
+            int num4 = (int)(currentFrameIndex & 255u);
             if (((num4 >> 4) & 15u) == (i & 15u))
             {
                 GetForFuelCount((ushort)i, ref vehicle);
@@ -437,7 +402,7 @@ namespace RealGasStation
                                     if (rand.Next(1000) < 2)
                                     {
                                         TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                        offer.Priority = rand.Next(8);
+                                        offer.Priority = (i & 7);
                                         offer.Vehicle = (ushort)i;
                                         offer.Position = vehicle.GetLastFramePosition();
                                         offer.Amount = 1;
@@ -451,7 +416,7 @@ namespace RealGasStation
                                     if (rand.Next(1500) < 2)
                                     {
                                         TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                        offer.Priority = rand.Next(8);
+                                        offer.Priority = (i & 7);
                                         offer.Vehicle = (ushort)i;
                                         offer.Position = vehicle.GetLastFramePosition();
                                         offer.Amount = 1;
@@ -480,7 +445,7 @@ namespace RealGasStation
                                     if (rand.Next(1000) < 2)
                                     {
                                         TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                        offer.Priority = rand.Next(8);
+                                        offer.Priority = (i & 7);
                                         offer.Vehicle = (ushort)i;
                                         offer.Position = vehicle.GetLastFramePosition();
                                         offer.Amount = 1;
@@ -494,7 +459,7 @@ namespace RealGasStation
                                     if (rand.Next(1500) < 2)
                                     {
                                         TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                        offer.Priority = rand.Next(8);
+                                        offer.Priority = (i & 7);
                                         offer.Vehicle = (ushort)i;
                                         offer.Position = vehicle.GetLastFramePosition();
                                         offer.Amount = 1;
@@ -538,18 +503,11 @@ namespace RealGasStation
                             MainDataStore.isBuildingReleased[i] = false;
                             MainDataStore.finalVehicleForFuelCount[i] = MainDataStore.tempVehicleForFuelCount[i];
                             MainDataStore.tempVehicleForFuelCount[i] = 0;
-                            if (!instance.m_buildings.m_buffer[i].m_flags.IsFlagSet(Building.Flags.Untouchable))
+                            if (IsGasBuilding((ushort)i))
                             {
-                                if (!(instance.m_buildings.m_buffer[i].Info.m_buildingAI is OutsideConnectionAI) && !((instance.m_buildings.m_buffer[i].Info.m_buildingAI is DecorationBuildingAI)) && !(instance.m_buildings.m_buffer[i].Info.m_buildingAI is WildlifeSpawnPointAI))
+                                if (instance.m_buildings.m_buffer[i].m_flags.IsFlagSet(Building.Flags.Completed))
                                 {
-                                    if (IsGasBuilding((ushort)i))
-                                    {
-                                        if (instance.m_buildings.m_buffer[i].m_flags.IsFlagSet(Building.Flags.Completed))
-                                        {
-                                            ProcessGasBuildingIncoming((ushort)i, ref instance.m_buildings.m_buffer[i]);
-                                        }
-                                    }
-
+                                    ProcessGasBuildingIncoming((ushort)i, ref instance.m_buildings.m_buffer[i]);
                                 }
                             }
                         }
@@ -559,25 +517,6 @@ namespace RealGasStation
                             {
                                 MainDataStore.isBuildingReleased[i] = true;
                                 CustomCommonBuildingAI.CustomReleaseBuilding((ushort)i);
-                            }
-                        }
-                    }
-
-                    int num7 = (int)(currentFrameIndex & 15u);
-                    int num8 = num7 * 1024;
-                    int num9 = (num7 + 1) * 1024 - 1;
-                    for (int i = num8; i <= num9; i = i + 1)
-                    {
-                        if ((MainDataStore.TargetGasBuilding[i] != 0) || MainDataStore.alreadyAskForFuel[i])
-                        {
-                            if (Singleton<VehicleManager>.instance.m_vehicles.m_buffer[i].m_flags.IsFlagSet(Vehicle.Flags.Created) && !Singleton<VehicleManager>.instance.m_vehicles.m_buffer[i].m_flags.IsFlagSet(Vehicle.Flags.Deleted))
-                            {
-
-                            }
-                            else
-                            {
-                                MainDataStore.TargetGasBuilding[i] = 0;
-                                MainDataStore.alreadyAskForFuel[i] = false;
                             }
                         }
                     }

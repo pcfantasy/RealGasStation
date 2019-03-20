@@ -14,13 +14,14 @@ namespace RealGasStation.CustomManager
 {
     public class CustomTransferManager : TransferManager
     {
+        public static bool _init = false;
         public static void StartGasTransfer(ushort vehicleID, ref Vehicle data, TransferManager.TransferReason material, TransferManager.TransferOffer offer)
         {
             if (material == (TransferManager.TransferReason)112)
             {
                 if (data.Info.m_vehicleAI is CargoTruckAI)
                 {
-                    CargoTruckAI AI = data.Info.m_vehicleAI as CargoTruckAI;
+                    CargoTruckAI AI = (CargoTruckAI)data.Info.m_vehicleAI;
                     MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
                     MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
                     data.m_transferType = 112;
@@ -39,7 +40,7 @@ namespace RealGasStation.CustomManager
                 }
                 else if (data.Info.m_vehicleAI is PassengerCarAI)
                 {
-                    PassengerCarAI AI = data.Info.m_vehicleAI as PassengerCarAI;
+                    PassengerCarAI AI = (PassengerCarAI)data.Info.m_vehicleAI;
                     MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
                     if (data.m_targetBuilding == 0)
                     {
@@ -117,7 +118,7 @@ namespace RealGasStation.CustomManager
         }
 
         // TransferManager
-        private static void GetParams()
+        private static void Init()
         {
             var inst = Singleton<TransferManager>.instance;
             var incomingCount = typeof(TransferManager).GetField("m_incomingCount", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -140,29 +141,6 @@ namespace RealGasStation.CustomManager
             m_outgoingAmount = outgoingAmount.GetValue(inst) as int[];
         }
 
-        private static void SetParams()
-        {
-            var inst = Singleton<TransferManager>.instance;
-            var incomingCount = typeof(TransferManager).GetField("m_incomingCount", BindingFlags.NonPublic | BindingFlags.Instance);
-            var incomingOffers = typeof(TransferManager).GetField("m_incomingOffers", BindingFlags.NonPublic | BindingFlags.Instance);
-            var incomingAmount = typeof(TransferManager).GetField("m_incomingAmount", BindingFlags.NonPublic | BindingFlags.Instance);
-            var outgoingCount = typeof(TransferManager).GetField("m_outgoingCount", BindingFlags.NonPublic | BindingFlags.Instance);
-            var outgoingOffers = typeof(TransferManager).GetField("m_outgoingOffers", BindingFlags.NonPublic | BindingFlags.Instance);
-            var outgoingAmount = typeof(TransferManager).GetField("m_outgoingAmount", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (inst == null)
-            {
-                CODebugBase<LogChannel>.Error(LogChannel.Core, "No instance of TransferManager found!");
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, "No instance of TransferManager found!");
-                return;
-            }
-            incomingCount.SetValue(inst, m_incomingCount);
-            incomingOffers.SetValue(inst, m_incomingOffers);
-            incomingAmount.SetValue(inst, m_incomingAmount);
-            outgoingCount.SetValue(inst, m_outgoingCount);
-            outgoingOffers.SetValue(inst, m_outgoingOffers);
-            outgoingAmount.SetValue(inst, m_outgoingAmount);
-        }
-
         private static TransferManager.TransferOffer[] m_outgoingOffers;
 
         private static TransferManager.TransferOffer[] m_incomingOffers;
@@ -177,7 +155,11 @@ namespace RealGasStation.CustomManager
 
         private static void MatchOffers(TransferReason material)
         {
-            GetParams();
+            if (!_init)
+            {
+                Init();
+                _init = true;
+            }
 
             if (material != TransferReason.None)
             {
@@ -392,8 +374,6 @@ namespace RealGasStation.CustomManager
                 m_incomingAmount[(int)material] = 0;
                 m_outgoingAmount[(int)material] = 0;
             }
-
-            GetParams();
         }
     }
 }
