@@ -230,6 +230,7 @@ namespace RealGasStation.CustomAI
             }
         }
 
+
         public override string GetLocalizedStatus(ushort vehicleID, ref Vehicle data, out InstanceID target)
         {
             if ((data.m_flags & Vehicle.Flags.TransferToTarget) != 0)
@@ -449,9 +450,8 @@ namespace RealGasStation.CustomAI
                 Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
                 data.m_targetBuilding = 0;
             }
-            MainDataStore.TargetGasBuilding[vehicleID] = 0;
-            MainDataStore.alreadyAskForFuel[vehicleID] = false;
         }
+
 
         public override void UpdateBuildingTargetPositions(ushort vehicleID, ref Vehicle vehicleData, Vector3 refPos, ushort leaderID, ref Vehicle leaderData, ref int index, float minSqrDistance)
         {
@@ -510,41 +510,6 @@ namespace RealGasStation.CustomAI
                     return;
                 }
             }
-        }
-    }
-
-    public class CustomCargoTruckAI1 : CarAI
-    {
-        protected void ReRouteFailedTruck(ushort vehicleID, ref Vehicle data)
-        {
-            if (data.m_targetBuilding != 0 && (data.m_transferType == 112))
-            {
-                CargoTruckAI AI = (CargoTruckAI)data.Info.m_vehicleAI;
-                AI.SetTarget(vehicleID, ref data, 0);
-                //DebugLog.LogToFileOnly("Reroute to target " + vehicleID.ToString() + data.m_flags.ToString());
-                MainDataStore.TargetGasBuilding[vehicleID] = 0;
-            }
-        }
-
-        protected override void PathfindFailure(ushort vehicleID, ref Vehicle data)
-        {
-            // NON-STOCK CODE START
-            ReRouteFailedTruck(vehicleID, ref data);
-            /// NON-STOCK CODE END
-            BuildingManager instance = Singleton<BuildingManager>.instance;
-            if (data.m_sourceBuilding != 0)
-            {
-                BuildingAI.PathFindType type = ((data.m_flags & Vehicle.Flags.DummyTraffic) == (Vehicle.Flags)0) ? BuildingAI.PathFindType.LeavingCargo : BuildingAI.PathFindType.LeavingDummy;
-                BuildingInfo info = instance.m_buildings.m_buffer[(int)data.m_sourceBuilding].Info;
-                info.m_buildingAI.PathfindFailure(data.m_sourceBuilding, ref instance.m_buildings.m_buffer[(int)data.m_sourceBuilding], type);
-            }
-            if (data.m_targetBuilding != 0)
-            {
-                BuildingAI.PathFindType type2 = ((data.m_flags & Vehicle.Flags.DummyTraffic) == (Vehicle.Flags)0) ? BuildingAI.PathFindType.EnteringCargo : BuildingAI.PathFindType.EnteringDummy;
-                BuildingInfo info2 = instance.m_buildings.m_buffer[(int)data.m_targetBuilding].Info;
-                info2.m_buildingAI.PathfindFailure(data.m_targetBuilding, ref instance.m_buildings.m_buffer[(int)data.m_targetBuilding], type2);
-            }
-            base.PathfindFailure(vehicleID, ref data);
         }
     }
 }

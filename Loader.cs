@@ -75,6 +75,7 @@ namespace RealGasStation
             }
         }
 
+
         public override void OnLevelUnloading()
         {
             base.OnLevelUnloading();
@@ -83,6 +84,7 @@ namespace RealGasStation
                 if (RealGasStation.IsEnabled)
                 {
                     RevertDetour();
+                    RealGasStationThreading.isFirstTime = true;
                     if (Loader.isGuiRunning)
                     {
                         RemoveGui();
@@ -208,17 +210,17 @@ namespace RealGasStation
                 }
 
                 //2
-                DebugLog.LogToFileOnly("Detour CargoTruckAI::PathfindFailure calls");
+                /*DebugLog.LogToFileOnly("Detour CargoTruckAI::RemoveTarget calls");
                 try
                 {
-                    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("PathfindFailure", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                           typeof(CustomCargoTruckAI1).GetMethod("PathfindFailure", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
+                    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
+                                           typeof(CustomCargoTruckAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
                 }
                 catch (Exception)
                 {
-                    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::PathfindFailure");
+                    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::RemoveTarget");
                     detourFailed = true;
-                }
+                }*/
 
                 //3
                 DebugLog.LogToFileOnly("Detour PassengerCarAI::SetTarget calls");
@@ -234,7 +236,7 @@ namespace RealGasStation
                 }
 
                 //4
-                DebugLog.LogToFileOnly("Detour PassengerCarAI::RemoveTarget calls");
+                /*DebugLog.LogToFileOnly("Detour PassengerCarAI::RemoveTarget calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType()}, null),
@@ -244,20 +246,7 @@ namespace RealGasStation
                 {
                     DebugLog.LogToFileOnly("Could not detour PassengerCarAI::RemoveTarget");
                     detourFailed = true;
-                }
-
-                //4
-                DebugLog.LogToFileOnly("Detour CargoTruckAI::RemoveTarget calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                           typeof(CustomCargoTruckAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::RemoveTarget");
-                    detourFailed = true;
-                }
+                }*/
 
                 //5
                 DebugLog.LogToFileOnly("Detour VehicleAI::CalculateTargetSpeed calls");
@@ -378,7 +367,6 @@ namespace RealGasStation
                 Detours.Clear();
                 DebugLog.LogToFileOnly("Reverting detours finished.");
             }
-            RealGasStationThreading.isFirstTime = true;
         }
 
 

@@ -145,7 +145,7 @@ namespace RealGasStation.CustomAI
             }
 
             if (data.m_transferType == 112)
-            {
+            {                
                 if (!CustomStartPathFind(vehicleID, ref data))
                 {
                     data.m_transferType = MainDataStore.preTranferReason[vehicleID];
@@ -190,7 +190,7 @@ namespace RealGasStation.CustomAI
                     bool E = true;
                     bool F = true;
                     bool G = false;
-                    object[] parameters = new object[] { B, A, C, D, E, F, G };
+                    object[] parameters = new object[] { B, A,C,D,E,F,G };
                     bool return_value = (bool)Method.Invoke(inst, parameters);
                     vehicleData = (Vehicle)parameters[1];
                     return return_value;
@@ -230,8 +230,6 @@ namespace RealGasStation.CustomAI
                 Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
                 data.m_targetBuilding = 0;
             }
-            MainDataStore.TargetGasBuilding[vehicleID] = 0;
-            MainDataStore.alreadyAskForFuel[vehicleID] = false;
         }
     }
 }
