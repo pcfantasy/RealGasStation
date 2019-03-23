@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Math;
+using RealGasStation.NewAI;
 using RealGasStation.Util;
 using System;
 using System.Collections.Generic;
@@ -205,7 +206,7 @@ namespace RealGasStation.CustomAI
                 Building buildingData = instance.m_buildings.m_buffer[vehicleData.m_targetBuilding];
                 if (!(buildingData.Info.m_buildingAI is OutsideConnectionAI))
                 {
-                    if (RealGasStationThreading.IsGasBuilding(vehicleData.m_targetBuilding) == true)
+                    if (GasStationAI.IsGasBuilding(vehicleData.m_targetBuilding) == true)
                     {
                         switch ((TransferManager.TransferReason)vehicleData.m_transferType)
                         {

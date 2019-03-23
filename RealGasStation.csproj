@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RealGasStation</RootNamespace>
     <AssemblyName>RealGasStation</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,6 +33,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>F:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -54,14 +58,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomAI\CustomCarAI.cs" />
     <Compile Include="CustomAI\CustomCargoTruckAI.cs" />
     <Compile Include="CustomAI\CustomCommonBuildingAI.cs" />
     <Compile Include="CustomAI\CustomPassengerCarAI.cs" />
+    <Compile Include="CustomAI\CustomPlayerBuildingAI.cs" />
     <Compile Include="CustomManager\CustomTransferManager.cs" />
     <Compile Include="CustomAI\CustomVehicleAI.cs" />
+    <Compile Include="NewAI\GasStationAI.cs" />
     <Compile Include="Util\DebugLog.cs" />
     <Compile Include="RealGasStation.cs" />
     <Compile Include="RealGasStationThreading.cs" />
+    <Compile Include="Util\HarmonyDetours.cs" />
     <Compile Include="Util\Language.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Util\MainDataStore.cs" />
@@ -73,7 +81,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "C:\Users\Administrator\Desktop\Other Mod\RealGasStation\RealGasStation\bin\Release\RealGasStation.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\RealGasStation.dll"</PostBuildEvent>
+    <PostBuildEvent>copy "C:\Users\Administrator\Desktop\Other Mod\RealGasStation\RealGasStation\bin\Release\RealGasStation.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\RealGasStation.dll"
+copy "C:\Users\Administrator\Desktop\Other Mod\RealGasStation\RealGasStation\bin\Release\0Harmony.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\0Harmony.dll"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

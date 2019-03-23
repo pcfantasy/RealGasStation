@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using RealGasStation.NewAI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +16,8 @@ namespace RealGasStation.CustomAI
         {
             float a = 1000f / (1f + curve * 1000f / this.m_info.m_turning) + 2f;
             float b = 8f * speedLimit;
-
-
             ushort num = 0;
             num = FindToll(data.GetLastFramePosition(), 8f);
-
-
             if (num != 0)
             {
                 return 0.8f;
@@ -49,7 +46,7 @@ namespace RealGasStation.CustomAI
                     while (num6 != 0)
                     {
                         BuildingInfo info = building.m_buildings.m_buffer[(int)num6].Info;
-                        if (RealGasStationThreading.IsGasBuilding((ushort)num6))
+                        if (GasStationAI.IsGasBuilding((ushort)num6))
                         {
                             if (!building.m_buildings.m_buffer[(int)num6].m_flags.IsFlagSet(Building.Flags.Deleted))
                             {

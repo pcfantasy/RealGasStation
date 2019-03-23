@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Plugins;
 using RealGasStation.CustomAI;
+using RealGasStation.NewAI;
 using RealGasStation.Util;
 using System;
 using System.Collections.Generic;
@@ -76,7 +77,7 @@ namespace RealGasStation.CustomManager
                 ushort vehicle2 = offerOut.Vehicle;
                 VehicleInfo info2 = vehicles2.m_buffer[(int)vehicle2].Info;
                 offerIn.Amount = delta;
-                if (RealGasStationThreading.IsGasBuilding(offerIn.Building))
+                if (GasStationAI.IsGasBuilding(offerIn.Building))
                 {
                     Array16<Building> buildings = Singleton<BuildingManager>.instance.m_buildings;
                     ushort building = offerIn.Building;

@@ -6,6 +6,7 @@ using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using RealGasStation.Util;
+using RealGasStation.NewAI;
 
 namespace RealGasStation.UI
 {
@@ -84,7 +85,7 @@ namespace RealGasStation.UI
                     MainDataStore.lastBuilding = WorldInfoPanel.GetCurrentInstanceID().Building;
                     Building buildingData = Singleton<BuildingManager>.instance.m_buildings.m_buffer[MainDataStore.lastBuilding];
 
-                    if (RealGasStationThreading.IsGasBuilding(MainDataStore.lastBuilding) == true)
+                    if (GasStationAI.IsGasBuilding(MainDataStore.lastBuilding) == true)
                     {
                         this.Petrol.text = string.Format(Language.Strings[2] + " [{0}]", MainDataStore.petrolBuffer[MainDataStore.lastBuilding]);
                     }

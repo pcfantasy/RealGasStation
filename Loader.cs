@@ -34,20 +34,14 @@ namespace RealGasStation
         }
 
         public static List<Detour> Detours { get; set; }
-
         public static bool DetourInited = false;
-
+        public static bool HarmonyDetourInited = false;
         public static bool isGuiRunning = false;
-
         public static bool realCityRunning = false;
         public static bool realConstructionRunning = false;
-
         public static UIPanel playerbuildingInfo;
-
         public static PlayerBuildingUI guiPanel4;
-
         public static PlayerBuildingButton PBMenuPanel;
-
         public static GameObject PlayerbuildingWindowGameObject;
 
         public override void OnCreated(ILoading loading)
@@ -66,6 +60,7 @@ namespace RealGasStation
                 {
                     DebugLog.LogToFileOnly("OnLevelLoaded");
                     InitDetour();
+                    HarmonyInitDetour();
                     SetupGui();
                     if (mode == LoadMode.NewGame)
                     {
@@ -84,6 +79,7 @@ namespace RealGasStation
                 if (RealGasStation.IsEnabled)
                 {
                     RevertDetour();
+                    HarmonyRevertDetour();
                     RealGasStationThreading.isFirstTime = true;
                     if (Loader.isGuiRunning)
                     {
@@ -189,7 +185,6 @@ namespace RealGasStation
         {
             realCityRunning = CheckRealCityIsLoaded();
             realConstructionRunning = CheckRealConstructionIsLoaded();
-
 
             if (!DetourInited)
             {
@@ -369,6 +364,25 @@ namespace RealGasStation
             }
         }
 
+        public void HarmonyInitDetour()
+        {
+            if (!HarmonyDetourInited)
+            {
+                DebugLog.LogToFileOnly("Init harmony detours");
+                HarmonyDetours.Apply();
+                HarmonyDetourInited = true;
+            }
+        }
+
+        public void HarmonyRevertDetour()
+        {
+            if (HarmonyDetourInited)
+            {
+                DebugLog.LogToFileOnly("Revert harmony detours");
+                HarmonyDetours.DeApply();
+                HarmonyDetourInited = false;
+            }
+        }
 
         private bool Check3rdPartyModLoaded(string namespaceStr, bool printAll = false)
         {

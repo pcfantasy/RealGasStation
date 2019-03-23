@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
+using RealGasStation.NewAI;
 using RealGasStation.Util;
 using System;
 using System.Collections.Generic;
@@ -69,7 +70,7 @@ namespace RealGasStation.UI
         public override void Update()
         {
             MainDataStore.lastBuilding = WorldInfoPanel.GetCurrentInstanceID().Building;
-            if (RealGasStationThreading.IsGasBuilding(MainDataStore.lastBuilding) && Loader.isGuiRunning)
+            if (GasStationAI.IsGasBuilding(MainDataStore.lastBuilding) && Loader.isGuiRunning)
             {
                 PlayerBuildingButton.PBButton.text = Language.Strings[6];
                 base.Show();
