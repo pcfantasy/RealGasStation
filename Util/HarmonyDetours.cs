@@ -59,6 +59,27 @@ namespace RealGasStation.Util
             harmony.ConditionalPatch(playerBuildingAISimulationStep,
                 null,
                 new HarmonyMethod(playerBuildingAISimulationStepPostFix));
+            //4
+            if (!Loader.isAdvancedJunctionRuleRunning)
+            {
+                var carSimulationStep = typeof(CarAI).GetMethod("SimulationStep", BindingFlags.Instance | BindingFlags.Public, null, new Type[] {
+                typeof(ushort),
+                typeof(Vehicle).MakeByRefType(),
+                typeof(Vehicle.Frame).MakeByRefType(),
+                typeof(ushort),
+                typeof(Vehicle).MakeByRefType(),
+                typeof(int)}, null);
+                var customCarAISimulationStepPreFix = typeof(CustomCarAI).GetMethod("CustomCarAISimulationStepPreFix");
+                harmony.ConditionalPatch(carSimulationStep,
+                    new HarmonyMethod(customCarAISimulationStepPreFix),
+                    null);
+            }
+            //5
+            var vehicleAIReleaseVehicle = typeof(VehicleAI).GetMethod("ReleaseVehicle", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
+            var vehicleAIReleaseVehiclePostFix = typeof(CustomVehicleAI).GetMethod("VehicleAIReleaseVehiclePostFix");
+            harmony.ConditionalPatch(vehicleAIReleaseVehicle,
+                null,
+                new HarmonyMethod(vehicleAIReleaseVehiclePostFix));
             DebugLog.LogToFileOnly("Harmony patches applied");
         }
 
@@ -83,6 +104,27 @@ namespace RealGasStation.Util
                 null,
                 new HarmonyMethod(playerBuildingAISimulationStepPostFix));
             DebugLog.LogToFileOnly("Harmony patches DeApplied");
+            //4
+            if (!Loader.isAdvancedJunctionRuleRunning)
+            {
+                var carSimulationStep = typeof(CarAI).GetMethod("SimulationStep", BindingFlags.Instance | BindingFlags.Public, null, new Type[] {
+                typeof(ushort),
+                typeof(Vehicle).MakeByRefType(),
+                typeof(Vehicle.Frame).MakeByRefType(),
+                typeof(ushort),
+                typeof(Vehicle).MakeByRefType(),
+                typeof(int)}, null);
+                var customCarAISimulationStepPreFix = typeof(CustomCarAI).GetMethod("CustomCarAISimulationStepPreFix");
+                harmony.ConditionalUnPatch(carSimulationStep,
+                    new HarmonyMethod(customCarAISimulationStepPreFix),
+                    null);
+            }
+            //5
+            var vehicleAIReleaseVehicle = typeof(VehicleAI).GetMethod("ReleaseVehicle", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
+            var vehicleAIReleaseVehiclePostFix = typeof(CustomVehicleAI).GetMethod("VehicleAIReleaseVehiclePostFix");
+            harmony.ConditionalUnPatch(vehicleAIReleaseVehicle,
+                null,
+                new HarmonyMethod(vehicleAIReleaseVehiclePostFix));
         }
     }
 }

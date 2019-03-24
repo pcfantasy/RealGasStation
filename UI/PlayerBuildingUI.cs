@@ -13,17 +13,11 @@ namespace RealGasStation.UI
     public class PlayerBuildingUI : UIPanel
     {
         public static readonly string cacheName = "PlayerBuildingUI";
-
         private static readonly float SPACING = 15f;
-
         private static readonly float SPACING22 = 22f;
-
         private Dictionary<string, UILabel> _valuesControlContainer = new Dictionary<string, UILabel>(16);
-
         public CityServiceWorldInfoPanel baseBuildingWindow;
-
         public static bool refeshOnce = false;
-
         private UILabel Petrol;
         private UILabel inComingVehicleCount;
 
@@ -42,11 +36,9 @@ namespace RealGasStation.UI
         public override void Start()
         {
             base.Start();
-            //base.backgroundSprite = "MenuPanel";
             this.canFocus = true;
             this.isInteractive = true;
             base.isVisible = true;
-            //this.BringToFront();
             base.opacity = 1f;
             base.cachedName = cacheName;
             this.RefreshDisplayData();
@@ -63,12 +55,12 @@ namespace RealGasStation.UI
         private void ShowOnGui()
         {
             this.Petrol = base.AddUIComponent<UILabel>();
-            this.Petrol.text = Language.Strings[2];
+            this.Petrol.text = Localization.Get("PETROL_STORED");
             this.Petrol.relativePosition = new Vector3(SPACING, 50f);
             this.Petrol.autoSize = true;
 
             this.inComingVehicleCount = base.AddUIComponent<UILabel>();
-            this.inComingVehicleCount.text = Language.Strings[7];
+            this.inComingVehicleCount.text = Localization.Get("INCOMING_VEHICLE_COUNT");
             this.inComingVehicleCount.relativePosition = new Vector3(SPACING, this.Petrol.relativePosition.y + SPACING22);
             this.inComingVehicleCount.autoSize = true;
         }
@@ -87,16 +79,15 @@ namespace RealGasStation.UI
 
                     if (GasStationAI.IsGasBuilding(MainDataStore.lastBuilding) == true)
                     {
-                        this.Petrol.text = string.Format(Language.Strings[2] + " [{0}]", MainDataStore.petrolBuffer[MainDataStore.lastBuilding]);
+                        this.Petrol.text = string.Format(Localization.Get("PETROL_STORED") + " [{0}]", MainDataStore.petrolBuffer[MainDataStore.lastBuilding]);
                     }
                     else
                     {
                         this.Petrol.text = "";
                     }
 
-                    this.inComingVehicleCount.text = string.Format(Language.Strings[7] + " [{0}]", MainDataStore.finalVehicleForFuelCount[MainDataStore.lastBuilding]);
+                    this.inComingVehicleCount.text = string.Format(Localization.Get("INCOMING_VEHICLE_COUNT") + " [{0}]", MainDataStore.finalVehicleForFuelCount[MainDataStore.lastBuilding]);
                     PlayerBuildingUI.refeshOnce = false;
-                    //this.BringToFront();
                 }
                 else
                 {

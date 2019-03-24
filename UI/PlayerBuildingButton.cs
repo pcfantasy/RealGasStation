@@ -14,14 +14,8 @@ namespace RealGasStation.UI
     public class PlayerBuildingButton : UIPanel
     {
         public static UIButton PBButton;
-
         private ItemClass.Availability CurrentMode;
-
         public static PlayerBuildingButton instance;
-
-        public UIAlignAnchor Alignment;
-
-        public UIPanel RefPanel;
 
         public static void PlayerBuildingUIToggle()
         {
@@ -41,11 +35,6 @@ namespace RealGasStation.UI
         {
             UIView aView = UIView.GetAView();
             base.name = "PlayerBuildingUIPanel";
-            base.width = 200f;
-            base.height = 30f;
-            this.BringToFront();
-            //base.backgroundSprite = "MenuPanel";
-            //base.autoLayout = true;
             base.opacity = 1f;
             this.CurrentMode = Singleton<ToolManager>.instance.m_properties.m_mode;
             PBButton = base.AddUIComponent<UIButton>();
@@ -56,11 +45,27 @@ namespace RealGasStation.UI
             PBButton.playAudioEvents = true;
             PBButton.name = "PBButton";
             PBButton.tooltipBox = aView.defaultTooltipBox;
-            PBButton.text = Language.Strings[6];
-            PBButton.textScale = 0.9f;
-            PBButton.size = new Vector2(200f, 30f);
+            if (Loader.m_atlasLoaded)
+            {
+                UISprite internalSprite = PBButton.AddUIComponent<UISprite>();
+                internalSprite.atlas = SpriteUtilities.GetAtlas(Loader.m_atlasName);
+                internalSprite.spriteName = "Pic";
+                internalSprite.relativePosition = new Vector3(0, 0);
+                internalSprite.width = 30f;
+                internalSprite.height = 40f;
+                base.width = 30f;
+                base.height = 40f;
+                PBButton.size = new Vector2(30f, 40f);
+            }
+            else
+            {
+                PBButton.text = Localization.Get("REALGASSTATION_UI");
+                PBButton.textScale = 0.9f;
+                base.width = 180f;
+                base.height = 15f;
+                PBButton.size = new Vector2(150f, 15f);
+            }
             PBButton.relativePosition = new Vector3(0f, 0f);
-            base.AlignTo(this.RefPanel, this.Alignment);
             PBButton.eventClick += delegate (UIComponent component, UIMouseEventParameter eventParam)
             {
                 PlayerBuildingButton.PlayerBuildingUIToggle();
@@ -72,7 +77,10 @@ namespace RealGasStation.UI
             MainDataStore.lastBuilding = WorldInfoPanel.GetCurrentInstanceID().Building;
             if (GasStationAI.IsGasBuilding(MainDataStore.lastBuilding) && Loader.isGuiRunning)
             {
-                PlayerBuildingButton.PBButton.text = Language.Strings[6];
+                if (!Loader.m_atlasLoaded)
+                {
+                    PlayerBuildingButton.PBButton.text = Localization.Get("REALGASSTATION_UI");
+                }
                 base.Show();
             }
             else

@@ -70,19 +70,31 @@
     <Compile Include="RealGasStation.cs" />
     <Compile Include="RealGasStationThreading.cs" />
     <Compile Include="Util\HarmonyDetours.cs" />
-    <Compile Include="Util\Language.cs" />
     <Compile Include="Loader.cs" />
+    <Compile Include="Util\Localization.cs" />
     <Compile Include="Util\MainDataStore.cs" />
     <Compile Include="UI\PlayerBuildingButton.cs" />
     <Compile Include="UI\PlayerBuildingUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\RedirectionHelper.cs" />
     <Compile Include="Util\SaveAndRestore.cs" />
+    <Compile Include="Util\SpriteUtilities.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ICON\RealGasStation.png" />
+    <Content Include="Locales\en.txt" />
+    <Content Include="Locales\zh.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "C:\Users\Administrator\Desktop\Other Mod\RealGasStation\RealGasStation\bin\Release\RealGasStation.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\RealGasStation.dll"
-copy "C:\Users\Administrator\Desktop\Other Mod\RealGasStation\RealGasStation\bin\Release\0Harmony.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\0Harmony.dll"</PostBuildEvent>
+copy "C:\Users\Administrator\Desktop\Other Mod\RealGasStation\RealGasStation\bin\Release\0Harmony.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\0Harmony.dll"
+rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Locales"
+mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Locales"
+copy "C:\Users\Administrator\Desktop\Other Mod\RealGasStation\RealGasStation\Locales\*.txt" "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Locales"
+rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Icon"
+mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Icon"
+copy "C:\Users\Administrator\Desktop\Other Mod\RealGasStation\RealGasStation\Icon\*.png" "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Icon"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

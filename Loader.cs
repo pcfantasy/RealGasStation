@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using RealGasStation.CustomAI;
@@ -7,6 +8,7 @@ using RealGasStation.UI;
 using RealGasStation.Util;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -37,12 +39,15 @@ namespace RealGasStation
         public static bool DetourInited = false;
         public static bool HarmonyDetourInited = false;
         public static bool isGuiRunning = false;
-        public static bool realCityRunning = false;
-        public static bool realConstructionRunning = false;
+        public static bool isRealCityRunning = false;
+        public static bool isRealConstructionRunning = false;
+        public static bool isAdvancedJunctionRuleRunning = false;
         public static UIPanel playerbuildingInfo;
         public static PlayerBuildingUI guiPanel4;
         public static PlayerBuildingButton PBMenuPanel;
         public static GameObject PlayerbuildingWindowGameObject;
+        public static string m_atlasName = "RealGasStation";
+        public static bool m_atlasLoaded;
 
         public override void OnCreated(ILoading loading)
         {
@@ -70,7 +75,6 @@ namespace RealGasStation
             }
         }
 
-
         public override void OnLevelUnloading()
         {
             base.OnLevelUnloading();
@@ -94,9 +98,24 @@ namespace RealGasStation
             base.OnReleased();
         }
 
+        private static void LoadSprites()
+        {
+            if (SpriteUtilities.GetAtlas(m_atlasName) != null) return;
+            var modPath = PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly()).modPath;
+            m_atlasLoaded = SpriteUtilities.InitialiseAtlas(Path.Combine(modPath, "Icon/RealGasStation.png"), m_atlasName);
+            if (m_atlasLoaded)
+            {
+                var spriteSuccess = true;
+                spriteSuccess = SpriteUtilities.AddSpriteToAtlas(new Rect(new Vector2(1, 1), new Vector2(305, 443)), "Pic", m_atlasName)
+                             && spriteSuccess;
+                if (!spriteSuccess) DebugLog.LogToFileOnly("Some sprites haven't been loaded. This is abnormal; you should probably report this to the mod creator.");
+            }
+            else DebugLog.LogToFileOnly("The texture atlas (provides custom icons) has not loaded. All icons have reverted to text prompts.");
+        }
 
         public static void SetupGui()
         {
+            LoadSprites();
             SetupPlayerBuidingGui();
             SetupPlayerBuildingButton();
             Loader.isGuiRunning = true;
@@ -105,13 +124,10 @@ namespace RealGasStation
         public static void RemoveGui()
         {
             Loader.isGuiRunning = false;
-            if (!realCityRunning)
+            if (playerbuildingInfo != null)
             {
-                if (playerbuildingInfo != null)
-                {
-                    UnityEngine.Object.Destroy(PBMenuPanel);
-                    Loader.PBMenuPanel = null;
-                }
+                UnityEngine.Object.Destroy(PBMenuPanel);
+                Loader.PBMenuPanel = null;
             }
 
             //remove PlayerbuildingUI
@@ -147,15 +163,24 @@ namespace RealGasStation
             playerbuildingInfo.eventVisibilityChanged += playerbuildingInfo_eventVisibilityChanged;
         }
 
-
         public static void SetupPlayerBuildingButton()
         {
             if (PBMenuPanel == null)
             {
                 PBMenuPanel = (playerbuildingInfo.AddUIComponent(typeof(PlayerBuildingButton)) as PlayerBuildingButton);
             }
-            PBMenuPanel.RefPanel = playerbuildingInfo;
-            PBMenuPanel.Alignment = UIAlignAnchor.BottomRight;
+            if (Loader.m_atlasLoaded)
+            {
+                PBMenuPanel.width = 30f;
+                PBMenuPanel.height = 40f;
+                PBMenuPanel.relativePosition = new Vector3(playerbuildingInfo.size.x - PBMenuPanel.width - 90, playerbuildingInfo.size.y - PBMenuPanel.height);
+            }
+            else
+            {
+                PBMenuPanel.width = 180f;
+                PBMenuPanel.height = 15f;
+                PBMenuPanel.relativePosition = new Vector3(playerbuildingInfo.size.x - PBMenuPanel.width - 90, playerbuildingInfo.size.y - PBMenuPanel.height);
+            }
             PBMenuPanel.Show();
         }
 
@@ -183,8 +208,9 @@ namespace RealGasStation
 
         public void InitDetour()
         {
-            realCityRunning = CheckRealCityIsLoaded();
-            realConstructionRunning = CheckRealConstructionIsLoaded();
+            isRealCityRunning = CheckRealCityIsLoaded();
+            isRealConstructionRunning = CheckRealConstructionIsLoaded();
+            isAdvancedJunctionRuleRunning = CheckAdvancedJunctionRuleIsLoaded();
 
             if (!DetourInited)
             {
@@ -205,19 +231,6 @@ namespace RealGasStation
                 }
 
                 //2
-                DebugLog.LogToFileOnly("Detour CargoTruckAI::RemoveTarget calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                           typeof(CustomCargoTruckAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::RemoveTarget");
-                    detourFailed = true;
-                }
-
-                //3
                 DebugLog.LogToFileOnly("Detour PassengerCarAI::SetTarget calls");
                 try
                 {
@@ -230,20 +243,7 @@ namespace RealGasStation
                     detourFailed = true;
                 }
 
-                //4
-                DebugLog.LogToFileOnly("Detour PassengerCarAI::RemoveTarget calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType()}, null),
-                                           typeof(CustomPassengerCarAI).GetMethod("RemoveTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType()}, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour PassengerCarAI::RemoveTarget");
-                    detourFailed = true;
-                }
-
-                //5
+                //3
                 DebugLog.LogToFileOnly("Detour VehicleAI::CalculateTargetSpeed calls");
                 try
                 {
@@ -256,7 +256,7 @@ namespace RealGasStation
                     detourFailed = true;
                 }
 
-                //public override void UpdateBuildingTargetPositions(ushort vehicleID, ref Vehicle vehicleData, Vector3 refPos, ushort leaderID, ref Vehicle leaderData, ref int index, float minSqrDistance)
+                //4
                 DebugLog.LogToFileOnly("Detour CargoTruckAI::UpdateBuildingTargetPositions calls");
                 try
                 {
@@ -270,11 +270,11 @@ namespace RealGasStation
                     detourFailed = true;
                 }
 
-                if (!realConstructionRunning || !realCityRunning)
+                if (!isRealConstructionRunning || !isRealCityRunning)
                 {
-                    if (!realConstructionRunning && !realCityRunning)
+                    if (!isRealConstructionRunning && !isRealCityRunning)
                     {
-                        //6
+                        //5
                         DebugLog.LogToFileOnly("Detour CargoTruckAI::ArriveAtTarget calls");
                         try
                         {
@@ -287,9 +287,9 @@ namespace RealGasStation
                             detourFailed = true;
                         }
                     }
-                    if (!realConstructionRunning)
+                    if (!isRealConstructionRunning)
                     {
-                        //7
+                        //6
                         DebugLog.LogToFileOnly("Detour CargoTruckAI::GetLocalizedStatus calls");
                         try
                         {
@@ -302,9 +302,9 @@ namespace RealGasStation
                             detourFailed = true;
                         }
                     }
-                    if (!realCityRunning)
+                    if (!isRealCityRunning)
                     {
-                        //8
+                        //7
                         DebugLog.LogToFileOnly("Detour CargoTruckAI::ArriveAtSource calls");
                         try
                         {
@@ -317,7 +317,7 @@ namespace RealGasStation
                             detourFailed = true;
                         }
 
-                        //9
+                        //8
                         DebugLog.LogToFileOnly("Detour PassengerCarAI::ArriveAtTarget calls");
                         try
                         {
@@ -427,5 +427,9 @@ namespace RealGasStation
             return this.Check3rdPartyModLoaded("RealConstruction", true);
         }
 
+        private bool CheckAdvancedJunctionRuleIsLoaded()
+        {
+            return this.Check3rdPartyModLoaded("AdvancedJunctionRule", true);
+        }
     }
 }

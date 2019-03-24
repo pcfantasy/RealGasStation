@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using RealGasStation.NewAI;
 using RealGasStation.Util;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,154 @@ namespace RealGasStation.CustomAI
                     AI.SetTarget((ushort)i, ref data, 0);
                     MainDataStore.TargetGasBuilding[i] = 0;
                     return;
+                }
+            }
+        }
+
+        //For Detour AdvancedJunctionRule mod
+        public void CustomCarAICustomSimulationStepPreFix(ushort vehicleID, ref Vehicle vehicleData)
+        {
+            VehicleStatus(vehicleID, ref vehicleData);
+        }
+        //For Detour vanilla mod
+        public static void CarAICustomSimulationStepPreFix(ushort vehicleID, ref Vehicle vehicleData, ref Vehicle.Frame frameData, ushort leaderID, ref Vehicle leaderData, int lodPhysics)
+        {
+            VehicleStatus(vehicleID, ref vehicleData);
+        }
+
+        public static ushort GetDriverInstance(ushort vehicleID, ref Vehicle data)
+        {
+            CitizenManager instance = Singleton<CitizenManager>.instance;
+            uint num = data.m_citizenUnits;
+            int num2 = 0;
+            while (num != 0u)
+            {
+                uint nextUnit = instance.m_units.m_buffer[(int)((UIntPtr)num)].m_nextUnit;
+                for (int i = 0; i < 5; i++)
+                {
+                    uint citizen = instance.m_units.m_buffer[(int)((UIntPtr)num)].GetCitizen(i);
+                    if (citizen != 0u)
+                    {
+                        ushort instance2 = instance.m_citizens.m_buffer[(int)((UIntPtr)citizen)].m_instance;
+                        if (instance2 != 0)
+                        {
+                            return instance2;
+                        }
+                    }
+                }
+                num = nextUnit;
+                if (++num2 > 524288)
+                {
+                    CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                    break;
+                }
+            }
+            return 0;
+        }
+
+        public static void GetForFuelCount(ushort vehicleID, ref Vehicle data)
+        {
+            if (data.m_transferType == 112)
+            {
+                MainDataStore.tempVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]]++;
+            }
+        }
+
+        public static void VehicleStatus(int i, ref Vehicle vehicle)
+        {
+            uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
+            int num4 = (int)(currentFrameIndex & 255u);
+            if (((num4 >> 4) & 15u) == (i & 15u))
+            {
+                GetForFuelCount((ushort)i, ref vehicle);
+                VehicleManager instance = Singleton<VehicleManager>.instance;
+                if (!vehicle.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (vehicle.m_cargoParent == 0) && vehicle.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.GoingBack))
+                {
+                    if (vehicle.Info.m_vehicleAI is CargoTruckAI && (vehicle.m_targetBuilding != 0))
+                    {
+                        if (!MainDataStore.alreadyAskForFuel[i])
+                        {
+                            if (GasStationAI.IsGasBuilding(vehicle.m_targetBuilding))
+                            {
+                                MainDataStore.alreadyAskForFuel[i] = true;
+                            }
+                            else
+                            {
+                                System.Random rand = new System.Random();
+                                if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic))
+                                {
+                                    if (rand.Next(1000) < 2)
+                                    {
+                                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                                        offer.Priority = rand.Next(8);
+                                        offer.Vehicle = (ushort)i;
+                                        offer.Position = vehicle.GetLastFramePosition();
+                                        offer.Amount = 1;
+                                        offer.Active = true;
+                                        Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                        MainDataStore.alreadyAskForFuel[i] = true;
+                                    }
+                                }
+                                else
+                                {
+                                    if (rand.Next(1500) < 2)
+                                    {
+                                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                                        offer.Priority = rand.Next(8);
+                                        offer.Vehicle = (ushort)i;
+                                        offer.Position = vehicle.GetLastFramePosition();
+                                        offer.Amount = 1;
+                                        offer.Active = true;
+                                        Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                        MainDataStore.alreadyAskForFuel[i] = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (vehicle.Info.m_vehicleAI is PassengerCarAI && vehicle.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow)
+                    {
+                        if (!MainDataStore.alreadyAskForFuel[i])
+                        {
+                            if (GasStationAI.IsGasBuilding(vehicle.m_targetBuilding))
+                            {
+                                MainDataStore.alreadyAskForFuel[i] = true;
+                            }
+                            else
+                            {
+                                System.Random rand = new System.Random();
+                                ushort citizen = GetDriverInstance((ushort)i, ref vehicle);
+                                if (Singleton<CitizenManager>.instance.m_citizens.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_citizen].m_flags.IsFlagSet(Citizen.Flags.DummyTraffic))
+                                {
+                                    if (rand.Next(1000) < 2)
+                                    {
+                                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                                        offer.Priority = rand.Next(8);
+                                        offer.Vehicle = (ushort)i;
+                                        offer.Position = vehicle.GetLastFramePosition();
+                                        offer.Amount = 1;
+                                        offer.Active = true;
+                                        Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                        MainDataStore.alreadyAskForFuel[i] = true;
+                                    }
+                                }
+                                else
+                                {
+                                    if (rand.Next(1500) < 2)
+                                    {
+                                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                                        offer.Priority = rand.Next(8);
+                                        offer.Vehicle = (ushort)i;
+                                        offer.Position = vehicle.GetLastFramePosition();
+                                        offer.Amount = 1;
+                                        offer.Active = true;
+                                        Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                        MainDataStore.alreadyAskForFuel[i] = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

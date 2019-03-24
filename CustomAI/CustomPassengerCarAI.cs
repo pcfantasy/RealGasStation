@@ -18,7 +18,7 @@ namespace RealGasStation.CustomAI
             }
             SetTarget(vehicleID, ref data, 0);
             MainDataStore.TargetGasBuilding[vehicleID] = 0;
-            if (Loader.realCityRunning)
+            if (Loader.isRealCityRunning)
             {
                 Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level1);
             }
@@ -233,8 +233,6 @@ namespace RealGasStation.CustomAI
                 Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
                 data.m_targetBuilding = 0;
             }
-            MainDataStore.TargetGasBuilding[vehicleID] = 0;
-            MainDataStore.alreadyAskForFuel[vehicleID] = false;
         }
     }
 }
