@@ -80,6 +80,7 @@ namespace RealGasStation.Util
             harmony.ConditionalPatch(vehicleAIReleaseVehicle,
                 null,
                 new HarmonyMethod(vehicleAIReleaseVehiclePostFix));
+            Loader.HarmonyDetourInited = true;
             DebugLog.LogToFileOnly("Harmony patches applied");
         }
 
@@ -103,7 +104,6 @@ namespace RealGasStation.Util
             harmony.ConditionalUnPatch(playerBuildingAISimulationStep,
                 null,
                 new HarmonyMethod(playerBuildingAISimulationStepPostFix));
-            DebugLog.LogToFileOnly("Harmony patches DeApplied");
             //4
             if (!Loader.isAdvancedJunctionRuleRunning)
             {
@@ -125,6 +125,8 @@ namespace RealGasStation.Util
             harmony.ConditionalUnPatch(vehicleAIReleaseVehicle,
                 null,
                 new HarmonyMethod(vehicleAIReleaseVehiclePostFix));
+            Loader.HarmonyDetourInited = false;
+            DebugLog.LogToFileOnly("Harmony patches DeApplied");
         }
     }
 }

@@ -69,19 +69,6 @@ namespace RealGasStation
                 }
 
                 //3
-                DebugLog.LogToFileOnly("Detour RealCityCargoTruckAI::CargoTruckAIArriveAtSourceForRealGasStationPre calls");
-                try
-                {
-                    Loader.Detours.Add(new Loader.Detour(as1.GetType("RealCity.CustomAI.RealCityCargoTruckAI").GetMethod("CargoTruckAIArriveAtSourceForRealGasStationPre", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                           typeof(CustomCargoTruckAI).GetMethod("CargoTruckAIArriveAtSourceForRealGasStationPre", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour RealCityCargoTruckAI::CargoTruckAIArriveAtSourceForRealGasStationPre");
-                    detourFailed = true;
-                }
-
-                //4
                 DebugLog.LogToFileOnly("Detour RealCityPassengerCarAI::PassengerCarAIArriveAtTargetForRealGasStationPre calls");
                 try
                 {
@@ -130,10 +117,10 @@ namespace RealGasStation
                 try
                 {
                     Assembly as1 = Assembly.Load("AdvancedJunctionRule");
-                    Loader.Detours.Add(new Loader.Detour(as1.GetType("AdvancedJunctionRule.CustomAI.NewCarAI").GetMethod("VehicleStatusForRealGasStation", BindingFlags.Instance | BindingFlags.Public, null, new Type[] {
+                    Loader.Detours.Add(new Loader.Detour(as1.GetType("AdvancedJunctionRule.CustomAI.NewCarAI").GetMethod("VehicleStatusForRealGasStation", BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static, null, new Type[] {
                 typeof(ushort),
                 typeof(Vehicle).MakeByRefType()}, null), 
-                typeof(CustomCarAI).GetMethod("CustomCarAICustomSimulationStepPreFix", BindingFlags.Instance | BindingFlags.Public, null, new Type[] {
+                typeof(CustomCarAI).GetMethod("CustomCarAICustomSimulationStepPreFix", BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static, null, new Type[] {
                 typeof(ushort),
                 typeof(Vehicle).MakeByRefType()}, null)));
                 }
@@ -180,7 +167,7 @@ namespace RealGasStation
                     DebugLog.LogToFileOnly(string.Format("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Detours checked. Result: {0} missing detours", list.Count));
                     if (list.Count > 0)
                     {
-                        string error = "RealGasStation detected an incompatibility with another mod! You can continue playing but it's NOT recommended. RealGasStation will not work as expected. See RealGasStation.txt for technical details.";
+                        string error = "RealGasStation detected an incompatibility with another mod! You can continue playing but it's NOT recommended. RealGasStation will not work as expected. Send RealGasStation.txt to Author.";
                         DebugLog.LogToFileOnly(error);
                         string text = "The following methods were overriden by another mod:";
                         foreach (string current2 in list)
@@ -189,6 +176,13 @@ namespace RealGasStation
                         }
                         DebugLog.LogToFileOnly(text);
                         UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", text, true);
+                    }
+
+                    if (!Loader.HarmonyDetourInited)
+                    {
+                        string error = "RealGasStation HarmonyDetourInit is failed, Send RealGasStation.txt to Author.";
+                        DebugLog.LogToFileOnly(error);
+                        UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
                     }
                 }
             }
