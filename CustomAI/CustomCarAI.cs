@@ -40,13 +40,13 @@ namespace RealGasStation.CustomAI
             }
         }
 
-        //For Detour AdvancedJunctionRule mod
-        public void CustomCarAICustomSimulationStepPreFix(ushort vehicleID, ref Vehicle vehicleData)
+        public static void CarAICustomSimulationStepPreFix(ushort vehicleID, ref Vehicle vehicleData, ref Vehicle.Frame frameData, ushort leaderID, ref Vehicle leaderData, int lodPhysics)
         {
             VehicleStatus(vehicleID, ref vehicleData);
         }
-        //For Detour vanilla mod
-        public static void CarAICustomSimulationStepPreFix(ushort vehicleID, ref Vehicle vehicleData, ref Vehicle.Frame frameData, ushort leaderID, ref Vehicle leaderData, int lodPhysics)
+
+        //For detour AdvancedJuctionRule
+        public static void CarAICustomSimulationStepPreFix(ushort vehicleID, ref Vehicle vehicleData)
         {
             VehicleStatus(vehicleID, ref vehicleData);
         }
@@ -91,100 +91,107 @@ namespace RealGasStation.CustomAI
 
         public static void VehicleStatus(int i, ref Vehicle vehicle)
         {
-            uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
-            int num4 = (int)(currentFrameIndex & 255u);
-            if (((num4 >> 4) & 15u) == (i & 15u))
+            if (i < 16384)
             {
-                GetForFuelCount((ushort)i, ref vehicle);
-                VehicleManager instance = Singleton<VehicleManager>.instance;
-                if (!vehicle.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (vehicle.m_cargoParent == 0) && vehicle.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.GoingBack))
+                uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
+                int num4 = (int)(currentFrameIndex & 255u);
+                if (((num4 >> 4) & 15u) == (i & 15u))
                 {
-                    if (vehicle.Info.m_vehicleAI is CargoTruckAI && (vehicle.m_targetBuilding != 0))
+                    GetForFuelCount((ushort)i, ref vehicle);
+                    VehicleManager instance = Singleton<VehicleManager>.instance;
+                    if (!vehicle.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (vehicle.m_cargoParent == 0) && vehicle.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.GoingBack))
                     {
-                        if (!MainDataStore.alreadyAskForFuel[i])
+                        if (vehicle.Info.m_vehicleAI is CargoTruckAI && (vehicle.m_targetBuilding != 0))
                         {
-                            if (GasStationAI.IsGasBuilding(vehicle.m_targetBuilding))
+                            if (!MainDataStore.alreadyAskForFuel[i])
                             {
-                                MainDataStore.alreadyAskForFuel[i] = true;
-                            }
-                            else
-                            {
-                                System.Random rand = new System.Random();
-                                if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic))
+                                if (GasStationAI.IsGasBuilding(vehicle.m_targetBuilding))
                                 {
-                                    if (rand.Next(1000) < 2)
-                                    {
-                                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                        offer.Priority = rand.Next(8);
-                                        offer.Vehicle = (ushort)i;
-                                        offer.Position = vehicle.GetLastFramePosition();
-                                        offer.Amount = 1;
-                                        offer.Active = true;
-                                        Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
-                                        MainDataStore.alreadyAskForFuel[i] = true;
-                                    }
+                                    MainDataStore.alreadyAskForFuel[i] = true;
                                 }
                                 else
                                 {
-                                    if (rand.Next(1500) < 2)
+                                    System.Random rand = new System.Random();
+                                    if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic))
                                     {
-                                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                        offer.Priority = rand.Next(8);
-                                        offer.Vehicle = (ushort)i;
-                                        offer.Position = vehicle.GetLastFramePosition();
-                                        offer.Amount = 1;
-                                        offer.Active = true;
-                                        Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
-                                        MainDataStore.alreadyAskForFuel[i] = true;
+                                        if (rand.Next(1000) < 2)
+                                        {
+                                            TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                                            offer.Priority = rand.Next(8);
+                                            offer.Vehicle = (ushort)i;
+                                            offer.Position = vehicle.GetLastFramePosition();
+                                            offer.Amount = 1;
+                                            offer.Active = true;
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                            MainDataStore.alreadyAskForFuel[i] = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (rand.Next(1500) < 2)
+                                        {
+                                            TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                                            offer.Priority = rand.Next(8);
+                                            offer.Vehicle = (ushort)i;
+                                            offer.Position = vehicle.GetLastFramePosition();
+                                            offer.Amount = 1;
+                                            offer.Active = true;
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                            MainDataStore.alreadyAskForFuel[i] = true;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    else if (vehicle.Info.m_vehicleAI is PassengerCarAI && vehicle.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow)
-                    {
-                        if (!MainDataStore.alreadyAskForFuel[i])
+                        else if (vehicle.Info.m_vehicleAI is PassengerCarAI && vehicle.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow)
                         {
-                            if (GasStationAI.IsGasBuilding(vehicle.m_targetBuilding))
+                            if (!MainDataStore.alreadyAskForFuel[i])
                             {
-                                MainDataStore.alreadyAskForFuel[i] = true;
-                            }
-                            else
-                            {
-                                System.Random rand = new System.Random();
-                                ushort citizen = GetDriverInstance((ushort)i, ref vehicle);
-                                if (Singleton<CitizenManager>.instance.m_citizens.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_citizen].m_flags.IsFlagSet(Citizen.Flags.DummyTraffic))
+                                if (GasStationAI.IsGasBuilding(vehicle.m_targetBuilding))
                                 {
-                                    if (rand.Next(1000) < 2)
-                                    {
-                                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                        offer.Priority = rand.Next(8);
-                                        offer.Vehicle = (ushort)i;
-                                        offer.Position = vehicle.GetLastFramePosition();
-                                        offer.Amount = 1;
-                                        offer.Active = true;
-                                        Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
-                                        MainDataStore.alreadyAskForFuel[i] = true;
-                                    }
+                                    MainDataStore.alreadyAskForFuel[i] = true;
                                 }
                                 else
                                 {
-                                    if (rand.Next(1500) < 2)
+                                    System.Random rand = new System.Random();
+                                    ushort citizen = GetDriverInstance((ushort)i, ref vehicle);
+                                    if (Singleton<CitizenManager>.instance.m_citizens.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_citizen].m_flags.IsFlagSet(Citizen.Flags.DummyTraffic))
                                     {
-                                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                        offer.Priority = rand.Next(8);
-                                        offer.Vehicle = (ushort)i;
-                                        offer.Position = vehicle.GetLastFramePosition();
-                                        offer.Amount = 1;
-                                        offer.Active = true;
-                                        Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
-                                        MainDataStore.alreadyAskForFuel[i] = true;
+                                        if (rand.Next(1000) < 2)
+                                        {
+                                            TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                                            offer.Priority = rand.Next(8);
+                                            offer.Vehicle = (ushort)i;
+                                            offer.Position = vehicle.GetLastFramePosition();
+                                            offer.Amount = 1;
+                                            offer.Active = true;
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                            MainDataStore.alreadyAskForFuel[i] = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (rand.Next(1500) < 2)
+                                        {
+                                            TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                                            offer.Priority = rand.Next(8);
+                                            offer.Vehicle = (ushort)i;
+                                            offer.Position = vehicle.GetLastFramePosition();
+                                            offer.Amount = 1;
+                                            offer.Active = true;
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                            MainDataStore.alreadyAskForFuel[i] = true;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+            }
+            else
+            {
+                DebugLog.LogToFileOnly("Error: invalid vehicleID = " + i.ToString());
             }
         }
     }

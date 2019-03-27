@@ -120,7 +120,7 @@ namespace RealGasStation
                     Loader.Detours.Add(new Loader.Detour(as1.GetType("AdvancedJunctionRule.CustomAI.NewCarAI").GetMethod("VehicleStatusForRealGasStation", BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static, null, new Type[] {
                 typeof(ushort),
                 typeof(Vehicle).MakeByRefType()}, null), 
-                typeof(CustomCarAI).GetMethod("CustomCarAICustomSimulationStepPreFix", BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static, null, new Type[] {
+                typeof(CustomCarAI).GetMethod("CarAICustomSimulationStepPreFix", BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static, null, new Type[] {
                 typeof(ushort),
                 typeof(Vehicle).MakeByRefType()}, null)));
                 }
