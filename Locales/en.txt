@@ -1,0 +1,5 @@
+﻿PETROL_STORED	Petrol Stored
+TRANSFER_CONSTRUCTION	Transfer construction resource to
+TRANSFER_OPERATION	Transfer operation resource to
+FOR_FUEL	Going for Fuel to
+INCOMING_VEHICLE_COUNT	Incoming Vehicle Count
