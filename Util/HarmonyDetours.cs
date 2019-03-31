@@ -95,7 +95,7 @@ namespace RealGasStation.Util
             //2
             var carAIPathfindFailure = typeof(CarAI).GetMethod("PathfindFailure", BindingFlags.NonPublic | BindingFlags.Instance);
             var carAIPathfindFailurePostFix = typeof(CustomCarAI).GetMethod("CarAIPathfindFailurePostFix");
-            harmony.ConditionalPatch(carAIPathfindFailure,
+            harmony.ConditionalUnPatch(carAIPathfindFailure,
                 null,
                 new HarmonyMethod(carAIPathfindFailurePostFix));
             //3

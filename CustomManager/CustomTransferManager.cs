@@ -15,6 +15,7 @@ namespace RealGasStation.CustomManager
 {
     public class CustomTransferManager : TransferManager
     {
+        public static readonly ushort CanNotStartGasTransferDistance = 800;
         public static void StartGasTransfer(ushort vehicleID, ref Vehicle data, TransferManager.TransferReason material, TransferManager.TransferOffer offer)
         {
             if (material == (TransferManager.TransferReason)112)
@@ -29,9 +30,16 @@ namespace RealGasStation.CustomManager
                     {
                         DebugLog.LogToFileOnly("Error: Transfer fuel cargotruck do not need fuel");
                     }
-                    if (data.m_flags.IsFlagSet(Vehicle.Flags.Created) && !data.m_flags.IsFlagSet(Vehicle.Flags.Deleted) && !data.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (data.m_cargoParent == 0) && data.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !data.m_flags.IsFlagSet(Vehicle.Flags.GoingBack) && data.m_targetBuilding != 0)
+                    if (data.m_flags.IsFlagSet(Vehicle.Flags.Created) && !data.m_flags.IsFlagSet(Vehicle.Flags.Deleted) && !data.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (data.m_cargoParent == 0) && data.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !data.m_flags.IsFlagSet(Vehicle.Flags.GoingBack) && data.m_targetBuilding != 0 && !data.m_flags.IsFlagSet(Vehicle.Flags.Parking))
                     {
-                        AI.SetTarget(vehicleID, ref data, offer.Building);
+                        if ((Vector3.Distance(data.GetLastFramePosition(), Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].m_position) > CanNotStartGasTransferDistance) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain) == 0))
+                        {
+                            AI.SetTarget(vehicleID, ref data, offer.Building);
+                        }
+                        else
+                        {
+                            DebugLog.LogToFileOnly("Info: Cargo is near target position, do not go to gas station now.");
+                        }
                     }
                     else
                     {
@@ -46,9 +54,24 @@ namespace RealGasStation.CustomManager
                     {
                         MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
                         data.m_transferType = 112;
-                        if (data.m_flags.IsFlagSet(Vehicle.Flags.Created) && !data.m_flags.IsFlagSet(Vehicle.Flags.Deleted) && !data.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (data.m_cargoParent == 0) && data.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !data.m_flags.IsFlagSet(Vehicle.Flags.GoingBack))
+                        if (data.m_flags.IsFlagSet(Vehicle.Flags.Created) && !data.m_flags.IsFlagSet(Vehicle.Flags.Deleted) && !data.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (data.m_cargoParent == 0) && data.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !data.m_flags.IsFlagSet(Vehicle.Flags.GoingBack) && !data.m_flags.IsFlagSet(Vehicle.Flags.Parking))
                         {
-                            AI.SetTarget(vehicleID, ref data, offer.Building);
+                            ushort citizen = CustomCarAI.GetDriverInstance(vehicleID, ref data);
+                            if (Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_targetBuilding != 0)
+                            {
+                                if ((Vector3.Distance(data.GetLastFramePosition(), Singleton<BuildingManager>.instance.m_buildings.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_targetBuilding].m_position) > CanNotStartGasTransferDistance) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain) == 0))
+                                {
+                                    AI.SetTarget(vehicleID, ref data, offer.Building);
+                                }
+                                else
+                                {
+                                    DebugLog.LogToFileOnly("Info: PassengerCar is near target position, do not go to gas station now.");
+                                }
+                            }
+                            else
+                            {
+                                DebugLog.LogToFileOnly("Warning: No targetBuilding for citizen");
+                            }
                         }
                         else
                         {
@@ -61,6 +84,33 @@ namespace RealGasStation.CustomManager
                     }
                 }
             }
+        }
+
+        private static ushort FindCargoStation(Vector3 position, ItemClass.Service service, ItemClass.SubService subservice = ItemClass.SubService.None)
+        {
+            BuildingManager instance = Singleton<BuildingManager>.instance;
+            if (subservice != ItemClass.SubService.PublicTransportPlane)
+            {
+                subservice = ItemClass.SubService.None;
+            }
+            ushort num = instance.FindBuilding(position, CanNotStartGasTransferDistance, service, subservice, Building.Flags.None, Building.Flags.None);
+            int num2 = 0;
+            while (num != 0)
+            {
+                ushort parentBuilding = instance.m_buildings.m_buffer[(int)num].m_parentBuilding;
+                BuildingInfo info = instance.m_buildings.m_buffer[(int)num].Info;
+                if (info.m_buildingAI is CargoStationAI || info.m_buildingAI is OutsideConnectionAI || parentBuilding == 0)
+                {
+                    return num;
+                }
+                num = parentBuilding;
+                if (++num2 > 49152)
+                {
+                    CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                    break;
+                }
+            }
+            return 0;
         }
 
         public static void StartTransfer(TransferManager.TransferReason material, TransferManager.TransferOffer offerOut, TransferManager.TransferOffer offerIn, int delta)
