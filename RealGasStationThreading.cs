@@ -20,6 +20,15 @@ namespace RealGasStation
     public class RealGasStationThreading : ThreadingExtensionBase
     {
         public static bool isFirstTime = true;
+        public static FieldInfo _reduceVehicle = null;
+        public static Assembly RealCity = null;
+        public static Type RealCityClass = null;
+        public static object RealCityInstance = null;
+        public static bool reduceVehicle = false;
+        public static Type MainDataStoreClass = null;
+        public static object MainDataStoreInstance = null;
+        public static FieldInfo _reduceCargoDiv = null;
+        public static int reduceCargoDiv = 1;
         public override void OnBeforeSimulationFrame()
         {
             base.OnBeforeSimulationFrame();
@@ -41,12 +50,18 @@ namespace RealGasStation
 
             if (Loader.isRealCityRunning)
             {
-                Assembly as1 = Assembly.Load("RealCity");
+                RealCity = Assembly.Load("RealCity");
+                RealCityClass = RealCity.GetType("RealCity.RealCity");
+                RealCityInstance = Activator.CreateInstance(RealCityClass);
+                _reduceVehicle = RealCityClass.GetField("reduceVehicle", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+                MainDataStoreClass = RealCity.GetType("RealCity.Util.MainDataStore");
+                MainDataStoreInstance = Activator.CreateInstance(MainDataStoreClass);
+                _reduceCargoDiv = MainDataStoreClass.GetField("reduceCargoDiv", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
                 //1
                 DebugLog.LogToFileOnly("Detour RealCityCargoTruckAI::CargoTruckAIArriveAtTargetForRealGasStationPre calls");
                 try
                 {
-                    Loader.Detours.Add(new Loader.Detour(as1.GetType("RealCity.CustomAI.RealCityCargoTruckAI").GetMethod("CargoTruckAIArriveAtTargetForRealGasStationPre", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
+                    Loader.Detours.Add(new Loader.Detour(RealCity.GetType("RealCity.CustomAI.RealCityCargoTruckAI").GetMethod("CargoTruckAIArriveAtTargetForRealGasStationPre", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
                                            typeof(CustomCargoTruckAI).GetMethod("CargoTruckAIArriveAtTargetForRealGasStationPre", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
                 }
                 catch (Exception)
@@ -59,7 +74,7 @@ namespace RealGasStation
                 DebugLog.LogToFileOnly("Detour RealCityCargoTruckAI::CargoTruckAIArriveAtTargetForRealGasStationPost calls");
                 try
                 {
-                    Loader.Detours.Add(new Loader.Detour(as1.GetType("RealCity.CustomAI.RealCityCargoTruckAI").GetMethod("CargoTruckAIArriveAtTargetForRealGasStationPost", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
+                    Loader.Detours.Add(new Loader.Detour(RealCity.GetType("RealCity.CustomAI.RealCityCargoTruckAI").GetMethod("CargoTruckAIArriveAtTargetForRealGasStationPost", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
                                            typeof(CustomCargoTruckAI).GetMethod("CargoTruckAIArriveAtTargetForRealGasStationPost", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
                 }
                 catch (Exception)
@@ -72,7 +87,7 @@ namespace RealGasStation
                 DebugLog.LogToFileOnly("Detour RealCityPassengerCarAI::PassengerCarAIArriveAtTargetForRealGasStationPre calls");
                 try
                 {
-                    Loader.Detours.Add(new Loader.Detour(as1.GetType("RealCity.CustomAI.RealCityPassengerCarAI").GetMethod("PassengerCarAIArriveAtTargetForRealGasStationPre", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
+                    Loader.Detours.Add(new Loader.Detour(RealCity.GetType("RealCity.CustomAI.RealCityPassengerCarAI").GetMethod("PassengerCarAIArriveAtTargetForRealGasStationPre", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
                                            typeof(CustomPassengerCarAI).GetMethod("PassengerCarAIArriveAtTargetForRealGasStationPre", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
                 }
                 catch (Exception)
@@ -201,6 +216,26 @@ namespace RealGasStation
                     if (num4 == 255)
                     {
                         PlayerBuildingUI.refeshOnce = true;
+                        if (!isFirstTime)
+                        {
+                            if (Loader.isRealCityRunning)
+                            {
+                                reduceVehicle = (bool)_reduceVehicle.GetValue(RealCityInstance);
+                                if (reduceVehicle)
+                                {
+                                    reduceCargoDiv = (int)_reduceCargoDiv.GetValue(MainDataStoreInstance);
+                                }
+                                else
+                                {
+                                    reduceCargoDiv = 1;
+                                }
+                            }
+                            else
+                            {
+                                reduceVehicle = false;
+                                reduceCargoDiv = 1;
+                            }
+                        }
                     }
 
                     CustomTransferManager.CustomSimulationStepImpl();

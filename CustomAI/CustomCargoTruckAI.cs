@@ -31,7 +31,7 @@ namespace RealGasStation.CustomAI
 
             if (Loader.isRealCityRunning)
             {
-                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000 * RealGasStationThreading.reduceCargoDiv, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
             }
         }
 
@@ -53,7 +53,7 @@ namespace RealGasStation.CustomAI
             MainDataStore.TargetGasBuilding[vehicleID] = 0;
             if (Loader.isRealCityRunning)
             {
-                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000 * RealGasStationThreading.reduceCargoDiv, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
             }
         }
 
@@ -184,17 +184,35 @@ namespace RealGasStation.CustomAI
         public static float GetResourcePrice(TransferManager.TransferReason material)
         {
             //Need to sync with RealCity mod
-            switch (material)
+            if (RealGasStationThreading.reduceVehicle)
             {
-                case TransferManager.TransferReason.Petrol:
-                    return 3f;
-                case TransferManager.TransferReason.Food:
-                    return 1.5f;
-                case TransferManager.TransferReason.Lumber:
-                    return 2f;
-                case TransferManager.TransferReason.Coal:
-                    return 2.5f;
-                default: DebugLog.LogToFileOnly("Error: Unknow material in realconstruction = " + material.ToString()); return 0f;
+                switch (material)
+                {
+                    case TransferManager.TransferReason.Petrol:
+                        return 3f;
+                    case TransferManager.TransferReason.Food:
+                        return 1.5f;
+                    case TransferManager.TransferReason.Lumber:
+                        return 2f;
+                    case TransferManager.TransferReason.Coal:
+                        return 2.5f;
+                    default: DebugLog.LogToFileOnly("Error: Unknow material in RealGasStation = " + material.ToString()); return 0f;
+                }
+            }
+            else
+            {
+                switch (material)
+                {
+                    case TransferManager.TransferReason.Petrol:
+                        return 3f * RealGasStationThreading.reduceCargoDiv;
+                    case TransferManager.TransferReason.Food:
+                        return 1.5f * RealGasStationThreading.reduceCargoDiv;
+                    case TransferManager.TransferReason.Lumber:
+                        return 2f * RealGasStationThreading.reduceCargoDiv;
+                    case TransferManager.TransferReason.Coal:
+                        return 2.5f * RealGasStationThreading.reduceCargoDiv;
+                    default: DebugLog.LogToFileOnly("Error: Unknow material in RealGasStation = " + material.ToString()); return 0f;
+                }
             }
         }
 
