@@ -40,7 +40,7 @@ namespace RealGasStation.CustomAI
             }
         }
 
-        public static void CarAICustomSimulationStepPreFix(ushort vehicleID, ref Vehicle vehicleData, ref Vehicle.Frame frameData, ushort leaderID, ref Vehicle leaderData, int lodPhysics)
+        public static void CarAISimulationStepPreFix(ushort vehicleID, ref Vehicle vehicleData, ref Vehicle.Frame frameData, ushort leaderID, ref Vehicle leaderData, int lodPhysics)
         {
             VehicleStatus(vehicleID, ref vehicleData);
         }
