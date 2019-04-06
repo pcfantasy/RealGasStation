@@ -158,7 +158,7 @@ namespace RealGasStation
 
         public void CheckDetour()
         {
-            if (isFirstTime && Loader.DetourInited)
+            if (isFirstTime && Loader.DetourInited && Loader.HarmonyDetourInited)
             {
                 isFirstTime = false;
                 DetourAfterLoad();
@@ -193,7 +193,7 @@ namespace RealGasStation
                         UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", text, true);
                     }
 
-                    if (!Loader.HarmonyDetourInited)
+                    if (Loader.HarmonyDetourFailed)
                     {
                         string error = "RealGasStation HarmonyDetourInit is failed, Send RealGasStation.txt to Author.";
                         DebugLog.LogToFileOnly(error);

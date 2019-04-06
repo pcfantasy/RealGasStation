@@ -80,7 +80,7 @@ namespace RealGasStation.Util
             harmony.ConditionalPatch(vehicleAIReleaseVehicle,
                 null,
                 new HarmonyMethod(vehicleAIReleaseVehiclePostFix));
-            Loader.HarmonyDetourInited = true;
+            Loader.HarmonyDetourFailed = false;
             DebugLog.LogToFileOnly("Harmony patches applied");
         }
 
@@ -125,7 +125,6 @@ namespace RealGasStation.Util
             harmony.ConditionalUnPatch(vehicleAIReleaseVehicle,
                 null,
                 new HarmonyMethod(vehicleAIReleaseVehiclePostFix));
-            Loader.HarmonyDetourInited = false;
             DebugLog.LogToFileOnly("Harmony patches DeApplied");
         }
     }

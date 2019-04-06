@@ -38,6 +38,7 @@ namespace RealGasStation
         public static List<Detour> Detours { get; set; }
         public static bool DetourInited = false;
         public static bool HarmonyDetourInited = false;
+        public static bool HarmonyDetourFailed = true;
         public static bool isGuiRunning = false;
         public static bool isRealCityRunning = false;
         public static bool isRealConstructionRunning = false;
@@ -67,6 +68,11 @@ namespace RealGasStation
                     InitDetour();
                     HarmonyInitDetour();
                     SetupGui();
+                    for (int i = 0; i < 16384; i++)
+                    {
+                        CustomCarAI.watingPathTime[i] = 0;
+                        CustomCarAI.stuckTime[i] = 0;
+                    }
                     if (mode == LoadMode.NewGame)
                     {
                         DebugLog.LogToFileOnly("New Game");
@@ -359,6 +365,7 @@ namespace RealGasStation
             {
                 DebugLog.LogToFileOnly("Init harmony detours");
                 HarmonyDetours.Apply();
+                HarmonyDetourInited = true;
             }
         }
 
@@ -368,6 +375,8 @@ namespace RealGasStation
             {
                 DebugLog.LogToFileOnly("Revert harmony detours");
                 HarmonyDetours.DeApply();
+                HarmonyDetourInited = false;
+                HarmonyDetourFailed = true;
             }
         }
 
