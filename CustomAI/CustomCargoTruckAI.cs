@@ -31,7 +31,7 @@ namespace RealGasStation.CustomAI
 
             if (Loader.isRealCityRunning)
             {
-                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000 * RealGasStationThreading.reduceCargoDiv, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, (int)(400f * GetResourcePrice(TransferManager.TransferReason.Petrol) + 1500f), ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
             }
         }
 
@@ -53,7 +53,7 @@ namespace RealGasStation.CustomAI
             MainDataStore.TargetGasBuilding[vehicleID] = 0;
             if (Loader.isRealCityRunning)
             {
-                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, 3000 * RealGasStationThreading.reduceCargoDiv, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, (int)(400f * GetResourcePrice(TransferManager.TransferReason.Petrol) + 1500f), ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
             }
         }
 
