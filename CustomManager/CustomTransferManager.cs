@@ -218,17 +218,64 @@ namespace RealGasStation.CustomManager
                     int outgoingCount = m_outgoingCount[offerIdex];
                     int incomingIdex = 0;
                     int outgoingIdex = 0;
-                    while (incomingIdex < incomingCount || outgoingIdex < outgoingCount)
+                    int oldPriority = priority;
+                    // NON-STOCK CODE START
+                    //In Real Gas Station Mod, we use outgoing first mode.
+                    byte matchOffersMode = 1;
+                    bool isLoopValid = false;
+                    if (matchOffersMode == 2)
+                    {
+                        isLoopValid = (incomingIdex < incomingCount || outgoingIdex < outgoingCount);
+                    }
+                    else if (matchOffersMode == 1)
+                    {
+                        isLoopValid = (outgoingIdex < outgoingCount);
+                    }
+                    else if (matchOffersMode == 0)
+                    {
+                        isLoopValid = (incomingIdex < incomingCount);
+                    }
+
+                    // NON-STOCK CODE END
+                    while (isLoopValid)
                     {
                         //use incomingOffer to match outgoingOffer
-                        if (incomingIdex < incomingCount)
+                        if (incomingIdex < incomingCount && (matchOffersMode != 1))
                         {
                             TransferOffer incomingOffer = m_incomingOffers[offerIdex * 256 + incomingIdex];
+                            // NON-STOCK CODE START
+                            Vector3 incomingPositionNew = Vector3.zero;
+                            bool canUseNewMatchOffers = true;
+                            if (canUseNewMatchOffers)
+                            {
+                                if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[incomingOffer.Building].m_flags.IsFlagSet(Building.Flags.Untouchable))
+                                {
+                                    incomingPositionNew = Singleton<BuildingManager>.instance.m_buildings.m_buffer[incomingOffer.Building].m_position;
+                                }
+                                else
+                                {
+                                    incomingPositionNew = incomingOffer.Position;
+                                }
+                            }
+                            // NON-STOCK CODE END
                             Vector3 incomingPosition = incomingOffer.Position;
                             int incomingOfferAmount = incomingOffer.Amount;
                             do
                             {
                                 int incomingPriority = Mathf.Max(0, 2 - priority);
+                                // NON-STOCK CODE START
+                                float currentShortestDistance = -1f;
+                                if (canUseNewMatchOffers)
+                                {
+                                    priority = 7;
+                                    incomingPriority = 0;
+                                }
+                                else
+                                {
+                                    priority = oldPriority;
+                                    incomingPriority = Mathf.Max(0, 2 - priority);
+                                }
+                                // NON-STOCK CODE END
                                 int incomingPriorityExclude = (!incomingOffer.Exclude) ? incomingPriority : Mathf.Max(0, 3 - priority);
                                 int validPriority = -1;
                                 int validOutgoingIdex = -1;
@@ -241,7 +288,8 @@ namespace RealGasStation.CustomManager
                                     //To let incomingPriorityInsideFloat!=0
                                     float incomingPriorityInsideFloat = (float)incomingPriorityInside + 0.1f;
                                     //Higher priority will get more chance to match
-                                    if (distanceOffsetPre >= incomingPriorityInsideFloat)
+                                    //UseNewMatchOffers to find the shortest transfer building
+                                    if ((distanceOffsetPre >= incomingPriorityInsideFloat) && !canUseNewMatchOffers)
                                     {
                                         break;
                                     }
@@ -252,13 +300,35 @@ namespace RealGasStation.CustomManager
                                         if (incomingOffer.m_object != outgoingOfferPre.m_object && (!outgoingOfferPre.Exclude || incomingPriorityInside >= incomingPriorityExclude))
                                         {
                                             float incomingOutgoingDistance = Vector3.SqrMagnitude(outgoingOfferPre.Position - incomingPosition);
+                                            // NON-STOCK CODE START
+                                            Vector3 outgoingPositionNew = Vector3.zero;
+                                            float incomingOutgoingDistanceNew = 0;
+                                            if (canUseNewMatchOffers)
+                                            {
+                                                if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[outgoingOfferPre.Building].m_flags.IsFlagSet(Building.Flags.Untouchable))
+                                                {
+                                                    outgoingPositionNew = Singleton<BuildingManager>.instance.m_buildings.m_buffer[outgoingOfferPre.Building].m_position;
+                                                }
+                                                else
+                                                {
+                                                    outgoingPositionNew = outgoingOfferPre.Position;
+                                                }
+                                                incomingOutgoingDistanceNew = Vector3.SqrMagnitude(outgoingPositionNew - incomingPositionNew);
+                                                if ((incomingOutgoingDistanceNew < currentShortestDistance) || currentShortestDistance == -1)
+                                                {
+                                                    validPriority = incomingPriorityInside;
+                                                    validOutgoingIdex = i;
+                                                    currentShortestDistance = incomingOutgoingDistanceNew;
+                                                }
+                                            }
+                                            // NON-STOCK CODE END
                                             float distanceOffset = (!(distanceMultiplier < 0f)) ? (incomingPriorityInsideFloat / (1f + incomingOutgoingDistance * distanceMultiplier)) : (incomingPriorityInsideFloat - incomingPriorityInsideFloat / (1f - incomingOutgoingDistance * distanceMultiplier));
-                                            if (distanceOffset > distanceOffsetPre)
+                                            if ((distanceOffset > distanceOffsetPre) && !canUseNewMatchOffers)
                                             {
                                                 validPriority = incomingPriorityInside;
                                                 validOutgoingIdex = i;
                                                 distanceOffsetPre = distanceOffset;
-                                                if (incomingOutgoingDistance < maxDistance)
+                                                if ((incomingOutgoingDistance < maxDistance))
                                                 {
                                                     break;
                                                 }
@@ -267,6 +337,12 @@ namespace RealGasStation.CustomManager
                                     }
                                     outgoingIdexInsideIncoming = 0;
                                 }
+                                // NON-STOCK CODE START
+                                if (canUseNewMatchOffers)
+                                {
+                                    priority = oldPriority;
+                                }
+                                // NON-STOCK CODE END
                                 if (validPriority == -1)
                                 {
                                     break;
@@ -315,15 +391,44 @@ namespace RealGasStation.CustomManager
                                 incomingIdex++;
                             }
                         }
+                        //For RealConstruction, We only satisify incoming building
                         //use outgoingOffer to match incomingOffer
-                        if (outgoingIdex < outgoingCount)
+                        if (outgoingIdex < outgoingCount && (matchOffersMode != 0))
                         {
                             TransferOffer outgoingOffer = m_outgoingOffers[offerIdex * 256 + outgoingIdex];
-                            Vector3 outgoingOfferPosition = outgoingOffer.Position;
+                            // NON-STOCK CODE START
+                            bool canUseNewMatchOffers = true;
+                            Vector3 outgoingPositionNew = Vector3.zero;
+                            if (canUseNewMatchOffers)
+                            {
+                                if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[outgoingOffer.Building].m_flags.IsFlagSet(Building.Flags.Untouchable))
+                                {
+                                    outgoingPositionNew = Singleton<BuildingManager>.instance.m_buildings.m_buffer[outgoingOffer.Building].m_position;
+                                }
+                                else
+                                {
+                                    outgoingPositionNew = outgoingOffer.Position;
+                                }
+                            }
+                            // NON-STOCK CODE END
+                            Vector3 outgoingPosition = outgoingOffer.Position;
                             int outgoingOfferAmount = outgoingOffer.Amount;
                             do
                             {
                                 int outgoingPriority = Mathf.Max(0, 2 - priority);
+                                // NON-STOCK CODE START
+                                float currentShortestDistance = -1f;
+                                if (canUseNewMatchOffers)
+                                {
+                                    priority = 7;
+                                    outgoingPriority = 0;
+                                }
+                                else
+                                {
+                                    priority = oldPriority;
+                                    outgoingPriority = Mathf.Max(0, 2 - priority);
+                                }
+                                // NON-STOCK CODE END
                                 int outgoingPriorityExclude = (!outgoingOffer.Exclude) ? outgoingPriority : Mathf.Max(0, 3 - priority);
                                 int validPriority = -1;
                                 int validIncomingIdex = -1;
@@ -336,7 +441,7 @@ namespace RealGasStation.CustomManager
                                     //To let outgoingPriorityInsideFloat!=0
                                     float outgoingPriorityInsideFloat = (float)outgoingPriorityInside + 0.1f;
                                     //Higher priority will get more chance to match
-                                    if (distanceOffsetPre >= outgoingPriorityInsideFloat)
+                                    if ((distanceOffsetPre >= outgoingPriorityInsideFloat) && !canUseNewMatchOffers)
                                     {
                                         break;
                                     }
@@ -345,9 +450,31 @@ namespace RealGasStation.CustomManager
                                         TransferOffer incomingOfferPre = m_incomingOffers[incomingIdexWithPriority * 256 + j];
                                         if (outgoingOffer.m_object != incomingOfferPre.m_object && (!incomingOfferPre.Exclude || outgoingPriorityInside >= outgoingPriorityExclude))
                                         {
-                                            float incomingOutgoingDistance = Vector3.SqrMagnitude(incomingOfferPre.Position - outgoingOfferPosition);
+                                            float incomingOutgoingDistance = Vector3.SqrMagnitude(incomingOfferPre.Position - outgoingPosition);
+                                            // NON-STOCK CODE START
+                                            Vector3 incomingPositionNew = Vector3.zero;
+                                            float incomingOutgoingDistanceNew = 0;
+                                            if (canUseNewMatchOffers)
+                                            {
+                                                if (Singleton<BuildingManager>.instance.m_buildings.m_buffer[incomingOfferPre.Building].m_flags.IsFlagSet(Building.Flags.Untouchable))
+                                                {
+                                                    incomingPositionNew = Singleton<BuildingManager>.instance.m_buildings.m_buffer[incomingOfferPre.Building].m_position;
+                                                }
+                                                else
+                                                {
+                                                    incomingPositionNew = incomingOfferPre.Position;
+                                                }
+                                                incomingOutgoingDistanceNew = Vector3.SqrMagnitude(outgoingPositionNew - incomingPositionNew);
+                                                if ((incomingOutgoingDistanceNew < currentShortestDistance) || currentShortestDistance == -1)
+                                                {
+                                                    validPriority = outgoingPriorityInside;
+                                                    validIncomingIdex = j;
+                                                    currentShortestDistance = incomingOutgoingDistanceNew;
+                                                }
+                                            }
+                                            // NON-STOCK CODE END
                                             float distanceOffset = (!(distanceMultiplier < 0f)) ? (outgoingPriorityInsideFloat / (1f + incomingOutgoingDistance * distanceMultiplier)) : (outgoingPriorityInsideFloat - outgoingPriorityInsideFloat / (1f - incomingOutgoingDistance * distanceMultiplier));
-                                            if (distanceOffset > distanceOffsetPre)
+                                            if ((distanceOffset > distanceOffsetPre) && !canUseNewMatchOffers)
                                             {
                                                 validPriority = outgoingPriorityInside;
                                                 validIncomingIdex = j;
@@ -361,6 +488,12 @@ namespace RealGasStation.CustomManager
                                     }
                                     incomingIdexInsideOutgoing = 0;
                                 }
+                                // NON-STOCK CODE START
+                                if (canUseNewMatchOffers)
+                                {
+                                    priority = oldPriority;
+                                }
+                                // NON-STOCK CODE END
                                 if (validPriority == -1)
                                 {
                                     break;
@@ -409,6 +542,21 @@ namespace RealGasStation.CustomManager
                                 outgoingIdex++;
                             }
                         }
+
+                        // NON-STOCK CODE START
+                        if (matchOffersMode == 2)
+                        {
+                            isLoopValid = (incomingIdex < incomingCount || outgoingIdex < outgoingCount);
+                        }
+                        else if (matchOffersMode == 1)
+                        {
+                            isLoopValid = (outgoingIdex < outgoingCount);
+                        }
+                        else if (matchOffersMode == 0)
+                        {
+                            isLoopValid = (incomingIdex < incomingCount);
+                        }
+                        // NON-STOCK CODE END
                     }
                 }
                 for (int k = 0; k < 8; k++)
