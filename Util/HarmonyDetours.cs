@@ -3,6 +3,7 @@ using System.Reflection;
 using System;
 using UnityEngine;
 using RealGasStation.CustomAI;
+using RealGasStation.CustomManager;
 
 namespace RealGasStation.Util
 {
@@ -75,11 +76,11 @@ namespace RealGasStation.Util
                     null);
             }
             //5
-            var vehicleAIReleaseVehicle = typeof(VehicleAI).GetMethod("ReleaseVehicle", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
-            var vehicleAIReleaseVehiclePostFix = typeof(CustomVehicleAI).GetMethod("VehicleAIReleaseVehiclePostFix");
-            harmony.ConditionalPatch(vehicleAIReleaseVehicle,
+            var vehicleManagerReleaseVehicleImplementation = typeof(VehicleManager).GetMethod("ReleaseVehicleImplementation", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
+            var vehicleManagerReleaseVehicleImplementationPostFix = typeof(CustomVehicleManager).GetMethod("VehicleManagerReleaseVehicleImplementationPostFix");
+            harmony.ConditionalPatch(vehicleManagerReleaseVehicleImplementation,
                 null,
-                new HarmonyMethod(vehicleAIReleaseVehiclePostFix));
+                new HarmonyMethod(vehicleManagerReleaseVehicleImplementationPostFix));
             Loader.HarmonyDetourFailed = false;
             DebugLog.LogToFileOnly("Harmony patches applied");
         }
@@ -120,11 +121,11 @@ namespace RealGasStation.Util
                     null);
             }
             //5
-            var vehicleAIReleaseVehicle = typeof(VehicleAI).GetMethod("ReleaseVehicle", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
-            var vehicleAIReleaseVehiclePostFix = typeof(CustomVehicleAI).GetMethod("VehicleAIReleaseVehiclePostFix");
-            harmony.ConditionalUnPatch(vehicleAIReleaseVehicle,
+            var vehicleManagerReleaseVehicleImplementation = typeof(VehicleManager).GetMethod("ReleaseVehicleImplementation", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
+            var vehicleManagerReleaseVehicleImplementationPostFix = typeof(CustomVehicleManager).GetMethod("VehicleManagerReleaseVehicleImplementationPostFix");
+            harmony.ConditionalUnPatch(vehicleManagerReleaseVehicleImplementation,
                 null,
-                new HarmonyMethod(vehicleAIReleaseVehiclePostFix));
+                new HarmonyMethod(vehicleManagerReleaseVehicleImplementationPostFix));
             DebugLog.LogToFileOnly("Harmony patches DeApplied");
         }
     }

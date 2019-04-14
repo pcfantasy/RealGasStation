@@ -65,6 +65,7 @@
     <Compile Include="CustomAI\CustomPlayerBuildingAI.cs" />
     <Compile Include="CustomManager\CustomTransferManager.cs" />
     <Compile Include="CustomAI\CustomVehicleAI.cs" />
+    <Compile Include="CustomManager\CustomVehicleManager.cs" />
     <Compile Include="NewAI\GasStationAI.cs" />
     <Compile Include="Util\DebugLog.cs" />
     <Compile Include="RealGasStation.cs" />

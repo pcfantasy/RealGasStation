@@ -71,11 +71,5 @@ namespace RealGasStation.CustomAI
             }
             return result;
         }
-
-        public static void VehicleAIReleaseVehiclePostFix(ushort vehicleID, ref Vehicle data)
-        {
-            MainDataStore.TargetGasBuilding[vehicleID] = 0;
-            MainDataStore.alreadyAskForFuel[vehicleID] = false;
-        }
     }
 }
