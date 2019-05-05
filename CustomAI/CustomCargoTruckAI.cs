@@ -19,7 +19,6 @@ namespace RealGasStation.CustomAI
             {
                 MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] -= 400;
             }
-            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
             PathManager instance = Singleton<PathManager>.instance;
             if (data.m_path != 0u)
             {
@@ -27,6 +26,7 @@ namespace RealGasStation.CustomAI
                 data.m_path = 0;
             }
             SetTarget(vehicleID, ref data, data.m_targetBuilding);
+            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
             MainDataStore.TargetGasBuilding[vehicleID] = 0;
 
             if (Loader.isRealCityRunning)

@@ -3,3 +3,9 @@
 *.cache
 .vs/RealGasStation/v14/.suo
 *.xml
+.vs/RealGasStation/v16/Server/sqlite3/db.lock
+.vs/RealGasStation/v16/.suo
+.vs/RealGasStation/v16/Server/sqlite3/storage.ide
+.vs/RealGasStation/v16/Server/sqlite3/storage.ide-shm
+.vs/RealGasStation/v16/Server/sqlite3/storage.ide-wal
+obj/Release/RealGasStation.csproj.CopyComplete

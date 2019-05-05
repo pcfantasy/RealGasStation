@@ -28,14 +28,15 @@ namespace RealGasStation.CustomAI
 #if DEBUG
                                 DebugLog.LogToFileOnly("Reroute to target " + i.ToString() + "vehicle.m_path = " + vehicle.m_path.ToString() + vehicle.m_flags.ToString());
 #endif
+                    data.m_transferType = MainDataStore.preTranferReason[i];
                     MainDataStore.TargetGasBuilding[i] = 0;
                     return;
                 }
                 else if (data.Info.m_vehicleAI is PassengerCarAI && data.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow)
                 {
                     PassengerCarAI AI = (PassengerCarAI)data.Info.m_vehicleAI;
-                    data.m_transferType = MainDataStore.preTranferReason[i];
                     AI.SetTarget((ushort)i, ref data, 0);
+                    data.m_transferType = MainDataStore.preTranferReason[i];
                     MainDataStore.TargetGasBuilding[i] = 0;
                     return;
                 }

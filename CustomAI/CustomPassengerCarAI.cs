@@ -11,12 +11,12 @@ namespace RealGasStation.CustomAI
     {
         public void PassengerCarAIArriveAtTargetForRealGasStationPre(ushort vehicleID, ref Vehicle data)
         {
-            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
             if (MainDataStore.petrolBuffer[data.m_targetBuilding] > 400)
             {
                 MainDataStore.petrolBuffer[data.m_targetBuilding] -= 400;
             }
             SetTarget(vehicleID, ref data, 0);
+            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
             MainDataStore.TargetGasBuilding[vehicleID] = 0;
             if (Loader.isRealCityRunning)
             {
@@ -144,7 +144,10 @@ namespace RealGasStation.CustomAI
             data.m_targetBuilding = targetBuilding;
             if (targetBuilding != 0)
             {
-                Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].AddGuestVehicle(vehicleID, ref data);
+                if (data.m_transferType != 112)
+                {
+                    Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].AddGuestVehicle(vehicleID, ref data);
+                }
             }
 
             if (data.m_transferType == 112)

@@ -77,10 +77,10 @@ namespace RealGasStation.Util
             }
             //5
             var vehicleManagerReleaseVehicleImplementation = typeof(VehicleManager).GetMethod("ReleaseVehicleImplementation", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
-            var vehicleManagerReleaseVehicleImplementationPostFix = typeof(CustomVehicleManager).GetMethod("VehicleManagerReleaseVehicleImplementationPostFix");
+            var vehicleManagerReleaseVehicleImplementationPreFix = typeof(CustomVehicleManager).GetMethod("VehicleManagerReleaseVehicleImplementationPreFix");
             harmony.ConditionalPatch(vehicleManagerReleaseVehicleImplementation,
-                null,
-                new HarmonyMethod(vehicleManagerReleaseVehicleImplementationPostFix));
+                new HarmonyMethod(vehicleManagerReleaseVehicleImplementationPreFix),
+                null);
             Loader.HarmonyDetourFailed = false;
             DebugLog.LogToFileOnly("Harmony patches applied");
         }
@@ -122,10 +122,10 @@ namespace RealGasStation.Util
             }
             //5
             var vehicleManagerReleaseVehicleImplementation = typeof(VehicleManager).GetMethod("ReleaseVehicleImplementation", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null);
-            var vehicleManagerReleaseVehicleImplementationPostFix = typeof(CustomVehicleManager).GetMethod("VehicleManagerReleaseVehicleImplementationPostFix");
+            var vehicleManagerReleaseVehicleImplementationPreFix = typeof(CustomVehicleManager).GetMethod("VehicleManagerReleaseVehicleImplementationPreFix");
             harmony.ConditionalUnPatch(vehicleManagerReleaseVehicleImplementation,
-                null,
-                new HarmonyMethod(vehicleManagerReleaseVehicleImplementationPostFix));
+                new HarmonyMethod(vehicleManagerReleaseVehicleImplementationPreFix),
+                null);
             DebugLog.LogToFileOnly("Harmony patches DeApplied");
         }
     }
