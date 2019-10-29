@@ -54,9 +54,19 @@ namespace RealGasStation.CustomAI
             return 0;
         }
 
+        public static void GetVehicleRunningTimingForRealCity(ushort vehicleID, ref Vehicle vehicleData)
+        {
+            DebugLog.LogToFileOnly("Error: Should be detour by RealCity @ GetVehicleRunningTimingForRealCity");
+        }
+
         private bool CustomArriveAtTarget(ushort vehicleID, ref Vehicle data)
         {
             // NON-STOCK CODE START
+            //RealCity Mod related
+            if (Loader.isRealCityRunning)
+            {
+                GetVehicleRunningTimingForRealCity(vehicleID, ref data);
+            }
             //RealGasStation Mod related
             if (data.m_transferType == 112)
             {

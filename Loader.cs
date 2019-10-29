@@ -278,9 +278,11 @@ namespace RealGasStation
                     detourFailed = true;
                 }
 
-                if (!isRealConstructionRunning || !isRealCityRunning)
+                if (true)
+                //if (!isRealConstructionRunning || !isRealCityRunning)
                 {
-                    if (!isRealConstructionRunning && !isRealCityRunning)
+                    //if (!isRealConstructionRunning && !isRealCityRunning)
+                    if (true)
                     {
                         //6
                         DebugLog.LogToFileOnly("Detour CargoTruckAI::ArriveAtTarget calls");
@@ -295,6 +297,7 @@ namespace RealGasStation
                             detourFailed = true;
                         }
                     }
+
                     if (!isRealConstructionRunning)
                     {
                         //7
@@ -310,7 +313,9 @@ namespace RealGasStation
                             detourFailed = true;
                         }
                     }
-                    if (!isRealCityRunning)
+
+                    //if (!isRealCityRunning)
+                    if (true)
                     {
                         //8
                         DebugLog.LogToFileOnly("Detour PassengerCarAI::ArriveAtTarget calls");

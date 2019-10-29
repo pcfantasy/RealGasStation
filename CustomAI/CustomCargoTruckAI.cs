@@ -13,6 +13,16 @@ namespace RealGasStation.CustomAI
 {
     public class CustomCargoTruckAI : CargoTruckAI
     {
+        public static void ProcessResourceArriveAtTargetForRealCity(ushort vehicleID, ref Vehicle data, ref int num)
+        {
+            DebugLog.LogToFileOnly("Error: Should be detour by RealCity @ ProcessResourceArriveAtTarget");
+        }
+
+        public static void CargoTruckAIArriveAtTargetForRealConstruction(ushort vehicleID, ref Vehicle data)
+        {
+            DebugLog.LogToFileOnly("Error: Should be detour by RealConstruction @ CargoTruckAIArriveAtTargetForRealConstruction");
+        }
+
         public void CargoTruckAIArriveAtTargetForRealGasStationPre(ushort vehicleID, ref Vehicle data)
         {
             if (MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] > 400)
@@ -111,7 +121,12 @@ namespace RealGasStation.CustomAI
             if ((data.m_flags & Vehicle.Flags.TransferToTarget) != 0)
             {
                 // NON-STOCK CODE START
-                this.CargoTruckAIArriveAtTargetForRealGasStationPost(vehicleID, ref data);
+                CargoTruckAIArriveAtTargetForRealGasStationPost(vehicleID, ref data);
+                // RealConstruction and RealGasStation mod
+                if (Loader.isRealConstructionRunning)
+                {
+                    CargoTruckAIArriveAtTargetForRealConstruction(vehicleID, ref data);
+                }
                 /// NON-STOCK CODE END ///
                 amountDelta = data.m_transferSize;
             }
@@ -121,7 +136,17 @@ namespace RealGasStation.CustomAI
             }
             BuildingManager instance = Singleton<BuildingManager>.instance;
             BuildingInfo info = instance.m_buildings.m_buffer[data.m_targetBuilding].Info;
-            info.m_buildingAI.ModifyMaterialBuffer(data.m_targetBuilding, ref instance.m_buildings.m_buffer[data.m_targetBuilding], (TransferManager.TransferReason)data.m_transferType, ref amountDelta);
+
+            // NON-STOCK CODE START
+            if (Loader.isRealCityRunning)
+            {
+                ProcessResourceArriveAtTargetForRealCity(vehicleID, ref data, ref amountDelta);
+            }
+            else
+            {
+                info.m_buildingAI.ModifyMaterialBuffer(data.m_targetBuilding, ref instance.m_buildings.m_buffer[data.m_targetBuilding], (TransferManager.TransferReason)data.m_transferType, ref amountDelta);
+            }
+            /// NON-STOCK CODE END ///
             if ((data.m_flags & Vehicle.Flags.TransferToTarget) != 0)
             {
                 data.m_transferSize = (ushort)Mathf.Clamp(data.m_transferSize - amountDelta, 0, data.m_transferSize);
@@ -216,7 +241,7 @@ namespace RealGasStation.CustomAI
             }
         }
 
-        public void CargoTruckAIArriveAtTargetForRealGasStationPost(ushort vehicleID, ref Vehicle vehicleData)
+        public static void CargoTruckAIArriveAtTargetForRealGasStationPost(ushort vehicleID, ref Vehicle vehicleData)
         {
             BuildingManager instance = Singleton<BuildingManager>.instance;
             if (vehicleData.m_targetBuilding != 0)
