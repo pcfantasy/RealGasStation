@@ -13,17 +13,21 @@ namespace RealGasStation.UI
 {
     public class PlayerBuildingButton : UIButton
     {
-        public static void PlayerBuildingUIToggle()
+        private UIPanel playerBuildingInfo;
+        private PlayerBuildingUI playerBuildingUI;
+        private InstanceID BuildingID = InstanceID.Empty;
+        public void PlayerBuildingUIToggle()
         {
-            if (!Loader.playerBuildingUI.isVisible)
+            if ((!playerBuildingUI.isVisible) && (BuildingID != InstanceID.Empty))
             {
+                playerBuildingUI.position = new Vector3(playerBuildingInfo.size.x, playerBuildingInfo.size.y);
+                playerBuildingUI.size = new Vector3(playerBuildingInfo.size.x, playerBuildingInfo.size.y);
                 PlayerBuildingUI.refeshOnce = true;
-                MainDataStore.lastBuilding = WorldInfoPanel.GetCurrentInstanceID().Building;
-                Loader.playerBuildingUI.Show();
+                playerBuildingUI.Show();
             }
             else
             {
-                Loader.playerBuildingUI.Hide();
+                playerBuildingUI.Hide();
             }
         }
 
@@ -44,18 +48,33 @@ namespace RealGasStation.UI
             base.width = 40f;
             base.height = 40f;
             base.size = new Vector2(40f, 40f);
+            //Setup PlayerBuildingUI
+            var buildingWindowGameObject = new GameObject("buildingWindowObject");
+            playerBuildingUI = (PlayerBuildingUI)buildingWindowGameObject.AddComponent(typeof(PlayerBuildingUI));
+            playerBuildingInfo = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
+            if (playerBuildingInfo == null)
+            {
+                DebugLog.LogToFileOnly("UIPanel not found (update broke the mod!): (Library) CityServiceWorldInfoPanel\nAvailable panels are:\n");
+            }
+            playerBuildingUI.transform.parent = playerBuildingInfo.transform;
+            playerBuildingUI.baseBuildingWindow = playerBuildingInfo.gameObject.transform.GetComponentInChildren<CityServiceWorldInfoPanel>();
             base.eventClick += delegate (UIComponent component, UIMouseEventParameter eventParam)
             {
-                PlayerBuildingButton.PlayerBuildingUIToggle();
+                PlayerBuildingUIToggle();
             };
         }
 
         public override void Update()
         {
-            MainDataStore.lastBuilding = WorldInfoPanel.GetCurrentInstanceID().Building;
-            if (GasStationAI.IsGasBuilding(MainDataStore.lastBuilding) && Loader.isGuiRunning)
+            var Building = WorldInfoPanel.GetCurrentInstanceID().Building;
+            if (WorldInfoPanel.GetCurrentInstanceID() != InstanceID.Empty)
             {
-                relativePosition = new Vector3(Loader.playerbuildingInfo.size.x - Loader.PBButton.width - 90, Loader.playerbuildingInfo.size.y - Loader.PBButton.height);
+                BuildingID = WorldInfoPanel.GetCurrentInstanceID();
+            }
+
+            if (GasStationAI.IsGasBuilding(Building) && Loader.isGuiRunning)
+            {
+                relativePosition = new Vector3(playerBuildingInfo.size.x - width - 90, playerBuildingInfo.size.y - height);
                 base.Show();
             }
             else

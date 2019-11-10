@@ -43,10 +43,7 @@ namespace RealGasStation
         public static bool isRealCityRunning = false;
         public static bool isRealConstructionRunning = false;
         public static bool isAdvancedJunctionRuleRunning = false;
-        public static UIPanel playerbuildingInfo;
-        public static PlayerBuildingUI playerBuildingUI;
         public static PlayerBuildingButton PBButton;
-        public static GameObject PlayerbuildingWindowGameObject;
         public static string m_atlasName = "RealGasStation";
         public static bool m_atlasLoaded;
 
@@ -124,7 +121,6 @@ namespace RealGasStation
             LoadSprites();
             if (m_atlasLoaded)
             {
-                SetupPlayerBuidingGui();
                 SetupPlayerBuildingButton();
                 Loader.isGuiRunning = true;
             }
@@ -133,47 +129,16 @@ namespace RealGasStation
         public static void RemoveGui()
         {
             Loader.isGuiRunning = false;
-            if (playerbuildingInfo != null)
+            if (PBButton != null)
             {
                 UnityEngine.Object.Destroy(PBButton);
                 Loader.PBButton = null;
             }
-
-            //remove PlayerbuildingUI
-            if (playerBuildingUI != null)
-            {
-                if (playerBuildingUI.parent != null)
-                {
-                    playerBuildingUI.parent.eventVisibilityChanged -= playerbuildingInfo_eventVisibilityChanged;
-                }
-            }
-
-            if (PlayerbuildingWindowGameObject != null)
-            {
-                UnityEngine.Object.Destroy(PlayerbuildingWindowGameObject);
-            }
-        }
-
-        public static void SetupPlayerBuidingGui()
-        {
-            PlayerbuildingWindowGameObject = new GameObject("PlayerbuildingWindowGameObject");
-            playerBuildingUI = (PlayerBuildingUI)PlayerbuildingWindowGameObject.AddComponent(typeof(PlayerBuildingUI));
-
-
-            playerbuildingInfo = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
-            if (playerbuildingInfo == null)
-            {
-                DebugLog.LogToFileOnly("UIPanel not found (update broke the mod!): (Library) CityServiceWorldInfoPanel\nAvailable panels are:\n");
-            }
-            playerBuildingUI.transform.parent = playerbuildingInfo.transform;
-            playerBuildingUI.size = new Vector3(playerbuildingInfo.size.x, playerbuildingInfo.size.y);
-            playerBuildingUI.baseBuildingWindow = playerbuildingInfo.gameObject.transform.GetComponentInChildren<CityServiceWorldInfoPanel>();
-            playerBuildingUI.position = new Vector3(playerbuildingInfo.size.x, playerbuildingInfo.size.y);
-            playerbuildingInfo.eventVisibilityChanged += playerbuildingInfo_eventVisibilityChanged;
         }
 
         public static void SetupPlayerBuildingButton()
         {
+            var playerbuildingInfo = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
             if (PBButton == null)
             {
                 PBButton = (playerbuildingInfo.AddUIComponent(typeof(PlayerBuildingButton)) as PlayerBuildingButton);
@@ -183,23 +148,6 @@ namespace RealGasStation
             PBButton.relativePosition = new Vector3(playerbuildingInfo.size.x - PBButton.width - 90, playerbuildingInfo.size.y - PBButton.height);
             PBButton.Show();
         }
-
-        public static void playerbuildingInfo_eventVisibilityChanged(UIComponent component, bool value)
-        {
-            playerBuildingUI.isEnabled = value;
-            if (value)
-            {
-                Loader.playerBuildingUI.transform.parent = Loader.playerbuildingInfo.transform;
-                Loader.playerBuildingUI.size = new Vector3(Loader.playerbuildingInfo.size.x, Loader.playerbuildingInfo.size.y);
-                Loader.playerBuildingUI.baseBuildingWindow = Loader.playerbuildingInfo.gameObject.transform.GetComponentInChildren<CityServiceWorldInfoPanel>();
-                Loader.playerBuildingUI.position = new Vector3(Loader.playerbuildingInfo.size.x, Loader.playerbuildingInfo.size.y);
-            }
-            else
-            {
-                playerBuildingUI.Hide();
-            }
-        }
-
 
         public void InitDetour()
         {
@@ -333,7 +281,7 @@ namespace RealGasStation
                 }
                 else
                 {
-                    DebugLog.LogToFileOnly("Both RealCity and RealConstruction are Running");
+                    //DebugLog.LogToFileOnly("Both RealCity and RealConstruction are Running");
                 }
 
                 if (detourFailed)

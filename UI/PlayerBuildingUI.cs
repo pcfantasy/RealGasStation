@@ -80,13 +80,14 @@ namespace RealGasStation.UI
                     if (GasStationAI.IsGasBuilding(MainDataStore.lastBuilding) == true)
                     {
                         this.Petrol.text = string.Format(Localization.Get("PETROL_STORED") + " [{0}]", MainDataStore.petrolBuffer[MainDataStore.lastBuilding]);
+                        this.inComingVehicleCount.text = string.Format(Localization.Get("INCOMING_VEHICLE_COUNT") + " [{0}]", MainDataStore.finalVehicleForFuelCount[MainDataStore.lastBuilding]);
                     }
                     else
                     {
                         this.Petrol.text = "";
+                        this.inComingVehicleCount.text = "";
+                        Hide();
                     }
-
-                    this.inComingVehicleCount.text = string.Format(Localization.Get("INCOMING_VEHICLE_COUNT") + " [{0}]", MainDataStore.finalVehicleForFuelCount[MainDataStore.lastBuilding]);
                     PlayerBuildingUI.refeshOnce = false;
                 }
                 else
