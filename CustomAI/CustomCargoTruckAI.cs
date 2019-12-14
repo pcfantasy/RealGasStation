@@ -63,14 +63,14 @@ namespace RealGasStation.CustomAI
             MainDataStore.TargetGasBuilding[vehicleID] = 0;
             if (Loader.isRealCityRunning)
             {
-                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, (int)(400f * GetResourcePrice(TransferManager.TransferReason.Petrol) + 1800f), ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, (int)(400f * GetResourcePrice(TransferManager.TransferReason.Petrol) + 3000f), ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
             }
         }
 
         private bool ArriveAtSource(ushort vehicleID, ref Vehicle data)
         {
             // NON-STOCK CODE START
-            if (data.m_transferType == 112)
+            if ((data.m_transferType == 113) || (data.m_transferType == 112))
             {
                 CargoTruckAIArriveAtSourceForRealGasStationPre(vehicleID, ref data);
                 return true;
@@ -107,7 +107,7 @@ namespace RealGasStation.CustomAI
         private bool ArriveAtTarget(ushort vehicleID, ref Vehicle data)
         {
             // NON-STOCK CODE START
-            if (data.m_transferType == 112)
+            if ((data.m_transferType == 113) || (data.m_transferType == 112))
             {
                 CargoTruckAIArriveAtTargetForRealGasStationPre(vehicleID, ref data);
                 return true;
@@ -283,7 +283,7 @@ namespace RealGasStation.CustomAI
                 {
                     target = InstanceID.Empty;
                     TransferManager.TransferReason transferType = (TransferManager.TransferReason)data.m_transferType;
-                    if (transferType == (TransferManager.TransferReason)112)
+                    if (transferType == (TransferManager.TransferReason)113)
                     {
                         return Localization.Get("FOR_FUEL");
                     }
@@ -301,7 +301,7 @@ namespace RealGasStation.CustomAI
                     if ((data.m_flags & Vehicle.Flags.Exporting) != 0 || (flags & Building.Flags.IncomingOutgoing) != 0)
                     {
                         target = InstanceID.Empty;
-                        if (transferType == (TransferManager.TransferReason)112)
+                        if (transferType == (TransferManager.TransferReason)113)
                         {
                             return Localization.Get("FOR_FUEL");
                         }
@@ -311,7 +311,7 @@ namespace RealGasStation.CustomAI
                     {
                         target = InstanceID.Empty;
                         target.Building = targetBuilding;
-                        if (transferType == (TransferManager.TransferReason)112)
+                        if (transferType == (TransferManager.TransferReason)113)
                         {
                             return Localization.Get("FOR_FUEL");
                         }
@@ -327,7 +327,7 @@ namespace RealGasStation.CustomAI
                     {
                         return Localization.Get("TRANSFER_OPERATION");
                     }
-                    else if (transferType == (TransferManager.TransferReason)112)
+                    else if (transferType == (TransferManager.TransferReason)113)
                     {
                         return Localization.Get("FOR_FUEL");
                     }
@@ -359,7 +359,7 @@ namespace RealGasStation.CustomAI
             }
             else
             {
-                if (data.m_transferType != 112)
+                if (data.m_transferType != 113)
                 {
                     RemoveTarget(vehicleID, ref data);
                     data.m_targetBuilding = targetBuilding;
@@ -368,7 +368,7 @@ namespace RealGasStation.CustomAI
                 data.m_waitCounter = 0;
                 if (targetBuilding != 0)
                 {
-                    if (data.m_transferType != 112)
+                    if (data.m_transferType != 113)
                     {
                         Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].AddGuestVehicle(vehicleID, ref data);
                     }
@@ -451,7 +451,7 @@ namespace RealGasStation.CustomAI
                 else
                 {
                     bool success = false;
-                    if (data.m_transferType == 112)
+                    if ((data.m_transferType == 113) || (data.m_transferType == 112))
                     {
                         ushort tempTargetBuilding = data.m_targetBuilding;
                         data.m_targetBuilding = MainDataStore.TargetGasBuilding[vehicleID];
@@ -464,7 +464,7 @@ namespace RealGasStation.CustomAI
                     }
                     if (!success)
                     {
-                        if (data.m_transferType == 112)
+                        if ((data.m_transferType == 113) || (data.m_transferType == 112))
                         {
                             data.m_transferType = MainDataStore.preTranferReason[vehicleID];
                             PathManager instance = Singleton<PathManager>.instance;
@@ -521,7 +521,7 @@ namespace RealGasStation.CustomAI
                 BuildingManager instance2 = Singleton<BuildingManager>.instance;
                 BuildingInfo info2 = instance2.m_buildings.m_buffer[(int)MainDataStore.TargetGasBuilding[leaderID]].Info;
                 float distance = Vector3.Distance(instance2.m_buildings.m_buffer[(int)MainDataStore.TargetGasBuilding[leaderID]].m_position, leaderData.GetLastFramePosition());
-                if (leaderData.m_transferType == 112 && (distance < 50))
+                if (((leaderData.m_transferType == 113) || (leaderData.m_transferType == 112)) && (distance < 50))
                 {
                     if (leaderID == vehicleID)
                     {

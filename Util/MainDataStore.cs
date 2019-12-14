@@ -15,6 +15,7 @@ namespace RealGasStation.Util
         public static ushort[] petrolBuffer = new ushort[49152];
         public static bool[] alreadyAskForFuel = new bool[16384];
         public static bool[] isBuildingReleased = new bool[49152];
+        public static byte[] resourceCategory = new byte[49152];
 
         public static ushort lastVehicle = 0;
         public static ushort lastBuilding = 0;
@@ -37,6 +38,11 @@ namespace RealGasStation.Util
                 finalVehicleForFuelCount[i] = 0;
                 petrolBuffer[i] = 0;
                 isBuildingReleased[i] = false;
+            }
+
+            for (int i = 0; i < MainDataStore.resourceCategory.Length; i++)
+            {
+                resourceCategory[i] = 0;
             }
         }
 

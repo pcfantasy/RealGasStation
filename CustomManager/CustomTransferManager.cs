@@ -19,14 +19,14 @@ namespace RealGasStation.CustomManager
         public static bool _init = false;
         public static void StartGasTransfer(ushort vehicleID, ref Vehicle data, TransferManager.TransferReason material, TransferManager.TransferOffer offer)
         {
-            if (material == (TransferManager.TransferReason)112)
+            if ((material == (TransferManager.TransferReason)113) || (material == (TransferManager.TransferReason)112))
             {
                 if (data.Info.m_vehicleAI is CargoTruckAI)
                 {
                     CargoTruckAI AI = (CargoTruckAI)data.Info.m_vehicleAI;
                     MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
                     MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
-                    data.m_transferType = 112;
+                    data.m_transferType = 113;
                     if (offer.Building == data.m_targetBuilding)
                     {
                         DebugLog.LogToFileOnly("Error: Transfer fuel cargotruck do not need fuel");
@@ -165,6 +165,11 @@ namespace RealGasStation.CustomManager
             {
                 //fuel demand
                 MatchOffers((TransferReason)112);
+            }
+            else if (frameIndex == 141)
+            {
+                //fuel demand
+                MatchOffers((TransferReason)113);
             }
         }
 

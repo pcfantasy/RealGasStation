@@ -52,24 +52,52 @@ namespace RealGasStation.NewAI
                 }
             }
 
-            //Fuel
-            incomingTransferReason = (TransferManager.TransferReason)112;
-            num34 = MainDataStore.petrolBuffer[buildingID] - MainDataStore.finalVehicleForFuelCount[buildingID] * 400;
-            if (buildingData.m_flags.IsFlagSet(Building.Flags.Active) && buildingData.m_flags.IsFlagSet(Building.Flags.Completed))
+            if ((MainDataStore.resourceCategory[buildingID] == 2) || (MainDataStore.resourceCategory[buildingID] == 0))
             {
-                if (num34 >= 0)
+                //Fuel
+                incomingTransferReason = (TransferManager.TransferReason)112;
+                num34 = MainDataStore.petrolBuffer[buildingID] - MainDataStore.finalVehicleForFuelCount[buildingID] * 400;
+                if (buildingData.m_flags.IsFlagSet(Building.Flags.Active) && buildingData.m_flags.IsFlagSet(Building.Flags.Completed))
                 {
-                    System.Random rand = new System.Random();
-                    TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                    offer.Priority = rand.Next(8);
-                    offer.Building = buildingID;
-                    offer.Position = buildingData.m_position;
-                    offer.Amount = (int)((num34 - 0) / 400);
-                    offer.Active = false;
-
-                    if ((int)(num34 / 400) > 0)
+                    if (num34 >= 0)
                     {
-                        Singleton<TransferManager>.instance.AddIncomingOffer(incomingTransferReason, offer);
+                        System.Random rand = new System.Random();
+                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                        offer.Priority = rand.Next(8);
+                        offer.Building = buildingID;
+                        offer.Position = buildingData.m_position;
+                        offer.Amount = (int)((num34 - 0) / 400);
+                        offer.Active = false;
+
+                        if ((int)(num34 / 400) > 0)
+                        {
+                            Singleton<TransferManager>.instance.AddIncomingOffer(incomingTransferReason, offer);
+                        }
+                    }
+                }
+            }
+
+            if ((MainDataStore.resourceCategory[buildingID] == 1) || (MainDataStore.resourceCategory[buildingID] == 0))
+            {
+                //Fuel for Heavy
+                incomingTransferReason = (TransferManager.TransferReason)113;
+                num34 = MainDataStore.petrolBuffer[buildingID] - MainDataStore.finalVehicleForFuelCount[buildingID] * 400;
+                if (buildingData.m_flags.IsFlagSet(Building.Flags.Active) && buildingData.m_flags.IsFlagSet(Building.Flags.Completed))
+                {
+                    if (num34 >= 0)
+                    {
+                        System.Random rand = new System.Random();
+                        TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                        offer.Priority = rand.Next(8);
+                        offer.Building = buildingID;
+                        offer.Position = buildingData.m_position;
+                        offer.Amount = (int)((num34 - 0) / 400);
+                        offer.Active = false;
+
+                        if ((int)(num34 / 400) > 0)
+                        {
+                            Singleton<TransferManager>.instance.AddIncomingOffer(incomingTransferReason, offer);
+                        }
                     }
                 }
             }

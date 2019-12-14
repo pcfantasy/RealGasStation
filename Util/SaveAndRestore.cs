@@ -143,6 +143,7 @@ namespace RealGasStation.Util
                 MainDataStore.saveData = new byte[262144];
                 gather_saveData();
                 SaveAndRestore._serializableData.SaveData("RealGasStation MainDataStore", MainDataStore.saveData);
+                SaveAndRestore._serializableData.SaveData("RealGasStation resourceCategory", MainDataStore.resourceCategory);
             }
         }
 
@@ -150,6 +151,7 @@ namespace RealGasStation.Util
         {
             MainDataStore.DataInit();
             MainDataStore.saveData = new byte[262144];
+            MainDataStore.resourceCategory = new byte[49152];
             DebugLog.LogToFileOnly("OnLoadData");
             DebugLog.LogToFileOnly("startload");
 
@@ -161,6 +163,21 @@ namespace RealGasStation.Util
             else
             {
                 MainDataStore.load();
+            }
+
+            MainDataStore.resourceCategory = SaveAndRestore._serializableData.LoadData("RealGasStation resourceCategory");
+            if (MainDataStore.resourceCategory == null)
+            {
+                DebugLog.LogToFileOnly("no RealGasStation resourceCategory save data, please check");
+                MainDataStore.resourceCategory = new byte[49152];
+                for (int i = 0; i < MainDataStore.resourceCategory.Length; i++)
+                {
+                    MainDataStore.resourceCategory[i] = 0;
+                }
+            }
+            else
+            {
+                //MainDataStore.load();
             }
         }
     }

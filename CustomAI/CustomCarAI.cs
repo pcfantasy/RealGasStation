@@ -16,7 +16,7 @@ namespace RealGasStation.CustomAI
         public static void CarAIPathfindFailurePostFix(ushort vehicleID, ref Vehicle data)
         {
             ushort i = vehicleID;
-            if (data.m_transferType == 112)
+            if ((data.m_transferType == 112) || (data.m_transferType == 113))
             {
                 if (data.Info.m_vehicleAI is CargoTruckAI && (data.m_targetBuilding != 0))
                 {
@@ -156,7 +156,7 @@ namespace RealGasStation.CustomAI
 
         public static void GetForFuelCount(ushort vehicleID, ref Vehicle data)
         {
-            if (data.m_transferType == 112)
+            if ((data.m_transferType == 112) || (data.m_transferType == 113))
             {
                 MainDataStore.tempVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]]++;
             }
@@ -195,7 +195,7 @@ namespace RealGasStation.CustomAI
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
                                             offer.Active = true;
-                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)113, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
                                         }
                                     }
@@ -209,7 +209,7 @@ namespace RealGasStation.CustomAI
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
                                             offer.Active = true;
-                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)113, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
                                         }
                                     }
