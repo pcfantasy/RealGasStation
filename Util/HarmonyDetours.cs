@@ -81,6 +81,13 @@ namespace RealGasStation.Util
             harmony.ConditionalPatch(vehicleManagerReleaseVehicleImplementation,
                 new HarmonyMethod(vehicleManagerReleaseVehicleImplementationPreFix),
                 null);
+
+            //6
+            var vehicleAICalculateTargetSpeed = typeof(VehicleAI).GetMethod("CalculateTargetSpeed", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(float), typeof(float) }, null);
+            var vehicleAICalculateTargetSpeedPreFix = typeof(CustomVehicleAI).GetMethod("VehicleAICalculateTargetSpeedPreFix");
+            harmony.ConditionalPatch(vehicleAICalculateTargetSpeed,
+                new HarmonyMethod(vehicleAICalculateTargetSpeedPreFix),
+                null);
             Loader.HarmonyDetourFailed = false;
             DebugLog.LogToFileOnly("Harmony patches applied");
         }
@@ -125,6 +132,13 @@ namespace RealGasStation.Util
             var vehicleManagerReleaseVehicleImplementationPreFix = typeof(CustomVehicleManager).GetMethod("VehicleManagerReleaseVehicleImplementationPreFix");
             harmony.ConditionalUnPatch(vehicleManagerReleaseVehicleImplementation,
                 new HarmonyMethod(vehicleManagerReleaseVehicleImplementationPreFix),
+                null);
+
+            //6
+            var vehicleAICalculateTargetSpeed = typeof(VehicleAI).GetMethod("CalculateTargetSpeed", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(float), typeof(float) }, null);
+            var vehicleAICalculateTargetSpeedPreFix = typeof(CustomVehicleAI).GetMethod("VehicleAICalculateTargetSpeedPreFix");
+            harmony.ConditionalUnPatch(vehicleAICalculateTargetSpeed,
+                new HarmonyMethod(vehicleAICalculateTargetSpeedPreFix),
                 null);
             DebugLog.LogToFileOnly("Harmony patches DeApplied");
         }

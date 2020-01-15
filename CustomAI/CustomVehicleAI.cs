@@ -13,7 +13,16 @@ namespace RealGasStation.CustomAI
     class CustomVehicleAI : VehicleAI
     {
         // VehicleAI
-        protected float CustomCalculateTargetSpeed(ushort vehicleID, ref Vehicle data, float speedLimit, float curve)
+
+        public static void VehicleAICalculateTargetSpeedPreFix(ushort vehicleID, ref Vehicle data, ref float speedLimit, float curve)
+        {
+            ushort num = FindToll(data.GetLastFramePosition(), 8f);
+            if (num != 0)
+            {
+                speedLimit = 0.125f;
+            }
+        }
+        /*protected float CustomCalculateTargetSpeed(ushort vehicleID, ref Vehicle data, float speedLimit, float curve)
         {
             float a = 1000f / (1f + curve * 1000f / this.m_info.m_turning) + 2f;
             float b = 8f * speedLimit;
@@ -27,9 +36,9 @@ namespace RealGasStation.CustomAI
             {
                 return Mathf.Min(Mathf.Min(a, b), this.m_info.m_maxSpeed);
             }
-        }
+        }*/
 
-        public ushort FindToll(Vector3 pos, float maxDistance)
+        public static ushort FindToll(Vector3 pos, float maxDistance)
         {
             int num = Mathf.Max((int)((pos.x - maxDistance) / 64f + 135f), 0);
             int num2 = Mathf.Max((int)((pos.z - maxDistance) / 64f + 135f), 0);

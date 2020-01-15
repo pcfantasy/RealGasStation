@@ -187,7 +187,7 @@ namespace RealGasStation
                 }
 
                 //3
-                DebugLog.LogToFileOnly("Detour VehicleAI::CalculateTargetSpeed calls");
+                /*DebugLog.LogToFileOnly("Detour VehicleAI::CalculateTargetSpeed calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(VehicleAI).GetMethod("CalculateTargetSpeed", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(float), typeof(float) }, null),
@@ -197,7 +197,7 @@ namespace RealGasStation
                 {
                     DebugLog.LogToFileOnly("Could not detour VehicleAI::CalculateTargetSpeed");
                     detourFailed = true;
-                }
+                }*/
 
                 //4
                 DebugLog.LogToFileOnly("Detour CargoTruckAI::UpdateBuildingTargetPositions calls");
