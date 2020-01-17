@@ -279,6 +279,9 @@ namespace RealGasStation.UI
                         both.isVisible = true;
                         heavy.isVisible = true;
                         small.isVisible = true;
+                        both.isChecked = (MainDataStore.resourceCategory[MainDataStore.lastBuilding] == 0) ? true : false;
+                        heavy.isChecked = (MainDataStore.resourceCategory[MainDataStore.lastBuilding] == 1) ? true : false;
+                        small.isChecked = (MainDataStore.resourceCategory[MainDataStore.lastBuilding] == 2) ? true : false;
                         both.text = Localization.Get("ACCEPT_ALL_VEHICLE");
                         heavy.text = Localization.Get("ACCEPT_HEAVY_VEHICLE");
                         small.text = Localization.Get("ACCEPT_SMALL_VEHICLE");
