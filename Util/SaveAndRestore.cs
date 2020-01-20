@@ -141,9 +141,11 @@ namespace RealGasStation.Util
             {
                 DebugLog.LogToFileOnly("startsave");
                 MainDataStore.saveData = new byte[262144];
+                MainDataStore.saveDataForMoreVehicle = new byte[196608];
                 gather_saveData();
                 SaveAndRestore._serializableData.SaveData("RealGasStation MainDataStore", MainDataStore.saveData);
                 SaveAndRestore._serializableData.SaveData("RealGasStation resourceCategory", MainDataStore.resourceCategory);
+                SaveAndRestore._serializableData.SaveData("RealGasStation saveDataForMoreVehicle", MainDataStore.saveDataForMoreVehicle);
             }
         }
 
@@ -152,6 +154,7 @@ namespace RealGasStation.Util
             MainDataStore.DataInit();
             MainDataStore.saveData = new byte[262144];
             MainDataStore.resourceCategory = new byte[49152];
+            MainDataStore.saveDataForMoreVehicle = new byte[196608];
             DebugLog.LogToFileOnly("OnLoadData");
             DebugLog.LogToFileOnly("startload");
 
@@ -179,6 +182,17 @@ namespace RealGasStation.Util
             {
                 //MainDataStore.load();
             }
+
+            MainDataStore.saveDataForMoreVehicle = SaveAndRestore._serializableData.LoadData("RealGasStation saveDataForMoreVehicle");
+            if (MainDataStore.saveDataForMoreVehicle == null)
+            {
+                DebugLog.LogToFileOnly("no RealGasStation MainDataStore saveDataForMoreVehicle, please check");
+            }
+            else
+            {
+                MainDataStore.loadForMoreVehicle();
+            }
+
         }
     }
 }

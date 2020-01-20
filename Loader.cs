@@ -65,7 +65,7 @@ namespace RealGasStation
                     InitDetour();
                     HarmonyInitDetour();
                     SetupGui();
-                    for (int i = 0; i < 16384; i++)
+                    for (int i = 0; i < Singleton<VehicleManager>.instance.m_vehicles.m_size; i++)
                     {
                         CustomCarAI.watingPathTime[i] = 0;
                         CustomCarAI.stuckTime[i] = 0;

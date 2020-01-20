@@ -11,8 +11,8 @@ namespace RealGasStation.CustomAI
 {
     public class CustomCarAI
     {
-        public static byte[] watingPathTime = new byte[16384];
-        public static ushort[] stuckTime = new ushort[16384];
+        public static byte[] watingPathTime = new byte[65536];
+        public static ushort[] stuckTime = new ushort[65536];
         public static void CarAIPathfindFailurePostFix(ushort vehicleID, ref Vehicle data)
         {
             ushort i = vehicleID;
@@ -164,11 +164,11 @@ namespace RealGasStation.CustomAI
 
         public static void VehicleStatus(int i, ref Vehicle vehicle)
         {
-            if (i < 16384)
+            if (i < Singleton<VehicleManager>.instance.m_vehicles.m_size)
             {
                 uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
-                int num4 = (int)(currentFrameIndex & 255u);
-                if (((num4 >> 4) & 15u) == (i & 15u))
+                int num4 = (int)(currentFrameIndex & 4095u);
+                if (((num4 >> 8) & 255u) == (i & 255u))
                 {
                     GetForFuelCount((ushort)i, ref vehicle);
                     VehicleManager instance = Singleton<VehicleManager>.instance;
@@ -187,7 +187,7 @@ namespace RealGasStation.CustomAI
                                     System.Random rand = new System.Random();
                                     if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic))
                                     {
-                                        if (rand.Next(1000) < 2)
+                                        if (rand.Next(62) < 2)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
                                             offer.Priority = rand.Next(8);
@@ -201,7 +201,7 @@ namespace RealGasStation.CustomAI
                                     }
                                     else
                                     {
-                                        if (rand.Next(1500) < 2)
+                                        if (rand.Next(93) < 2)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
                                             offer.Priority = rand.Next(8);
@@ -230,7 +230,7 @@ namespace RealGasStation.CustomAI
                                     ushort citizen = GetDriverInstance((ushort)i, ref vehicle);
                                     if (Singleton<CitizenManager>.instance.m_citizens.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_citizen].m_flags.IsFlagSet(Citizen.Flags.DummyTraffic))
                                     {
-                                        if (rand.Next(1000) < 2)
+                                        if (rand.Next(62) < 2)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
                                             offer.Priority = rand.Next(8);
@@ -244,7 +244,7 @@ namespace RealGasStation.CustomAI
                                     }
                                     else
                                     {
-                                        if (rand.Next(1500) < 2)
+                                        if (rand.Next(93) < 2)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
                                             offer.Priority = rand.Next(8);
