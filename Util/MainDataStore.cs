@@ -16,6 +16,7 @@ namespace RealGasStation.Util
         public static bool[] alreadyAskForFuel = new bool[65536];
         public static bool[] isBuildingReleased = new bool[49152];
         public static byte[] resourceCategory = new byte[49152];
+        public static bool[] alreadyPaidForFuel = new bool[65536];
 
         public static ushort lastVehicle = 0;
         public static ushort lastBuilding = 0;
@@ -31,6 +32,7 @@ namespace RealGasStation.Util
                 TargetGasBuilding[i] = 0;
                 alreadyAskForFuel[i] = false;
                 preTranferReason[i] = 0;
+                alreadyPaidForFuel[i] = false;
             }
 
             for (int i = 0; i < MainDataStore.petrolBuffer.Length; i++)

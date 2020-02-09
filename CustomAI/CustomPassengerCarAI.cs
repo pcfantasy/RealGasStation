@@ -70,7 +70,16 @@ namespace RealGasStation.CustomAI
             //RealGasStation Mod related
             if (data.m_transferType == 112)
             {
-                PassengerCarAIArriveAtTargetForRealGasStationPre(vehicleID, ref data);
+                if (!MainDataStore.alreadyPaidForFuel[vehicleID])
+                {
+                    PassengerCarAIArriveAtTargetForRealGasStationPre(vehicleID, ref data);
+                    MainDataStore.alreadyPaidForFuel[vehicleID] = false;
+                }
+                else
+                {
+                    DebugLog.LogToFileOnly("Vehicle is been paid for fuel");
+                    data.Unspawn(vehicleID);
+                }
                 return true;
             }
             // NON-STOCK CODE END

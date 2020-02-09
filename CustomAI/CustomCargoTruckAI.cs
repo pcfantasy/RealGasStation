@@ -72,7 +72,16 @@ namespace RealGasStation.CustomAI
             // NON-STOCK CODE START
             if ((data.m_transferType == 113) || (data.m_transferType == 112))
             {
-                CargoTruckAIArriveAtSourceForRealGasStationPre(vehicleID, ref data);
+                if (!MainDataStore.alreadyPaidForFuel[vehicleID])
+                {
+                    CargoTruckAIArriveAtSourceForRealGasStationPre(vehicleID, ref data);
+                    MainDataStore.alreadyPaidForFuel[vehicleID] = true;
+                }
+                else
+                {
+                    DebugLog.LogToFileOnly("Vehicle is been paid for fuel");
+                    data.Unspawn(vehicleID);
+                }
                 return true;
             }
 
@@ -109,7 +118,16 @@ namespace RealGasStation.CustomAI
             // NON-STOCK CODE START
             if ((data.m_transferType == 113) || (data.m_transferType == 112))
             {
-                CargoTruckAIArriveAtTargetForRealGasStationPre(vehicleID, ref data);
+                if (!MainDataStore.alreadyPaidForFuel[vehicleID])
+                {
+                    CargoTruckAIArriveAtTargetForRealGasStationPre(vehicleID, ref data);
+                    MainDataStore.alreadyPaidForFuel[vehicleID] = true;
+                }
+                else
+                {
+                    DebugLog.LogToFileOnly("Vehicle is been paid for fuel");
+                    data.Unspawn(vehicleID);
+                }
                 return true;
             }
             /// NON-STOCK CODE END ///
@@ -209,19 +227,20 @@ namespace RealGasStation.CustomAI
         public static float GetResourcePrice(TransferManager.TransferReason material)
         {
             //Need to sync with RealCity mod
+            float num = 0f;
             if (RealGasStationThreading.reduceVehicle)
             {
                 switch (material)
                 {
                     case TransferManager.TransferReason.Petrol:
-                        return 3f;
+                        num = 3f; break;
                     case TransferManager.TransferReason.Food:
-                        return 1.5f;
+                        num = 1.5f; break;
                     case TransferManager.TransferReason.Lumber:
-                        return 2f;
+                        num = 2f; break;
                     case TransferManager.TransferReason.Coal:
-                        return 2.5f;
-                    default: DebugLog.LogToFileOnly("Error: Unknow material in RealGasStation = " + material.ToString()); return 0f;
+                        num = 2.5f; break;
+                    default: DebugLog.LogToFileOnly("Error: Unknow material in RealGasStation = " + material.ToString()); num = 0f; break;
                 }
             }
             else
@@ -229,16 +248,17 @@ namespace RealGasStation.CustomAI
                 switch (material)
                 {
                     case TransferManager.TransferReason.Petrol:
-                        return 3f * RealGasStationThreading.reduceCargoDiv;
+                        num = 3f * RealGasStationThreading.reduceCargoDiv; break;
                     case TransferManager.TransferReason.Food:
-                        return 1.5f * RealGasStationThreading.reduceCargoDiv;
+                        num = 1.5f * RealGasStationThreading.reduceCargoDiv; break;
                     case TransferManager.TransferReason.Lumber:
-                        return 2f * RealGasStationThreading.reduceCargoDiv;
+                        num = 2f * RealGasStationThreading.reduceCargoDiv; break;
                     case TransferManager.TransferReason.Coal:
-                        return 2.5f * RealGasStationThreading.reduceCargoDiv;
-                    default: DebugLog.LogToFileOnly("Error: Unknow material in RealGasStation = " + material.ToString()); return 0f;
+                        num = 2.5f * RealGasStationThreading.reduceCargoDiv; break;
+                    default: DebugLog.LogToFileOnly("Error: Unknow material in RealGasStation = " + material.ToString()); num = 0f; break;
                 }
             }
+            return (float)(UniqueFacultyAI.IncreaseByBonus(UniqueFacultyAI.FacultyBonus.Science, 100) / 100f) * num;
         }
 
         public static void CargoTruckAIArriveAtTargetForRealGasStationPost(ushort vehicleID, ref Vehicle vehicleData)
@@ -283,7 +303,7 @@ namespace RealGasStation.CustomAI
                 {
                     target = InstanceID.Empty;
                     TransferManager.TransferReason transferType = (TransferManager.TransferReason)data.m_transferType;
-                    if (transferType == (TransferManager.TransferReason)113)
+                    if (transferType == (TransferManager.TransferReason)113 || transferType == (TransferManager.TransferReason)112)
                     {
                         return Localization.Get("FOR_FUEL");
                     }
@@ -301,7 +321,7 @@ namespace RealGasStation.CustomAI
                     if ((data.m_flags & Vehicle.Flags.Exporting) != 0 || (flags & Building.Flags.IncomingOutgoing) != 0)
                     {
                         target = InstanceID.Empty;
-                        if (transferType == (TransferManager.TransferReason)113)
+                        if (transferType == (TransferManager.TransferReason)113 || transferType == (TransferManager.TransferReason)112)
                         {
                             return Localization.Get("FOR_FUEL");
                         }
@@ -311,7 +331,7 @@ namespace RealGasStation.CustomAI
                     {
                         target = InstanceID.Empty;
                         target.Building = targetBuilding;
-                        if (transferType == (TransferManager.TransferReason)113)
+                        if (transferType == (TransferManager.TransferReason)113 || transferType == (TransferManager.TransferReason)112)
                         {
                             return Localization.Get("FOR_FUEL");
                         }
@@ -327,7 +347,7 @@ namespace RealGasStation.CustomAI
                     {
                         return Localization.Get("TRANSFER_OPERATION");
                     }
-                    else if (transferType == (TransferManager.TransferReason)113)
+                    else if (transferType == (TransferManager.TransferReason)113 || transferType == (TransferManager.TransferReason)112)
                     {
                         return Localization.Get("FOR_FUEL");
                     }
