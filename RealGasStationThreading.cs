@@ -29,6 +29,16 @@ namespace RealGasStation
         public static object MainDataStoreInstance = null;
         public static FieldInfo _reduceCargoDiv = null;
         public static int reduceCargoDiv = 1;
+        public static bool dummyCargoNeedFuel = false;
+        public static bool dummyCarNeedFuel = false;
+        public static bool cargoNeedFuel = false;
+        public static bool carNeedFuel = false;
+        public static ushort dummyCargoCount = 0;
+        public static ushort dummyCarCount = 0;
+        public static ushort cargoCount = 0;
+        public static ushort carCount = 0;
+
+
         public override void OnBeforeSimulationFrame()
         {
             base.OnBeforeSimulationFrame();
@@ -146,8 +156,10 @@ namespace RealGasStation
                     uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
                     BuildingManager instance = Singleton<BuildingManager>.instance;
                     int num4 = (int)(currentFrameIndex & 255u);
+                    RefreshFuel();
                     if (num4 == 255)
                     {
+                        RefreshFuel(true);
                         PlayerBuildingUI.refeshOnce = true;
                         if (!isFirstTime)
                         {
@@ -173,6 +185,38 @@ namespace RealGasStation
 
                     CustomTransferManager.CustomSimulationStepImpl();
                 }
+            }
+        }
+
+        public void RefreshFuel(bool refresh = false)
+        {
+            if (refresh)
+            {
+                dummyCargoNeedFuel = false;
+                dummyCarNeedFuel = false;
+                cargoNeedFuel = false;
+                carNeedFuel = false;
+                dummyCargoCount = 0;
+                dummyCarCount = 0;
+                cargoCount = 0;
+                carCount = 0;
+            }
+            else
+            {
+                dummyCargoNeedFuel = dummyCargoNeedFuel ? false : dummyCargoNeedFuel;
+                dummyCarNeedFuel = dummyCarNeedFuel ? false : dummyCarNeedFuel;
+                cargoNeedFuel = cargoNeedFuel ? false : cargoNeedFuel;
+                carNeedFuel = carNeedFuel ? false : cargoNeedFuel;
+
+                dummyCargoNeedFuel = (dummyCargoCount > 1000) ? true : false;
+                dummyCarNeedFuel = (dummyCarCount > 1000) ? true : false;
+                cargoNeedFuel = (cargoCount > 1500) ? true : false;
+                carNeedFuel = (carCount > 1500) ? true : false;
+
+                dummyCargoCount = (dummyCargoCount > 1000) ? (ushort)0 : dummyCargoCount;
+                dummyCarCount = (dummyCarCount > 1000) ? (ushort)0 : dummyCarCount;
+                cargoCount = (cargoCount > 1500) ? (ushort)0 : cargoCount;
+                carCount = (carCount > 1500) ? (ushort)0 : carCount;
             }
         }
     }

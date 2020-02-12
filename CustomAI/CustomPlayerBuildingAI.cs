@@ -13,8 +13,6 @@ namespace RealGasStation.CustomAI
     {
         public static void PlayerBuildingAISimulationStepPostFix(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
         {
-            MainDataStore.finalVehicleForFuelCount[buildingID] = MainDataStore.tempVehicleForFuelCount[buildingID];
-            MainDataStore.tempVehicleForFuelCount[buildingID] = 0;
             if (GasStationAI.IsGasBuilding(buildingID))
             {
                 if (buildingData.m_flags.IsFlagSet(Building.Flags.Completed))

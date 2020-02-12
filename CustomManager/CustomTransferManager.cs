@@ -36,6 +36,7 @@ namespace RealGasStation.CustomManager
                         if ((Vector3.Distance(data.GetLastFramePosition(), Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].m_position) > CanNotStartGasTransferDistance) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain) == 0))
                         {
                             AI.SetTarget(vehicleID, ref data, offer.Building);
+                            MainDataStore.finalVehicleForFuelCount[offer.Building]++;
                         }
                         //else
                         //{
@@ -63,6 +64,7 @@ namespace RealGasStation.CustomManager
                                 if ((Vector3.Distance(data.GetLastFramePosition(), Singleton<BuildingManager>.instance.m_buildings.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_targetBuilding].m_position) > CanNotStartGasTransferDistance) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain) == 0))
                                 {
                                     AI.SetTarget(vehicleID, ref data, offer.Building);
+                                    MainDataStore.finalVehicleForFuelCount[offer.Building]++;
                                 }
                                 //else
                                 //{

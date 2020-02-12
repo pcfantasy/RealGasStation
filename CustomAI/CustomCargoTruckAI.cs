@@ -37,6 +37,8 @@ namespace RealGasStation.CustomAI
             }
             SetTarget(vehicleID, ref data, data.m_targetBuilding);
             data.m_transferType = MainDataStore.preTranferReason[vehicleID];
+            if (MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]] > 0)
+                MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]]--;
             MainDataStore.TargetGasBuilding[vehicleID] = 0;
 
             if (Loader.isRealCityRunning)

@@ -29,6 +29,8 @@ namespace RealGasStation.CustomAI
                                 DebugLog.LogToFileOnly("Reroute to target " + i.ToString() + "vehicle.m_path = " + vehicle.m_path.ToString() + vehicle.m_flags.ToString());
 #endif
                     data.m_transferType = MainDataStore.preTranferReason[i];
+                    if (MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[i]] > 0)
+                        MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[i]]--;
                     MainDataStore.TargetGasBuilding[i] = 0;
                     return;
                 }
@@ -37,6 +39,8 @@ namespace RealGasStation.CustomAI
                     PassengerCarAI AI = (PassengerCarAI)data.Info.m_vehicleAI;
                     AI.SetTarget((ushort)i, ref data, 0);
                     data.m_transferType = MainDataStore.preTranferReason[i];
+                    if (MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[i]] > 0)
+                        MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[i]]--;
                     MainDataStore.TargetGasBuilding[i] = 0;
                     return;
                 }
@@ -154,23 +158,14 @@ namespace RealGasStation.CustomAI
             return 0;
         }
 
-        public static void GetForFuelCount(ushort vehicleID, ref Vehicle data)
-        {
-            if ((data.m_transferType == 112) || (data.m_transferType == 113))
-            {
-                MainDataStore.tempVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]]++;
-            }
-        }
-
         public static void VehicleStatus(int i, ref Vehicle vehicle)
         {
             if (i < Singleton<VehicleManager>.instance.m_vehicles.m_size)
             {
                 uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
-                int num4 = (int)(currentFrameIndex & 4095u);
-                if (((num4 >> 8) & 255u) == (i & 255u))
+                int num4 = (int)(currentFrameIndex & 255u);
+                if (((num4 >> 4) & 15u) == (i & 15u))
                 {
-                    GetForFuelCount((ushort)i, ref vehicle);
                     VehicleManager instance = Singleton<VehicleManager>.instance;
                     if (!vehicle.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (vehicle.m_cargoParent == 0) && vehicle.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.GoingBack) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.Parking))
                     {
@@ -187,7 +182,7 @@ namespace RealGasStation.CustomAI
                                     System.Random rand = new System.Random();
                                     if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic))
                                     {
-                                        if (rand.Next(62) < 2)
+                                        if (RealGasStationThreading.dummyCargoNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
                                             offer.Priority = rand.Next(8);
@@ -198,10 +193,14 @@ namespace RealGasStation.CustomAI
                                             Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)113, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
                                         }
+                                        else
+                                        {
+                                            RealGasStationThreading.dummyCargoCount++;
+                                        }
                                     }
                                     else
                                     {
-                                        if (rand.Next(93) < 2)
+                                        if (RealGasStationThreading.cargoNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
                                             offer.Priority = rand.Next(8);
@@ -211,6 +210,10 @@ namespace RealGasStation.CustomAI
                                             offer.Active = true;
                                             Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)113, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
+                                        }
+                                        else
+                                        {
+                                            RealGasStationThreading.cargoCount++;
                                         }
                                     }
                                 }
@@ -230,7 +233,7 @@ namespace RealGasStation.CustomAI
                                     ushort citizen = GetDriverInstance((ushort)i, ref vehicle);
                                     if (Singleton<CitizenManager>.instance.m_citizens.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_citizen].m_flags.IsFlagSet(Citizen.Flags.DummyTraffic))
                                     {
-                                        if (rand.Next(62) < 2)
+                                        if (RealGasStationThreading.dummyCarNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
                                             offer.Priority = rand.Next(8);
@@ -241,10 +244,14 @@ namespace RealGasStation.CustomAI
                                             Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
                                         }
+                                        else
+                                        {
+                                            RealGasStationThreading.dummyCarCount++;
+                                        }
                                     }
                                     else
                                     {
-                                        if (rand.Next(93) < 2)
+                                        if (RealGasStationThreading.carNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
                                             offer.Priority = rand.Next(8);
@@ -254,6 +261,10 @@ namespace RealGasStation.CustomAI
                                             offer.Active = true;
                                             Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)112, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
+                                        }
+                                        else
+                                        {
+                                            RealGasStationThreading.carCount++;
                                         }
                                     }
                                 }
