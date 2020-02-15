@@ -2,6 +2,7 @@
 using ColossalFramework.Math;
 using RealGasStation.Util;
 using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using UnityEngine;
 
@@ -172,8 +173,8 @@ namespace RealGasStation.CustomAI
             }
 
             if ((data.m_transferType == 112) || (data.m_transferType == 113))
-            {                
-                if (!CustomStartPathFind(vehicleID, ref data))
+            {             
+                if (!HackedStartPathFind(vehicleID, ref data))
                 {
                     data.m_transferType = MainDataStore.preTranferReason[vehicleID];
                     data.m_targetBuilding = 0;
@@ -191,67 +192,109 @@ namespace RealGasStation.CustomAI
             }
         }
 
-        protected bool CustomStartPathFind(ushort vehicleID, ref Vehicle vehicleData)
+        protected bool HackedStartPathFind(ushort vehicleID, ref Vehicle vehicleData)
         {
-            if ((vehicleData.m_flags & Vehicle.Flags.WaitingTarget) != 0)
+            if ((vehicleData.m_flags & Vehicle.Flags.WaitingTarget) != (Vehicle.Flags)0)
             {
                 return true;
             }
-            if ((vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0)
+            if ((vehicleData.m_flags & Vehicle.Flags.GoingBack) != (Vehicle.Flags)0)
             {
                 if (vehicleData.m_sourceBuilding != 0)
                 {
                     BuildingManager instance = Singleton<BuildingManager>.instance;
-                    BuildingInfo info = instance.m_buildings.m_buffer[vehicleData.m_sourceBuilding].Info;
-                    Randomizer randomizer = new Randomizer(vehicleID);
-                    Vector3 a, target;
-                    info.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_sourceBuilding, ref instance.m_buildings.m_buffer[vehicleData.m_sourceBuilding], ref randomizer, m_info, out a, out target);
-
-
-                    var inst = Singleton<CargoTruckAI>.instance;
-                    if (startPathFind == null)
-                    {
-                        startPathFind = typeof(CargoTruckAI).GetMethod("StartPathFind", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) }, null);
-                    }
-                    Vehicle A = vehicleData;
-                    ushort B = vehicleID;
-                    Vector3 C = vehicleData.m_targetPos3;
-                    Vector3 D = target;
-                    bool E = true;
-                    bool F = true;
-                    bool G = false;
-                    object[] parameters = new object[] { B, A,C,D,E,F,G };
-                    bool return_value = (bool)startPathFind.Invoke(inst, parameters);
-                    vehicleData = (Vehicle)parameters[1];
-                    return return_value;
+                    BuildingInfo info = instance.m_buildings.m_buffer[(int)vehicleData.m_sourceBuilding].Info;
+                    Randomizer randomizer = new Randomizer((int)vehicleID);
+                    Vector3 vector;
+                    Vector3 endPos;
+                    info.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_sourceBuilding, ref instance.m_buildings.m_buffer[(int)vehicleData.m_sourceBuilding], ref randomizer, this.m_info, out vector, out endPos);
+                    return HackedStartPathFind(vehicleID, ref vehicleData, vehicleData.m_targetPos3, endPos, true, true, false);
                 }
             }
             else if (vehicleData.m_targetBuilding != 0)
             {
                 BuildingManager instance2 = Singleton<BuildingManager>.instance;
-                BuildingInfo info2 = instance2.m_buildings.m_buffer[vehicleData.m_targetBuilding].Info;
-                Randomizer randomizer2 = new Randomizer(vehicleID);
-                Vector3 b, target2;
-                info2.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_targetBuilding, ref instance2.m_buildings.m_buffer[vehicleData.m_targetBuilding], ref randomizer2, m_info, out b, out target2);
+                BuildingInfo info2 = instance2.m_buildings.m_buffer[(int)vehicleData.m_targetBuilding].Info;
+                Randomizer randomizer2 = new Randomizer((int)vehicleID);
+                Vector3 vector2;
+                Vector3 endPos2;
+                info2.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_targetBuilding, ref instance2.m_buildings.m_buffer[(int)vehicleData.m_targetBuilding], ref randomizer2, this.m_info, out vector2, out endPos2);
+                return HackedStartPathFind(vehicleID, ref vehicleData, vehicleData.m_targetPos3, endPos2, true, true, false);
+            }
+            return false;
+        }
 
-                var inst = Singleton<CargoTruckAI>.instance;
-                if (startPathFind == null)
+        protected bool HackedStartPathFind(ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, bool undergroundTarget)
+        {
+            if ((vehicleData.m_flags & (Vehicle.Flags.TransferToSource | Vehicle.Flags.GoingBack)) != (Vehicle.Flags)0)
+            {
+                return base.StartPathFind(vehicleID, ref vehicleData, startPos, endPos, startBothWays, endBothWays, undergroundTarget);
+            }
+            bool allowUnderground = (vehicleData.m_flags & (Vehicle.Flags.Underground | Vehicle.Flags.Transition)) != (Vehicle.Flags)0;
+            PathUnit.Position startPosA;
+            PathUnit.Position startPosB;
+            float num;
+            float num2;
+            bool flag = PathManager.FindPathPosition(startPos, ItemClass.Service.Road, NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle, VehicleInfo.VehicleType.Car, allowUnderground, false, 32f, out startPosA, out startPosB, out num, out num2);
+            PathUnit.Position position;
+            PathUnit.Position position2;
+            float num3;
+            float num4;
+            if (PathManager.FindPathPosition(startPos, ItemClass.Service.PublicTransport, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Train | VehicleInfo.VehicleType.Ship | VehicleInfo.VehicleType.Plane, allowUnderground, false, 32f, out position, out position2, out num3, out num4))
+            {
+                if (!flag || (num3 < num && (Mathf.Abs(startPos.x) > 4800f || Mathf.Abs(startPos.z) > 4800f)))
                 {
-                    startPathFind = typeof(CargoTruckAI).GetMethod("StartPathFind", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) }, null);
+                    startPosA = position;
+                    startPosB = position2;
+                    num = num3;
+                    num2 = num4;
                 }
-                Vehicle A = vehicleData;
-                ushort B = vehicleID;
-                Vector3 C = vehicleData.m_targetPos3;
-                Vector3 D = target2;
-                bool E = true;
-                bool F = true;
-                bool G = false;
-                object[] parameters = new object[] { B, A, C, D, E, F, G };
-                bool return_value = (bool)startPathFind.Invoke(inst, parameters);
-                vehicleData = (Vehicle)parameters[1];
-
-
-                return return_value;
+                flag = true;
+            }
+            PathUnit.Position endPosA;
+            PathUnit.Position endPosB;
+            float num5;
+            float num6;
+            bool flag2 = PathManager.FindPathPosition(endPos, ItemClass.Service.Road, NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle, VehicleInfo.VehicleType.Car, undergroundTarget, false, 32f, out endPosA, out endPosB, out num5, out num6);
+            PathUnit.Position position3;
+            PathUnit.Position position4;
+            float num7;
+            float num8;
+            if (PathManager.FindPathPosition(endPos, ItemClass.Service.PublicTransport, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Train | VehicleInfo.VehicleType.Ship | VehicleInfo.VehicleType.Plane, undergroundTarget, false, 32f, out position3, out position4, out num7, out num8))
+            {
+                if (!flag2 || (num7 < num5 && (Mathf.Abs(endPos.x) > 4800f || Mathf.Abs(endPos.z) > 4800f)))
+                {
+                    endPosA = position3;
+                    endPosB = position4;
+                    num5 = num7;
+                    num6 = num8;
+                }
+                flag2 = true;
+            }
+            if (flag && flag2)
+            {
+                PathManager instance = Singleton<PathManager>.instance;
+                if (!startBothWays || num < 10f)
+                {
+                    startPosB = default(PathUnit.Position);
+                }
+                if (!endBothWays || num5 < 10f)
+                {
+                    endPosB = default(PathUnit.Position);
+                }
+                NetInfo.LaneType laneTypes = NetInfo.LaneType.Vehicle | NetInfo.LaneType.CargoVehicle;
+                VehicleInfo.VehicleType vehicleTypes = VehicleInfo.VehicleType.Car | VehicleInfo.VehicleType.Train | VehicleInfo.VehicleType.Ship | VehicleInfo.VehicleType.Plane;
+                uint path;
+                if (instance.CreatePath(out path, ref Singleton<SimulationManager>.instance.m_randomizer, Singleton<SimulationManager>.instance.m_currentBuildIndex, startPosA, startPosB, endPosA, endPosB, default(PathUnit.Position), laneTypes, vehicleTypes, 20000f, this.IsHeavyVehicle(), this.IgnoreBlocked(vehicleID, ref vehicleData), false, false, false, false, this.CombustionEngine()))
+                {
+                    if (vehicleData.m_path != 0u)
+                    {
+                        instance.ReleasePath(vehicleData.m_path);
+                    }
+                    vehicleData.m_path = path;
+                    vehicleData.m_flags |= Vehicle.Flags.WaitingPath;
+                    return true;
+                }
             }
             return false;
         }
@@ -265,6 +308,30 @@ namespace RealGasStation.CustomAI
             }
         }
 
+        //Can not do this because TMPE will patch CargoTruckAI.StartPathFind
+        /*public void InitDelegate()
+        {
+            if (CustomStartPathFindDG != null)
+            {
+                return;
+            }
+
+            startPathFind = typeof(CargoTruckAI).GetMethod("StartPathFind", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) }, null);
+            DebugLog.LogToFileOnly("InitDelegate in PassengerCarAI");
+            var p0 = Expression.Parameter(typeof(CargoTruckAI), "CargoTruckAI");
+            var p1 = Expression.Parameter(typeof(ushort), "vehicleID");
+            var p2 = Expression.Parameter(typeof(Vehicle).MakeByRefType(), "vehicleData");
+            var p3 = Expression.Parameter(typeof(Vector3), "startPos");
+            var p4 = Expression.Parameter(typeof(Vector3), "endPos");
+            var p5 = Expression.Parameter(typeof(bool), "startBothWays");
+            var p6 = Expression.Parameter(typeof(bool), "endBothWays");
+            var p7 = Expression.Parameter(typeof(bool), "undergroundTarget");
+            var invokeExpression = Expression.Call(p0, startPathFind, new Expression[] { p1, p2, p3, p4, p5, p6, p7 });
+            CustomStartPathFindDG = Expression.Lambda<CustomStartPathFind>(invokeExpression, p0, p1, p2, p3, p4, p5, p6, p7).Compile();
+        }
+
         public static MethodInfo startPathFind;
+        public delegate bool CustomStartPathFind(CargoTruckAI CargoTruckAI, ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, bool undergroundTarget);
+        public static CustomStartPathFind CustomStartPathFindDG;*/
     }
 }
