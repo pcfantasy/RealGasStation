@@ -18,12 +18,12 @@ namespace RealGasStation.Patch
         {
             return typeof(VehicleAI).GetMethod("CalculateTargetSpeed", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(float), typeof(float) }, null);
         }
-        public static void Prefix(ushort vehicleID, ref Vehicle data, ref float speedLimit, float curve)
+        public static void Postfix(ref Vehicle data, ref float __result)
         {
             ushort num = FindToll(data.GetLastFramePosition(), 8f);
             if (num != 0)
             {
-                speedLimit = 0.125f;
+                __result = 1f;
             }
         }
 

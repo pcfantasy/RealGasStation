@@ -243,22 +243,6 @@ namespace RealGasStation
                         }
                     }
 
-                    if (!isRealConstructionRunning)
-                    {
-                        //7
-                        DebugLog.LogToFileOnly("Detour CargoTruckAI::GetLocalizedStatus calls");
-                        try
-                        {
-                            Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("GetLocalizedStatus", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InstanceID).MakeByRefType() }, null),
-                                                   typeof(CustomCargoTruckAI).GetMethod("GetLocalizedStatus", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InstanceID).MakeByRefType() }, null)));
-                        }
-                        catch (Exception)
-                        {
-                            DebugLog.LogToFileOnly("Could not detour CargoTruckAI::GetLocalizedStatus");
-                            detourFailed = true;
-                        }
-                    }
-
                     //if (!isRealCityRunning)
                     if (true)
                     {
