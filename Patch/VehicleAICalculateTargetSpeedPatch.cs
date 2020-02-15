@@ -1,20 +1,24 @@
 ﻿using ColossalFramework;
+using Harmony;
 using RealGasStation.NewAI;
 using RealGasStation.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
-namespace RealGasStation.CustomAI
+namespace RealGasStation.Patch
 {
-    class CustomVehicleAI : VehicleAI
+    [HarmonyPatch]
+    public static class VehicleAICalculateTargetSpeedPatch
     {
-        // VehicleAI
-
-        public static void VehicleAICalculateTargetSpeedPreFix(ushort vehicleID, ref Vehicle data, ref float speedLimit, float curve)
+        public static MethodBase TargetMethod()
+        {
+            return typeof(VehicleAI).GetMethod("CalculateTargetSpeed", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(float), typeof(float) }, null);
+        }
+        public static void Prefix(ushort vehicleID, ref Vehicle data, ref float speedLimit, float curve)
         {
             ushort num = FindToll(data.GetLastFramePosition(), 8f);
             if (num != 0)
@@ -22,21 +26,6 @@ namespace RealGasStation.CustomAI
                 speedLimit = 0.125f;
             }
         }
-        /*protected float CustomCalculateTargetSpeed(ushort vehicleID, ref Vehicle data, float speedLimit, float curve)
-        {
-            float a = 1000f / (1f + curve * 1000f / this.m_info.m_turning) + 2f;
-            float b = 8f * speedLimit;
-            ushort num = 0;
-            num = FindToll(data.GetLastFramePosition(), 8f);
-            if (num != 0)
-            {
-                return 0.8f;
-            }
-            else
-            {
-                return Mathf.Min(Mathf.Min(a, b), this.m_info.m_maxSpeed);
-            }
-        }*/
 
         public static ushort FindToll(Vector3 pos, float maxDistance)
         {

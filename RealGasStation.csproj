@@ -60,15 +60,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomAI\CustomCarAI.cs" />
     <Compile Include="CustomAI\CustomCargoTruckAI.cs" />
-    <Compile Include="CustomAI\CustomCommonBuildingAI.cs" />
     <Compile Include="CustomAI\CustomPassengerCarAI.cs" />
     <Compile Include="CustomAI\CustomPlayerBuildingAI.cs" />
     <Compile Include="CustomManager\CustomTransferManager.cs" />
-    <Compile Include="CustomAI\CustomVehicleAI.cs" />
     <Compile Include="CustomManager\CustomVehicleManager.cs" />
     <Compile Include="NewAI\GasStationAI.cs" />
+    <Compile Include="Patch\CarAIPathfindFailurePatch.cs" />
+    <Compile Include="Patch\VehicleAICalculateTargetSpeedPatch.cs" />
+    <Compile Include="Patch\VehicleManagerReleaseVehicleImplementationPatch.cs" />
+    <Compile Include="Patch\CarAISimulationStepPatch.cs" />
+    <Compile Include="Patch\PlayerBuildingAISimulationStepPatch.cs" />
+    <Compile Include="Patch\CommonBuildingAIReleaseBuildingPatch.cs" />
     <Compile Include="Util\DebugLog.cs" />
     <Compile Include="RealGasStation.cs" />
     <Compile Include="RealGasStationThreading.cs" />

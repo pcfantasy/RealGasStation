@@ -37,6 +37,7 @@ namespace RealGasStation
         public static ushort dummyCarCount = 0;
         public static ushort cargoCount = 0;
         public static ushort carCount = 0;
+        public const int HarmonyPatchNum = 6;
 
 
         public override void OnBeforeSimulationFrame()
@@ -67,26 +68,6 @@ namespace RealGasStation
                 MainDataStoreClass = RealCity.GetType("RealCity.Util.MainDataStore");
                 MainDataStoreInstance = Activator.CreateInstance(MainDataStoreClass);
                 _reduceCargoDiv = MainDataStoreClass.GetField("reduceCargoDiv", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-            }
-
-            DebugLog.LogToFileOnly("Detour AdvancedJunctionRule.NewCarAI::VehicleStatusForRealGasStation calls");
-            if (Loader.isAdvancedJunctionRuleRunning)
-            {
-                try
-                {
-                    Assembly as1 = Assembly.Load("AdvancedJunctionRule");
-                    Loader.Detours.Add(new Loader.Detour(as1.GetType("AdvancedJunctionRule.CustomAI.NewCarAI").GetMethod("VehicleStatusForRealGasStation", BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static, null, new Type[] {
-                typeof(ushort),
-                typeof(Vehicle).MakeByRefType()}, null), 
-                typeof(CustomCarAI).GetMethod("CarAICustomSimulationStepPreFix", BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static, null, new Type[] {
-                typeof(ushort),
-                typeof(Vehicle).MakeByRefType()}, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour AdvancedJunctionRule.NewCarAI::VehicleStatusForRealGasStation");
-                    detourFailed = true;
-                }
             }
 
             if (detourFailed)
@@ -141,6 +122,35 @@ namespace RealGasStation
                         string error = "RealGasStation HarmonyDetourInit is failed, Send RealGasStation.txt to Author.";
                         DebugLog.LogToFileOnly(error);
                         UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
+                    }
+                    else
+                    {
+                        var methods = HarmonyDetours.harmony.GetPatchedMethods();
+                        int i = 0;
+                        foreach (var method in methods)
+                        {
+                            var info = HarmonyDetours.harmony.GetPatchInfo(method);
+                            if (info.Owners?.Contains(HarmonyDetours.harmony.Id) == true)
+                            {
+                                DebugLog.LogToFileOnly("Harmony patch method = " + method.Name.ToString());
+                                if (info.Prefixes.Count != 0)
+                                {
+                                    DebugLog.LogToFileOnly("Harmony patch method has PreFix");
+                                }
+                                if (info.Postfixes.Count != 0)
+                                {
+                                    DebugLog.LogToFileOnly("Harmony patch method has PostFix");
+                                }
+                                i++;
+                            }
+                        }
+
+                        if (i != HarmonyPatchNum)
+                        {
+                            string error = $"RealGasStation HarmonyDetour Patch Num is {i}, Right Num is {HarmonyPatchNum} Send RealGasStation.txt to Author.";
+                            DebugLog.LogToFileOnly(error);
+                            UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
+                        }
                     }
                 }
             }

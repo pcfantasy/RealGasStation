@@ -1,16 +1,22 @@
 ﻿using ColossalFramework;
+using Harmony;
 using RealGasStation.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace RealGasStation.CustomAI
+namespace RealGasStation.Patch
 {
-    public class CustomCommonBuildingAI
+    [HarmonyPatch]
+    public static class CommonBuildingAIReleaseBuildingPatch
     {
-        public static void CommonBuildingAIReleaseBuildingPostfix(ushort buildingID)
+        public static MethodBase TargetMethod()
+        {
+            return typeof(CommonBuildingAI).GetMethod("ReleaseBuilding");
+        }
+        public static void Postfix(ushort buildingID)
         {
             MainDataStore.petrolBuffer[buildingID] = 0;
             MainDataStore.tempVehicleForFuelCount[buildingID] = 0;
@@ -19,6 +25,5 @@ namespace RealGasStation.CustomAI
             offer.Building = buildingID;
             Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)112, offer);
         }
-
     }
 }

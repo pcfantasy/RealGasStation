@@ -1,14 +1,10 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Plugins;
-using RealGasStation.CustomAI;
 using RealGasStation.NewAI;
+using RealGasStation.Patch;
 using RealGasStation.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace RealGasStation.CustomManager
@@ -58,7 +54,7 @@ namespace RealGasStation.CustomManager
                         data.m_transferType = 112;
                         if (data.m_flags.IsFlagSet(Vehicle.Flags.Created) && !data.m_flags.IsFlagSet(Vehicle.Flags.Deleted) && !data.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (data.m_cargoParent == 0) && data.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !data.m_flags.IsFlagSet(Vehicle.Flags.GoingBack) && !data.m_flags.IsFlagSet(Vehicle.Flags.Parking))
                         {
-                            ushort citizen = CustomCarAI.GetDriverInstance(vehicleID, ref data);
+                            ushort citizen = CarAISimulationStepPatch.GetDriverInstance(vehicleID, ref data);
                             if (Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_targetBuilding != 0)
                             {
                                 if ((Vector3.Distance(data.GetLastFramePosition(), Singleton<BuildingManager>.instance.m_buildings.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_targetBuilding].m_position) > CanNotStartGasTransferDistance) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain) == 0))

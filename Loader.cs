@@ -3,16 +3,13 @@ using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using RealGasStation.CustomAI;
-using RealGasStation.CustomManager;
+using RealGasStation.Patch;
 using RealGasStation.UI;
 using RealGasStation.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace RealGasStation
@@ -67,8 +64,8 @@ namespace RealGasStation
                     SetupGui();
                     for (int i = 0; i < Singleton<VehicleManager>.instance.m_vehicles.m_size; i++)
                     {
-                        CustomCarAI.watingPathTime[i] = 0;
-                        CustomCarAI.stuckTime[i] = 0;
+                        CarAISimulationStepPatch.watingPathTime[i] = 0;
+                        CarAISimulationStepPatch.stuckTime[i] = 0;
                     }
                     if (mode == LoadMode.NewGame)
                     {
