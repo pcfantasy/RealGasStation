@@ -381,7 +381,7 @@ namespace RealGasStation.CustomAI
             }
             else
             {
-                if (data.m_transferType != 113)
+                if ((data.m_transferType != 113) && (data.m_transferType != 112))
                 {
                     RemoveTarget(vehicleID, ref data);
                     data.m_targetBuilding = targetBuilding;
@@ -390,7 +390,7 @@ namespace RealGasStation.CustomAI
                 data.m_waitCounter = 0;
                 if (targetBuilding != 0)
                 {
-                    if (data.m_transferType != 113)
+                    if ((data.m_transferType != 113) && (data.m_transferType != 112))
                     {
                         Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].AddGuestVehicle(vehicleID, ref data);
                     }

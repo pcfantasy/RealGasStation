@@ -158,20 +158,20 @@ namespace RealGasStation.CustomAI
 
         public override void SetTarget(ushort vehicleID, ref Vehicle data, ushort targetBuilding)
         {
-            if (data.m_transferType != 112)
+            if ((data.m_transferType != 113) && (data.m_transferType != 112))
             {
                 RemoveTarget(vehicleID, ref data);
             }
             data.m_targetBuilding = targetBuilding;
             if (targetBuilding != 0)
             {
-                if (data.m_transferType != 112)
+                if ((data.m_transferType != 113) && (data.m_transferType != 112))
                 {
                     Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].AddGuestVehicle(vehicleID, ref data);
                 }
             }
 
-            if (data.m_transferType == 112)
+            if ((data.m_transferType == 112) || (data.m_transferType == 113))
             {                
                 if (!CustomStartPathFind(vehicleID, ref data))
                 {
@@ -209,7 +209,10 @@ namespace RealGasStation.CustomAI
 
 
                     var inst = Singleton<CargoTruckAI>.instance;
-                    var Method = typeof(CargoTruckAI).GetMethod("StartPathFind", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) }, null);
+                    if (startPathFind == null)
+                    {
+                        startPathFind = typeof(CargoTruckAI).GetMethod("StartPathFind", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) }, null);
+                    }
                     Vehicle A = vehicleData;
                     ushort B = vehicleID;
                     Vector3 C = vehicleData.m_targetPos3;
@@ -218,7 +221,7 @@ namespace RealGasStation.CustomAI
                     bool F = true;
                     bool G = false;
                     object[] parameters = new object[] { B, A,C,D,E,F,G };
-                    bool return_value = (bool)Method.Invoke(inst, parameters);
+                    bool return_value = (bool)startPathFind.Invoke(inst, parameters);
                     vehicleData = (Vehicle)parameters[1];
                     return return_value;
                 }
@@ -232,7 +235,10 @@ namespace RealGasStation.CustomAI
                 info2.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_targetBuilding, ref instance2.m_buildings.m_buffer[vehicleData.m_targetBuilding], ref randomizer2, m_info, out b, out target2);
 
                 var inst = Singleton<CargoTruckAI>.instance;
-                var Method = typeof(CargoTruckAI).GetMethod("StartPathFind", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) }, null);
+                if (startPathFind == null)
+                {
+                    startPathFind = typeof(CargoTruckAI).GetMethod("StartPathFind", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(Vector3), typeof(bool), typeof(bool), typeof(bool) }, null);
+                }
                 Vehicle A = vehicleData;
                 ushort B = vehicleID;
                 Vector3 C = vehicleData.m_targetPos3;
@@ -241,7 +247,7 @@ namespace RealGasStation.CustomAI
                 bool F = true;
                 bool G = false;
                 object[] parameters = new object[] { B, A, C, D, E, F, G };
-                bool return_value = (bool)Method.Invoke(inst, parameters);
+                bool return_value = (bool)startPathFind.Invoke(inst, parameters);
                 vehicleData = (Vehicle)parameters[1];
 
 
@@ -258,5 +264,7 @@ namespace RealGasStation.CustomAI
                 data.m_targetBuilding = 0;
             }
         }
+
+        public static MethodInfo startPathFind;
     }
 }
