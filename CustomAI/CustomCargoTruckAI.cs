@@ -295,159 +295,6 @@ namespace RealGasStation.CustomAI
             }
         }
 
-        public override void SetTarget(ushort vehicleID, ref Vehicle data, ushort targetBuilding)
-        {
-            if (targetBuilding == data.m_targetBuilding)
-            {
-                if (data.m_path == 0)
-                {
-                    if (!StartPathFind(vehicleID, ref data))
-                    {
-                        data.Unspawn(vehicleID);
-                    }
-                }
-                else
-                {
-                    TrySpawn(vehicleID, ref data);
-                }
-            }
-            else
-            {
-                if ((data.m_transferType != 113) && (data.m_transferType != 112))
-                {
-                    RemoveTarget(vehicleID, ref data);
-                    data.m_targetBuilding = targetBuilding;
-                }
-                data.m_flags &= ~Vehicle.Flags.WaitingTarget;
-                data.m_waitCounter = 0;
-                if (targetBuilding != 0)
-                {
-                    if ((data.m_transferType != 113) && (data.m_transferType != 112))
-                    {
-                        Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].AddGuestVehicle(vehicleID, ref data);
-                    }
-                    if ((Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].m_flags & Building.Flags.IncomingOutgoing) != 0)
-                    {
-                        if ((data.m_flags & Vehicle.Flags.TransferToTarget) != 0)
-                        {
-                            data.m_flags |= Vehicle.Flags.Exporting;
-                        }
-                        else if ((data.m_flags & Vehicle.Flags.TransferToSource) != 0)
-                        {
-                            data.m_flags |= Vehicle.Flags.Importing;
-                        }
-                    }
-                }
-                else
-                {
-                    if ((data.m_flags & Vehicle.Flags.TransferToTarget) != 0)
-                    {
-                        if (data.m_transferSize > 0)
-                        {
-                            TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                            offer.Priority = 7;
-                            offer.Vehicle = vehicleID;
-                            if (data.m_sourceBuilding != 0)
-                            {
-                                offer.Position = (data.GetLastFramePosition() + Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_sourceBuilding].m_position) * 0.5f;
-                            }
-                            else
-                            {
-                                offer.Position = data.GetLastFramePosition();
-                            }
-                            offer.Amount = 1;
-                            offer.Active = true;
-                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)data.m_transferType, offer);
-                            data.m_flags |= Vehicle.Flags.WaitingTarget;
-                        }
-                        else
-                        {
-                            data.m_flags |= Vehicle.Flags.GoingBack;
-                        }
-                    }
-                    if ((data.m_flags & Vehicle.Flags.TransferToSource) != 0)
-                    {
-                        if (data.m_transferSize < m_cargoCapacity)
-                        {
-                            TransferManager.TransferOffer offer2 = default(TransferManager.TransferOffer);
-                            offer2.Priority = 7;
-                            offer2.Vehicle = vehicleID;
-                            if (data.m_sourceBuilding != 0)
-                            {
-                                offer2.Position = (data.GetLastFramePosition() + Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_sourceBuilding].m_position) * 0.5f;
-                            }
-                            else
-                            {
-                                offer2.Position = data.GetLastFramePosition();
-                            }
-                            offer2.Amount = 1;
-                            offer2.Active = true;
-                            Singleton<TransferManager>.instance.AddIncomingOffer((TransferManager.TransferReason)data.m_transferType, offer2);
-                            data.m_flags |= Vehicle.Flags.WaitingTarget;
-                        }
-                        else
-                        {
-                            data.m_flags |= Vehicle.Flags.GoingBack;
-                        }
-                    }
-                }
-                if (data.m_cargoParent != 0)
-                {
-                    if (data.m_path != 0)
-                    {
-                        if (data.m_path != 0)
-                        {
-                            Singleton<PathManager>.instance.ReleasePath(data.m_path);
-                        }
-                        data.m_path = 0u;
-                    }
-                }
-                else
-                {
-                    bool success = false;
-                    if ((data.m_transferType == 113) || (data.m_transferType == 112))
-                    {
-                        ushort tempTargetBuilding = data.m_targetBuilding;
-                        data.m_targetBuilding = MainDataStore.TargetGasBuilding[vehicleID];
-                        success = StartPathFind(vehicleID, ref data);
-                        data.m_targetBuilding = tempTargetBuilding;
-                    }
-                    else
-                    {
-                        success = StartPathFind(vehicleID, ref data);
-                    }
-                    if (!success)
-                    {
-                        if ((data.m_transferType == 113) || (data.m_transferType == 112))
-                        {
-                            data.m_transferType = MainDataStore.preTranferReason[vehicleID];
-                            PathManager instance = Singleton<PathManager>.instance;
-                            if (data.m_path != 0u)
-                            {
-                                instance.ReleasePath(data.m_path);
-                                data.m_path = 0;
-                            }
-                            SetTarget(vehicleID, ref data, data.m_targetBuilding);
-                            MainDataStore.TargetGasBuilding[vehicleID] = 0;
-                        }
-                        else
-                        {
-                            data.Unspawn(vehicleID);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void RemoveTarget(ushort vehicleID, ref Vehicle data)
-        {
-            if (data.m_targetBuilding != 0)
-            {
-                Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].RemoveGuestVehicle(vehicleID, ref data);
-                data.m_targetBuilding = 0;
-            }
-        }
-
         public override void UpdateBuildingTargetPositions(ushort vehicleID, ref Vehicle vehicleData, Vector3 refPos, ushort leaderID, ref Vehicle leaderData, ref int index, float minSqrDistance)
         {
             if ((leaderData.m_flags & Vehicle.Flags.WaitingTarget) != (Vehicle.Flags)0)
@@ -506,5 +353,58 @@ namespace RealGasStation.CustomAI
                 }
             }
         }
+
+        public static bool CustomStartPathFind(ushort vehicleID, ref Vehicle vehicleData)
+        {
+            var m_info = vehicleData.Info;
+            if ((vehicleData.m_flags & Vehicle.Flags.WaitingTarget) != 0)
+            {
+                return true;
+            }
+            if ((vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0)
+            {
+                if (vehicleData.m_sourceBuilding != 0)
+                {
+                    BuildingManager instance = Singleton<BuildingManager>.instance;
+                    BuildingInfo info = instance.m_buildings.m_buffer[vehicleData.m_sourceBuilding].Info;
+                    Randomizer randomizer = new Randomizer(vehicleID);
+                    Vector3 a, target;
+                    info.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_sourceBuilding, ref instance.m_buildings.m_buffer[vehicleData.m_sourceBuilding], ref randomizer, m_info, out a, out target);
+
+
+                    var inst = Singleton<CargoTruckAI>.instance;
+
+                    InitDelegate();
+                    return CargoTruckAIStartPathFindDG(inst, vehicleID, ref vehicleData, vehicleData.m_targetPos3, target, true, true, false);
+                }
+            }
+            else if (vehicleData.m_targetBuilding != 0)
+            {
+                BuildingManager instance2 = Singleton<BuildingManager>.instance;
+                BuildingInfo info2 = instance2.m_buildings.m_buffer[vehicleData.m_targetBuilding].Info;
+                Randomizer randomizer2 = new Randomizer(vehicleID);
+                Vector3 b, target2;
+                info2.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_targetBuilding, ref instance2.m_buildings.m_buffer[vehicleData.m_targetBuilding], ref randomizer2, m_info, out b, out target2);
+
+                var inst = Singleton<CargoTruckAI>.instance;
+
+                InitDelegate();
+                return CargoTruckAIStartPathFindDG(inst, vehicleID, ref vehicleData, vehicleData.m_targetPos3, target2, true, true, false);
+            }
+            return false;
+        }
+
+        public static void InitDelegate()
+        {
+            if (CargoTruckAIStartPathFindDG != null)
+            {
+                return;
+            }
+
+            CargoTruckAIStartPathFindDG = FastDelegateFactory.Create<CargoTruckAIStartPathFind>(typeof(CargoTruckAI), "StartPathFind", instanceMethod: true);
+        }
+
+        public delegate bool CargoTruckAIStartPathFind(CargoTruckAI CargoTruckAI, ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, bool undergroundTarget);
+        public static CargoTruckAIStartPathFind CargoTruckAIStartPathFindDG;
     }
 }

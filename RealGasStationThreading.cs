@@ -37,7 +37,7 @@ namespace RealGasStation
         public static ushort dummyCarCount = 0;
         public static ushort cargoCount = 0;
         public static ushort carCount = 0;
-        public const int HarmonyPatchNum = 6;
+        public const int HarmonyPatchNum = 8;
 
 
         public override void OnBeforeSimulationFrame()

@@ -65,6 +65,8 @@
     <Compile Include="CustomManager\CustomVehicleManager.cs" />
     <Compile Include="NewAI\GasStationAI.cs" />
     <Compile Include="Patch\CarAIPathfindFailurePatch.cs" />
+    <Compile Include="Patch\PassengerCarAISetTargetPatch.cs" />
+    <Compile Include="Patch\CargoTruckAISetTargetPatch.cs" />
     <Compile Include="Patch\VehicleAICalculateTargetSpeedPatch.cs" />
     <Compile Include="Patch\VehicleManagerReleaseVehicleImplementationPatch.cs" />
     <Compile Include="Patch\CarAISimulationStepPatch.cs" />

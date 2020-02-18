@@ -14,15 +14,18 @@ namespace RealGasStation.Patch
         }
         public static void Prefix(ushort vehicle, ref Vehicle data)
         {
-            MainDataStore.TargetGasBuilding[vehicle] = 0;
-            MainDataStore.alreadyAskForFuel[vehicle] = false;
-            if (data.m_transferType == 112)
+            //DebugLog.LogToFileOnly($"remove vehicle {vehicle} MainDataStore.TargetGasBuilding[vehicle] {MainDataStore.TargetGasBuilding[vehicle]} data.m_targetBuilding {data.m_targetBuilding}");
+            if (data.m_transferType == 112 || data.m_transferType == 113)
             {
+                if (MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicle]] > 0)
+                    MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicle]]--;
                 if (data.Info.m_vehicleAI is PassengerCarAI)
                 {
                     //do not need to remove targetBuilding
                     data.m_targetBuilding = 0;
                 }
+                MainDataStore.TargetGasBuilding[vehicle] = 0;
+                MainDataStore.alreadyAskForFuel[vehicle] = false;
             }
         }
     }

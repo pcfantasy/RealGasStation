@@ -156,80 +156,6 @@ namespace RealGasStation.CustomAI
             }
         }
 
-        public override void SetTarget(ushort vehicleID, ref Vehicle data, ushort targetBuilding)
-        {
-            if ((data.m_transferType != 113) && (data.m_transferType != 112))
-            {
-                RemoveTarget(vehicleID, ref data);
-            }
-            data.m_targetBuilding = targetBuilding;
-            if (targetBuilding != 0)
-            {
-                if ((data.m_transferType != 113) && (data.m_transferType != 112))
-                {
-                    Singleton<BuildingManager>.instance.m_buildings.m_buffer[targetBuilding].AddGuestVehicle(vehicleID, ref data);
-                }
-            }
-
-            if ((data.m_transferType == 112) || (data.m_transferType == 113))
-            {                
-                if (!CustomStartPathFind(vehicleID, ref data))
-                {
-                    data.m_transferType = MainDataStore.preTranferReason[vehicleID];
-                    data.m_targetBuilding = 0;
-                    SetTarget(vehicleID, ref data, 0);
-                    MainDataStore.TargetGasBuilding[vehicleID] = 0;
-                    data.Unspawn(vehicleID);
-                }
-            }
-            else
-            {
-                if (!StartPathFind(vehicleID, ref data))
-                {
-                    data.Unspawn(vehicleID);
-                }
-            }
-        }
-
-        protected bool CustomStartPathFind(ushort vehicleID, ref Vehicle vehicleData)
-        {
-            if ((vehicleData.m_flags & Vehicle.Flags.WaitingTarget) != 0)
-            {
-                return true;
-            }
-            if ((vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0)
-            {
-                if (vehicleData.m_sourceBuilding != 0)
-                {
-                    BuildingManager instance = Singleton<BuildingManager>.instance;
-                    BuildingInfo info = instance.m_buildings.m_buffer[vehicleData.m_sourceBuilding].Info;
-                    Randomizer randomizer = new Randomizer(vehicleID);
-                    Vector3 a, target;
-                    info.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_sourceBuilding, ref instance.m_buildings.m_buffer[vehicleData.m_sourceBuilding], ref randomizer, m_info, out a, out target);
-
-
-                    var inst = Singleton<CargoTruckAI>.instance;
-
-                    InitDelegate();
-                    return CargoTruckAIStartPathFindDG(inst, vehicleID, ref vehicleData, vehicleData.m_targetPos3, target, true, true, false);
-                }
-            }
-            else if (vehicleData.m_targetBuilding != 0)
-            {
-                BuildingManager instance2 = Singleton<BuildingManager>.instance;
-                BuildingInfo info2 = instance2.m_buildings.m_buffer[vehicleData.m_targetBuilding].Info;
-                Randomizer randomizer2 = new Randomizer(vehicleID);
-                Vector3 b, target2;
-                info2.m_buildingAI.CalculateUnspawnPosition(vehicleData.m_targetBuilding, ref instance2.m_buildings.m_buffer[vehicleData.m_targetBuilding], ref randomizer2, m_info, out b, out target2);
-
-                var inst = Singleton<CargoTruckAI>.instance;
-
-                InitDelegate();
-                return CargoTruckAIStartPathFindDG(inst, vehicleID, ref vehicleData, vehicleData.m_targetPos3, target2, true, true, false);
-            }
-            return false;
-        }
-
         private void RemoveTarget(ushort vehicleID, ref Vehicle data)
         {
             if (data.m_targetBuilding != 0)
@@ -238,19 +164,6 @@ namespace RealGasStation.CustomAI
                 data.m_targetBuilding = 0;
             }
         }
-
-        public void InitDelegate()
-        {
-            if (CargoTruckAIStartPathFindDG != null)
-            {
-                return;
-            }
-
-            CargoTruckAIStartPathFindDG = FastDelegateFactory.Create<CargoTruckAIStartPathFind>(typeof(CargoTruckAI), "StartPathFind", instanceMethod: true);
-        }
-
-        public delegate bool CargoTruckAIStartPathFind(CargoTruckAI CargoTruckAI, ushort vehicleID, ref Vehicle vehicleData, Vector3 startPos, Vector3 endPos, bool startBothWays, bool endBothWays, bool undergroundTarget);
-        public static CargoTruckAIStartPathFind CargoTruckAIStartPathFindDG;
     }
 }
  

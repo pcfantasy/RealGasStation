@@ -158,30 +158,30 @@ namespace RealGasStation
                 bool detourFailed = false;
 
                 //1
-                DebugLog.LogToFileOnly("Detour CargoTruckAI::SetTarget calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null),
-                                           typeof(CustomCargoTruckAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::SetTarget");
-                    detourFailed = true;
-                }
+                //DebugLog.LogToFileOnly("Detour CargoTruckAI::SetTarget calls");
+                //try
+                //{
+                //    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null),
+                //                           typeof(CustomCargoTruckAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null)));
+                //}
+                //catch (Exception)
+                //{
+                //    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::SetTarget");
+                //    detourFailed = true;
+                //}
 
                 //2
-                DebugLog.LogToFileOnly("Detour PassengerCarAI::SetTarget calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null),
-                                           typeof(CustomPassengerCarAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour PassengerCarAI::SetTarget");
-                    detourFailed = true;
-                }
+                //DebugLog.LogToFileOnly("Detour PassengerCarAI::SetTarget calls");
+                //try
+                //{
+                //    Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null),
+                //                           typeof(CustomPassengerCarAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null)));
+                //}
+                //catch (Exception)
+                //{
+                //    DebugLog.LogToFileOnly("Could not detour PassengerCarAI::SetTarget");
+                //    detourFailed = true;
+                //}
 
                 //3
                 /*DebugLog.LogToFileOnly("Detour VehicleAI::CalculateTargetSpeed calls");
