@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Harmony;
 using ICities;
 using RealGasStation.CustomAI;
 using RealGasStation.CustomManager;
@@ -12,7 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace RealGasStation
@@ -125,12 +125,13 @@ namespace RealGasStation
                     }
                     else
                     {
-                        var methods = HarmonyDetours.harmony.GetPatchedMethods();
+                        var harmony = HarmonyInstance.Create(HarmonyDetours.ID);
+                        var methods = harmony.GetPatchedMethods();
                         int i = 0;
                         foreach (var method in methods)
                         {
-                            var info = HarmonyDetours.harmony.GetPatchInfo(method);
-                            if (info.Owners?.Contains(HarmonyDetours.harmony.Id) == true)
+                            var info = harmony.GetPatchInfo(method);
+                            if (info.Owners?.Contains(harmony.Id) == true)
                             {
                                 DebugLog.LogToFileOnly("Harmony patch method = " + method.Name.ToString());
                                 if (info.Prefixes.Count != 0)

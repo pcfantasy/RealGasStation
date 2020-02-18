@@ -2,12 +2,12 @@
 
 namespace RealGasStation.Util
 {
-    public static class HarmonyDetours
+    internal static class HarmonyDetours
     {
-        public static HarmonyInstance harmony = null;
+        public const string ID = "pcfantasy.realgasstation";
         public static void Apply()
         {
-            harmony = HarmonyInstance.Create("RealGasStation");
+            var harmony = HarmonyInstance.Create(ID);
             harmony.PatchAll();
             Loader.HarmonyDetourFailed = false;
             DebugLog.LogToFileOnly("Harmony patches applied");
@@ -15,7 +15,8 @@ namespace RealGasStation.Util
 
         public static void DeApply()
         {
-            harmony.UnpatchAll("RealCity");
+            var harmony = HarmonyInstance.Create(ID);
+            harmony.UnpatchAll(ID);
             DebugLog.LogToFileOnly("Harmony patches DeApplied");
         }
     }
