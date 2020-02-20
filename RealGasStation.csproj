@@ -59,12 +59,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomAI\CustomCargoTruckAI.cs" />
-    <Compile Include="CustomAI\CustomPassengerCarAI.cs" />
     <Compile Include="CustomAI\CustomPlayerBuildingAI.cs" />
     <Compile Include="CustomManager\CustomTransferManager.cs" />
     <Compile Include="CustomManager\CustomVehicleManager.cs" />
     <Compile Include="NewAI\GasStationAI.cs" />
     <Compile Include="Patch\CarAIPathfindFailurePatch.cs" />
+    <Compile Include="Patch\PassengerCarAIArriveAtTargetPatch.cs" />
+    <Compile Include="Patch\CargoTruckAIArriveAtTargetPatch.cs" />
+    <Compile Include="Patch\CargoTruckAIUpdateBuildingTargetPositionsPatch.cs" />
+    <Compile Include="Patch\CargoTruckAIArriveAtSourcePatch.cs" />
     <Compile Include="Patch\PassengerCarAISetTargetPatch.cs" />
     <Compile Include="Patch\CargoTruckAISetTargetPatch.cs" />
     <Compile Include="Patch\VehicleAICalculateTargetSpeedPatch.cs" />
@@ -83,7 +86,6 @@
     <Compile Include="UI\PlayerBuildingButton.cs" />
     <Compile Include="UI\PlayerBuildingUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Util\RedirectionHelper.cs" />
     <Compile Include="Util\SaveAndRestore.cs" />
     <Compile Include="Util\SpriteUtilities.cs" />
   </ItemGroup>

@@ -37,7 +37,7 @@ namespace RealGasStation
         public static ushort dummyCarCount = 0;
         public static ushort cargoCount = 0;
         public static ushort carCount = 0;
-        public const int HarmonyPatchNum = 8;
+        public const int HarmonyPatchNum = 12;
 
 
         public override void OnBeforeSimulationFrame()
@@ -89,33 +89,6 @@ namespace RealGasStation
                 if (Loader.DetourInited)
                 {
                     DebugLog.LogToFileOnly("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Checking detours.");
-                    List<string> list = new List<string>();
-                    foreach (Loader.Detour current in Loader.Detours)
-                    {
-                        if (!RedirectionHelper.IsRedirected(current.OriginalMethod, current.CustomMethod))
-                        {
-                            list.Add(string.Format("{0}.{1} with {2} parameters ({3})", new object[]
-                            {
-                    current.OriginalMethod.DeclaringType.Name,
-                    current.OriginalMethod.Name,
-                    current.OriginalMethod.GetParameters().Length,
-                    current.OriginalMethod.DeclaringType.AssemblyQualifiedName
-                            }));
-                        }
-                    }
-                    DebugLog.LogToFileOnly(string.Format("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Detours checked. Result: {0} missing detours", list.Count));
-                    if (list.Count > 0)
-                    {
-                        string error = "RealGasStation detected an incompatibility with another mod! You can continue playing but it's NOT recommended. RealGasStation will not work as expected. Send RealGasStation.txt to Author.";
-                        DebugLog.LogToFileOnly(error);
-                        string text = "The following methods were overriden by another mod:";
-                        foreach (string current2 in list)
-                        {
-                            text += string.Format("\n\t{0}", current2);
-                        }
-                        DebugLog.LogToFileOnly(text);
-                        UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", text, true);
-                    }
 
                     if (Loader.HarmonyDetourFailed)
                     {

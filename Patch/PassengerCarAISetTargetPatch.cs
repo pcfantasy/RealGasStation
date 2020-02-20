@@ -17,7 +17,7 @@ namespace RealGasStation.Patch
         {
             return typeof(PassengerCarAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null);
         }
-        public static bool Prefix(ushort vehicleID, ref Vehicle data, ushort targetBuilding)
+        public static bool Prefix(ref CargoTruckAI __instance, ushort vehicleID, ref Vehicle data, ushort targetBuilding)
         {
             if ((data.m_transferType == 113) || (data.m_transferType == 112))
             {
@@ -26,8 +26,7 @@ namespace RealGasStation.Patch
                 {
                     data.m_transferType = MainDataStore.preTranferReason[vehicleID];
                     data.m_targetBuilding = 0;
-                    PassengerCarAI AI = (PassengerCarAI)data.Info.m_vehicleAI;
-                    AI.SetTarget(vehicleID, ref data, 0);
+                    __instance.SetTarget(vehicleID, ref data, 0);
                     MainDataStore.TargetGasBuilding[vehicleID] = 0;
                     data.Unspawn(vehicleID);
                 }
