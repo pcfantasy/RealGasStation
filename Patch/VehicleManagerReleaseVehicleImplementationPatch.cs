@@ -26,6 +26,8 @@ namespace RealGasStation.Patch
                 }
                 MainDataStore.TargetGasBuilding[vehicle] = 0;
                 MainDataStore.alreadyAskForFuel[vehicle] = false;
+                MainDataStore.preTranferReason[vehicle] = (byte)TransferManager.TransferReason.None;
+                MainDataStore.alreadyPaidForFuel[vehicle] = false;
             }
         }
     }

@@ -17,6 +17,8 @@ namespace RealGasStation.Patch
         {
             return typeof(CargoTruckAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null);
         }
+
+        [HarmonyPriority(Priority.First)]
         public static bool Prefix(ref CargoTruckAI __instance, ushort vehicleID, ref Vehicle data, ushort targetBuilding)
         {
             if ((data.m_transferType == 113) || (data.m_transferType == 112))

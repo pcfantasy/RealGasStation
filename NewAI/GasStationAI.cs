@@ -56,6 +56,8 @@ namespace RealGasStation.NewAI
                 //Fuel
                 incomingTransferReason = (TransferManager.TransferReason)112;
                 num34 = MainDataStore.petrolBuffer[buildingID] - MainDataStore.finalVehicleForFuelCount[buildingID] * 400;
+                if ((MainDataStore.resourceCategory[buildingID] == 0))
+                    num34 >>= 1;
                 if (buildingData.m_flags.IsFlagSet(Building.Flags.Active) && buildingData.m_flags.IsFlagSet(Building.Flags.Completed))
                 {
                     if (num34 >= 0)
@@ -81,6 +83,8 @@ namespace RealGasStation.NewAI
                 //Fuel for Heavy
                 incomingTransferReason = (TransferManager.TransferReason)113;
                 num34 = MainDataStore.petrolBuffer[buildingID] - MainDataStore.finalVehicleForFuelCount[buildingID] * 400;
+                if ((MainDataStore.resourceCategory[buildingID] == 0))
+                    num34 >>= 1;
                 if (buildingData.m_flags.IsFlagSet(Building.Flags.Active) && buildingData.m_flags.IsFlagSet(Building.Flags.Completed))
                 {
                     if (num34 >= 0)

@@ -138,9 +138,7 @@ namespace RealGasStation
                 if (RealGasStation.IsEnabled)
                 {
                     uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
-                    BuildingManager instance = Singleton<BuildingManager>.instance;
                     int num4 = (int)(currentFrameIndex & 255u);
-                    RefreshFuel();
                     if (num4 == 255)
                     {
                         PlayerBuildingUI.refeshOnce = true;
@@ -171,21 +169,27 @@ namespace RealGasStation
             }
         }
 
-        public void RefreshFuel()
+        public static void RefreshDummyCargoFuel()
         {
-            dummyCargoNeedFuel = dummyCargoNeedFuel ? false : dummyCargoNeedFuel;
-            dummyCarNeedFuel = dummyCarNeedFuel ? false : dummyCarNeedFuel;
-            cargoNeedFuel = cargoNeedFuel ? false : cargoNeedFuel;
-            carNeedFuel = carNeedFuel ? false : cargoNeedFuel;
-
             dummyCargoNeedFuel = (dummyCargoCount > 1000) ? true : false;
-            dummyCarNeedFuel = (dummyCarCount > 1000) ? true : false;
-            cargoNeedFuel = (cargoCount > 1500) ? true : false;
-            carNeedFuel = (carCount > 1500) ? true : false;
-
             dummyCargoCount = (dummyCargoCount > 1000) ? (ushort)0 : dummyCargoCount;
+        }
+
+        public static void RefreshDummyCarFuel()
+        {
+            dummyCarNeedFuel = (dummyCarCount > 1000) ? true : false;
             dummyCarCount = (dummyCarCount > 1000) ? (ushort)0 : dummyCarCount;
+        }
+
+        public static void RefreshCargoFuel()
+        {
+            cargoNeedFuel = (cargoCount > 1500) ? true : false;
             cargoCount = (cargoCount > 1500) ? (ushort)0 : cargoCount;
+        }
+
+        public static void RefreshCarFuel()
+        {
+            carNeedFuel = (carCount > 1500) ? true : false;
             carCount = (carCount > 1500) ? (ushort)0 : carCount;
         }
     }

@@ -147,6 +147,7 @@ namespace RealGasStation.Patch
                                     System.Random rand = new System.Random();
                                     if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic))
                                     {
+                                        RealGasStationThreading.RefreshDummyCargoFuel();
                                         if (RealGasStationThreading.dummyCargoNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
@@ -165,6 +166,7 @@ namespace RealGasStation.Patch
                                     }
                                     else
                                     {
+                                        RealGasStationThreading.RefreshCargoFuel();
                                         if (RealGasStationThreading.cargoNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
@@ -198,6 +200,7 @@ namespace RealGasStation.Patch
                                     ushort citizen = GetDriverInstance((ushort)i, ref vehicle);
                                     if (Singleton<CitizenManager>.instance.m_citizens.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_citizen].m_flags.IsFlagSet(Citizen.Flags.DummyTraffic))
                                     {
+                                        RealGasStationThreading.RefreshDummyCarFuel();
                                         if (RealGasStationThreading.dummyCarNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
@@ -216,6 +219,7 @@ namespace RealGasStation.Patch
                                     }
                                     else
                                     {
+                                        RealGasStationThreading.RefreshCarFuel();
                                         if (RealGasStationThreading.carNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);

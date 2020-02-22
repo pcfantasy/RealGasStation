@@ -15,8 +15,8 @@ namespace RealGasStation.CustomAI
         public static float GetResourcePrice(TransferManager.TransferReason material)
         {
             //Need to sync with RealCity mod
-            float num = 0f;
-            if (RealGasStationThreading.reduceVehicle)
+            float num;
+            if (!RealGasStationThreading.reduceVehicle)
             {
                 switch (material)
                 {

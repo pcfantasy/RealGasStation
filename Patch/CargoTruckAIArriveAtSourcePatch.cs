@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace RealGasStation.Patch
 {
@@ -18,6 +19,8 @@ namespace RealGasStation.Patch
         {
             return typeof(CargoTruckAI).GetMethod("ArriveAtSource", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType()}, null);
         }
+
+        [HarmonyPriority(Priority.First)]
         public static bool Prefix(ref CargoTruckAI __instance, ushort vehicleID, ref Vehicle data, ref bool __result)
         {
             if ((data.m_transferType == 113) || (data.m_transferType == 112))
@@ -30,6 +33,10 @@ namespace RealGasStation.Patch
                 else
                 {
                     DebugLog.LogToFileOnly("Vehicle is been paid for fuel");
+                    if (MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]] > 0)
+                        MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]]--;
+                    data.m_transferType = MainDataStore.preTranferReason[vehicleID];
+                    MainDataStore.TargetGasBuilding[vehicleID] = 0;
                     data.Unspawn(vehicleID);
                 }
                 __result = true;
@@ -40,10 +47,14 @@ namespace RealGasStation.Patch
 
         public static void CargoTruckAIArriveAtSourceForRealGasStationPre(ref CargoTruckAI __instance, ushort vehicleID, ref Vehicle data)
         {
-            //DebugLog.LogToFileOnly("Error: CargoTruckAIArriveAtSourceForRealGasStationPre will not happen");
-            if (MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] > 400)
+            var distance = Vector3.Distance(data.GetLastFramePosition(), Singleton<BuildingManager>.instance.m_buildings.m_buffer[MainDataStore.TargetGasBuilding[vehicleID]].m_position);
+
+            if (distance < 80f)
             {
-                MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] -= 400;
+                if (MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] > 400)
+                {
+                    MainDataStore.petrolBuffer[MainDataStore.TargetGasBuilding[vehicleID]] -= 400;
+                }
             }
             data.m_transferType = MainDataStore.preTranferReason[vehicleID];
             PathManager instance = Singleton<PathManager>.instance;
@@ -53,10 +64,17 @@ namespace RealGasStation.Patch
                 data.m_path = 0;
             }
             __instance.SetTarget(vehicleID, ref data, data.m_targetBuilding);
+            if (MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]] > 0)
+                MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]]--;
             MainDataStore.TargetGasBuilding[vehicleID] = 0;
-            if (Loader.isRealCityRunning)
+
+            if (distance < 80f)
             {
-                Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, (int)(400f * CustomCargoTruckAI.GetResourcePrice(TransferManager.TransferReason.Petrol) + 3000f), ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+                if (Loader.isRealCityRunning)
+                {
+                    var additionPrice = (RealGasStationThreading.reduceVehicle) ? 600 * RealGasStationThreading.reduceCargoDiv : 600;
+                    Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, (int)(400f * CustomCargoTruckAI.GetResourcePrice(TransferManager.TransferReason.Petrol) + additionPrice), ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+                }
             }
         }
     }
