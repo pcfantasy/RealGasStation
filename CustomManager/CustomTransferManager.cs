@@ -19,10 +19,6 @@ namespace RealGasStation.CustomManager
             {
                 if (data.Info.m_vehicleAI is CargoTruckAI)
                 {
-                    CargoTruckAI AI = (CargoTruckAI)data.Info.m_vehicleAI;
-                    MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
-                    MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
-                    data.m_transferType = 113;
                     if (offer.Building == data.m_targetBuilding)
                     {
                         DebugLog.LogToFileOnly("Error: Transfer fuel cargotruck do not need fuel");
@@ -31,6 +27,10 @@ namespace RealGasStation.CustomManager
                     {
                         if ((Vector3.Distance(data.GetLastFramePosition(), Singleton<BuildingManager>.instance.m_buildings.m_buffer[data.m_targetBuilding].m_position) > CanNotStartGasTransferDistance) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain) == 0))
                         {
+                            CargoTruckAI AI = (CargoTruckAI)data.Info.m_vehicleAI;
+                            MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
+                            MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
+                            data.m_transferType = 113;
                             AI.SetTarget(vehicleID, ref data, offer.Building);
                             MainDataStore.finalVehicleForFuelCount[offer.Building]++;
                         }
@@ -46,12 +46,8 @@ namespace RealGasStation.CustomManager
                 }
                 else if (data.Info.m_vehicleAI is PassengerCarAI)
                 {
-                    PassengerCarAI AI = (PassengerCarAI)data.Info.m_vehicleAI;
-                    MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
                     if (data.m_targetBuilding == 0)
                     {
-                        MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
-                        data.m_transferType = 112;
                         if (data.m_flags.IsFlagSet(Vehicle.Flags.Created) && !data.m_flags.IsFlagSet(Vehicle.Flags.Deleted) && !data.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (data.m_cargoParent == 0) && data.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !data.m_flags.IsFlagSet(Vehicle.Flags.GoingBack) && !data.m_flags.IsFlagSet(Vehicle.Flags.Parking))
                         {
                             ushort citizen = CarAISimulationStepPatch.GetDriverInstance(vehicleID, ref data);
@@ -59,6 +55,10 @@ namespace RealGasStation.CustomManager
                             {
                                 if ((Vector3.Distance(data.GetLastFramePosition(), Singleton<BuildingManager>.instance.m_buildings.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_targetBuilding].m_position) > CanNotStartGasTransferDistance) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportShip) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportPlane) == 0) && (FindCargoStation(data.GetLastFramePosition(), ItemClass.Service.PublicTransport, ItemClass.SubService.PublicTransportTrain) == 0))
                                 {
+                                    PassengerCarAI AI = (PassengerCarAI)data.Info.m_vehicleAI;
+                                    MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
+                                    MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
+                                    data.m_transferType = 112;
                                     AI.SetTarget(vehicleID, ref data, offer.Building);
                                     MainDataStore.finalVehicleForFuelCount[offer.Building]++;
                                 }

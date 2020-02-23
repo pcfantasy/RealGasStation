@@ -45,6 +45,8 @@ namespace RealGasStation.Patch
                             data.m_path = 0;
                         }
                         __instance.SetTarget(vehicleID, ref data, data.m_targetBuilding);
+                        if (MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]] > 0)
+                            MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicleID]]--;
                         MainDataStore.TargetGasBuilding[vehicleID] = 0;
                     }
                     return false;

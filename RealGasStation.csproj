@@ -60,7 +60,6 @@
   <ItemGroup>
     <Compile Include="CustomAI\CustomCargoTruckAI.cs" />
     <Compile Include="CustomManager\CustomTransferManager.cs" />
-    <Compile Include="CustomManager\CustomVehicleManager.cs" />
     <Compile Include="NewAI\GasStationAI.cs" />
     <Compile Include="Patch\CarAIPathfindFailurePatch.cs" />
     <Compile Include="Patch\PassengerCarAIArriveAtTargetPatch.cs" />

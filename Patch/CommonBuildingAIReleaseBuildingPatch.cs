@@ -24,6 +24,7 @@ namespace RealGasStation.Patch
             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
             offer.Building = buildingID;
             Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)112, offer);
+            Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)113, offer);
         }
     }
 }
