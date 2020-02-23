@@ -115,8 +115,7 @@ namespace RealGasStation.Patch
             {
                 if (Loader.isRealCityRunning)
                 {
-                    var additionPrice = (RealGasStationThreading.reduceVehicle) ? 600 * RealGasStationThreading.reduceCargoDiv : 600;
-                    Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, (int)(400f * CustomCargoTruckAI.GetResourcePrice(TransferManager.TransferReason.Petrol) + additionPrice), ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+                    Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, (int)(400f * CustomCargoTruckAI.GetResourcePrice(TransferManager.TransferReason.Petrol) + 1000), ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
                     //DebugLog.LogToFileOnly($"GasStation income = {(int)(400f * CustomCargoTruckAI.GetResourcePrice(TransferManager.TransferReason.Petrol) + additionPrice)}");
                 }
             }

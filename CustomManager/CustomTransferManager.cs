@@ -223,7 +223,7 @@ namespace RealGasStation.CustomManager
                     int outgoingIdex = 0;
                     int oldPriority = priority;
                     // NON-STOCK CODE START
-                    //In Real Gas Station Mod, we use outgoing first mode.
+                    //In Real Gas Station Mod, we use outgoing only mode.
                     byte matchOffersMode = 1;
                     bool isLoopValid = false;
                     if (matchOffersMode == 2)
