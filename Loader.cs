@@ -3,16 +3,13 @@ using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using RealGasStation.CustomAI;
-using RealGasStation.CustomManager;
+using RealGasStation.Patch;
 using RealGasStation.UI;
 using RealGasStation.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace RealGasStation
@@ -20,36 +17,17 @@ namespace RealGasStation
     public class Loader : LoadingExtensionBase
     {
         public static LoadMode CurrentLoadMode;
-
-        public class Detour
-        {
-            public MethodInfo OriginalMethod;
-            public MethodInfo CustomMethod;
-            public RedirectCallsState Redirect;
-
-            public Detour(MethodInfo originalMethod, MethodInfo customMethod)
-            {
-                this.OriginalMethod = originalMethod;
-                this.CustomMethod = customMethod;
-                this.Redirect = RedirectionHelper.RedirectCalls(originalMethod, customMethod);
-            }
-        }
-
-        public static List<Detour> Detours { get; set; }
         public static bool DetourInited = false;
         public static bool HarmonyDetourInited = false;
         public static bool HarmonyDetourFailed = true;
         public static bool isGuiRunning = false;
         public static bool isRealCityRunning = false;
-        public static bool isRealConstructionRunning = false;
-        public static bool isAdvancedJunctionRuleRunning = false;
         public static PlayerBuildingButton PBButton;
         public static string m_atlasName = "RealGasStation";
         public static bool m_atlasLoaded;
 
         public override void OnCreated(ILoading loading)
         {
-            Detours = new List<Detour>();
             base.OnCreated(loading);
         }
 
@@ -67,8 +45,8 @@ namespace RealGasStation
                     SetupGui();
                     for (int i = 0; i < Singleton<VehicleManager>.instance.m_vehicles.m_size; i++)
                     {
-                        CustomCarAI.watingPathTime[i] = 0;
-                        CustomCarAI.stuckTime[i] = 0;
+                        CarAISimulationStepPatch.watingPathTime[i] = 0;
+                        CarAISimulationStepPatch.stuckTime[i] = 0;
                     }
                     if (mode == LoadMode.NewGame)
                     {
@@ -152,164 +130,12 @@ namespace RealGasStation
         public void InitDetour()
         {
             isRealCityRunning = CheckRealCityIsLoaded();
-            isRealConstructionRunning = CheckRealConstructionIsLoaded();
-            isAdvancedJunctionRuleRunning = CheckAdvancedJunctionRuleIsLoaded();
-
-            if (!DetourInited)
-            {
-                DebugLog.LogToFileOnly("Init detours");
-                bool detourFailed = false;
-
-                //1
-                DebugLog.LogToFileOnly("Detour CargoTruckAI::SetTarget calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null),
-                                           typeof(CustomCargoTruckAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::SetTarget");
-                    detourFailed = true;
-                }
-
-                //2
-                DebugLog.LogToFileOnly("Detour PassengerCarAI::SetTarget calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null),
-                                           typeof(CustomPassengerCarAI).GetMethod("SetTarget", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(ushort) }, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour PassengerCarAI::SetTarget");
-                    detourFailed = true;
-                }
-
-                //3
-                /*DebugLog.LogToFileOnly("Detour VehicleAI::CalculateTargetSpeed calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(VehicleAI).GetMethod("CalculateTargetSpeed", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(float), typeof(float) }, null),
-                                           typeof(CustomVehicleAI).GetMethod("CustomCalculateTargetSpeed", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(float), typeof(float) }, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour VehicleAI::CalculateTargetSpeed");
-                    detourFailed = true;
-                }*/
-
-                //4
-                DebugLog.LogToFileOnly("Detour CargoTruckAI::UpdateBuildingTargetPositions calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("UpdateBuildingTargetPositions", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() , typeof(Vector3), typeof(ushort), typeof(Vehicle).MakeByRefType() , typeof(int).MakeByRefType(), typeof(float) }, null),
-                                           typeof(CustomCargoTruckAI).GetMethod("UpdateBuildingTargetPositions", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(Vector3), typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(int).MakeByRefType(), typeof(float) }, null)));
-
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::UpdateBuildingTargetPositions");
-                    detourFailed = true;
-                }
-
-                //5
-                DebugLog.LogToFileOnly("Detour CargoTruckAI::ArriveAtSource calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("ArriveAtSource", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                           typeof(CustomCargoTruckAI).GetMethod("ArriveAtSource", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour CargoTruckAI::ArriveAtSource");
-                    detourFailed = true;
-                }
-
-                if (true)
-                //if (!isRealConstructionRunning || !isRealCityRunning)
-                {
-                    //if (!isRealConstructionRunning && !isRealCityRunning)
-                    if (true)
-                    {
-                        //6
-                        DebugLog.LogToFileOnly("Detour CargoTruckAI::ArriveAtTarget calls");
-                        try
-                        {
-                            Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("ArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                                   typeof(CustomCargoTruckAI).GetMethod("ArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
-                        }
-                        catch (Exception)
-                        {
-                            DebugLog.LogToFileOnly("Could not detour CargoTruckAI::ArriveAtTarget");
-                            detourFailed = true;
-                        }
-                    }
-
-                    if (!isRealConstructionRunning)
-                    {
-                        //7
-                        DebugLog.LogToFileOnly("Detour CargoTruckAI::GetLocalizedStatus calls");
-                        try
-                        {
-                            Detours.Add(new Detour(typeof(CargoTruckAI).GetMethod("GetLocalizedStatus", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InstanceID).MakeByRefType() }, null),
-                                                   typeof(CustomCargoTruckAI).GetMethod("GetLocalizedStatus", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(InstanceID).MakeByRefType() }, null)));
-                        }
-                        catch (Exception)
-                        {
-                            DebugLog.LogToFileOnly("Could not detour CargoTruckAI::GetLocalizedStatus");
-                            detourFailed = true;
-                        }
-                    }
-
-                    //if (!isRealCityRunning)
-                    if (true)
-                    {
-                        //8
-                        DebugLog.LogToFileOnly("Detour PassengerCarAI::ArriveAtTarget calls");
-                        try
-                        {
-                            Detours.Add(new Detour(typeof(PassengerCarAI).GetMethod("ArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null),
-                                                   typeof(CustomPassengerCarAI).GetMethod("CustomArriveAtTarget", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Vehicle).MakeByRefType() }, null)));
-                        }
-                        catch (Exception)
-                        {
-                            DebugLog.LogToFileOnly("Could not detour PassengerCarAI::ArriveAtTarget");
-                            detourFailed = true;
-                        }
-                    }
-                }
-                else
-                {
-                    //DebugLog.LogToFileOnly("Both RealCity and RealConstruction are Running");
-                }
-
-                if (detourFailed)
-                {
-                    DebugLog.LogToFileOnly("Detours failed");
-                }
-                else
-                {
-                    DebugLog.LogToFileOnly("Detours successful");
-                }
-                DetourInited = true;
-            }
+            DetourInited = true;
         }
 
         public void RevertDetour()
         {
-            if (DetourInited)
-            {
-                DebugLog.LogToFileOnly("Revert detours");
-                Detours.Reverse();
-                foreach (Detour d in Detours)
-                {
-                    RedirectionHelper.RevertRedirect(d.OriginalMethod, d.Redirect);
-                }
-                DetourInited = false;
-                Detours.Clear();
-                DebugLog.LogToFileOnly("Reverting detours finished.");
-            }
+            DetourInited = false;
         }
 
         public void HarmonyInitDetour()
@@ -368,17 +194,8 @@ namespace RealGasStation
 
         private bool CheckRealCityIsLoaded()
         {
-            return this.Check3rdPartyModLoaded("RealCity", true);
+            return this.Check3rdPartyModLoaded("RealCity", false);
         }
 
-        private bool CheckRealConstructionIsLoaded()
-        {
-            return this.Check3rdPartyModLoaded("RealConstruction", true);
-        }
-
-        private bool CheckAdvancedJunctionRuleIsLoaded()
-        {
-            return this.Check3rdPartyModLoaded("AdvancedJunctionRule", true);
-        }
     }
 }

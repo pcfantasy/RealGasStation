@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using Harmony;
 using ICities;
 using RealGasStation.CustomAI;
 using RealGasStation.CustomManager;
@@ -12,7 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace RealGasStation
@@ -37,6 +37,7 @@ namespace RealGasStation
         public static ushort dummyCarCount = 0;
         public static ushort cargoCount = 0;
         public static ushort carCount = 0;
+        public const int HarmonyPatchNum = 12;
 
 
         public override void OnBeforeSimulationFrame()
@@ -69,26 +70,6 @@ namespace RealGasStation
                 _reduceCargoDiv = MainDataStoreClass.GetField("reduceCargoDiv", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
             }
 
-            DebugLog.LogToFileOnly("Detour AdvancedJunctionRule.NewCarAI::VehicleStatusForRealGasStation calls");
-            if (Loader.isAdvancedJunctionRuleRunning)
-            {
-                try
-                {
-                    Assembly as1 = Assembly.Load("AdvancedJunctionRule");
-                    Loader.Detours.Add(new Loader.Detour(as1.GetType("AdvancedJunctionRule.CustomAI.NewCarAI").GetMethod("VehicleStatusForRealGasStation", BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static, null, new Type[] {
-                typeof(ushort),
-                typeof(Vehicle).MakeByRefType()}, null), 
-                typeof(CustomCarAI).GetMethod("CarAICustomSimulationStepPreFix", BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static, null, new Type[] {
-                typeof(ushort),
-                typeof(Vehicle).MakeByRefType()}, null)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour AdvancedJunctionRule.NewCarAI::VehicleStatusForRealGasStation");
-                    detourFailed = true;
-                }
-            }
-
             if (detourFailed)
             {
                 DebugLog.LogToFileOnly("DetourAfterLoad failed");
@@ -108,39 +89,42 @@ namespace RealGasStation
                 if (Loader.DetourInited)
                 {
                     DebugLog.LogToFileOnly("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Checking detours.");
-                    List<string> list = new List<string>();
-                    foreach (Loader.Detour current in Loader.Detours)
-                    {
-                        if (!RedirectionHelper.IsRedirected(current.OriginalMethod, current.CustomMethod))
-                        {
-                            list.Add(string.Format("{0}.{1} with {2} parameters ({3})", new object[]
-                            {
-                    current.OriginalMethod.DeclaringType.Name,
-                    current.OriginalMethod.Name,
-                    current.OriginalMethod.GetParameters().Length,
-                    current.OriginalMethod.DeclaringType.AssemblyQualifiedName
-                            }));
-                        }
-                    }
-                    DebugLog.LogToFileOnly(string.Format("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Detours checked. Result: {0} missing detours", list.Count));
-                    if (list.Count > 0)
-                    {
-                        string error = "RealGasStation detected an incompatibility with another mod! You can continue playing but it's NOT recommended. RealGasStation will not work as expected. Send RealGasStation.txt to Author.";
-                        DebugLog.LogToFileOnly(error);
-                        string text = "The following methods were overriden by another mod:";
-                        foreach (string current2 in list)
-                        {
-                            text += string.Format("\n\t{0}", current2);
-                        }
-                        DebugLog.LogToFileOnly(text);
-                        UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", text, true);
-                    }
 
                     if (Loader.HarmonyDetourFailed)
                     {
                         string error = "RealGasStation HarmonyDetourInit is failed, Send RealGasStation.txt to Author.";
                         DebugLog.LogToFileOnly(error);
                         UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
+                    }
+                    else
+                    {
+                        var harmony = HarmonyInstance.Create(HarmonyDetours.ID);
+                        var methods = harmony.GetPatchedMethods();
+                        int i = 0;
+                        foreach (var method in methods)
+                        {
+                            var info = harmony.GetPatchInfo(method);
+                            if (info.Owners?.Contains(harmony.Id) == true)
+                            {
+                                DebugLog.LogToFileOnly("Harmony patch method = " + method.Name.ToString());
+                                if (info.Prefixes.Count != 0)
+                                {
+                                    DebugLog.LogToFileOnly("Harmony patch method has PreFix");
+                                }
+                                if (info.Postfixes.Count != 0)
+                                {
+                                    DebugLog.LogToFileOnly("Harmony patch method has PostFix");
+                                }
+                                i++;
+                            }
+                        }
+
+                        if (i != HarmonyPatchNum)
+                        {
+                            string error = $"RealGasStation HarmonyDetour Patch Num is {i}, Right Num is {HarmonyPatchNum} Send RealGasStation.txt to Author.";
+                            DebugLog.LogToFileOnly(error);
+                            UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
+                        }
                     }
                 }
             }
@@ -154,9 +138,7 @@ namespace RealGasStation
                 if (RealGasStation.IsEnabled)
                 {
                     uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
-                    BuildingManager instance = Singleton<BuildingManager>.instance;
                     int num4 = (int)(currentFrameIndex & 255u);
-                    RefreshFuel();
                     if (num4 == 255)
                     {
                         PlayerBuildingUI.refeshOnce = true;
@@ -187,21 +169,27 @@ namespace RealGasStation
             }
         }
 
-        public void RefreshFuel()
+        public static void RefreshDummyCargoFuel()
         {
-            dummyCargoNeedFuel = dummyCargoNeedFuel ? false : dummyCargoNeedFuel;
-            dummyCarNeedFuel = dummyCarNeedFuel ? false : dummyCarNeedFuel;
-            cargoNeedFuel = cargoNeedFuel ? false : cargoNeedFuel;
-            carNeedFuel = carNeedFuel ? false : cargoNeedFuel;
-
             dummyCargoNeedFuel = (dummyCargoCount > 1000) ? true : false;
-            dummyCarNeedFuel = (dummyCarCount > 1000) ? true : false;
-            cargoNeedFuel = (cargoCount > 1500) ? true : false;
-            carNeedFuel = (carCount > 1500) ? true : false;
-
             dummyCargoCount = (dummyCargoCount > 1000) ? (ushort)0 : dummyCargoCount;
+        }
+
+        public static void RefreshDummyCarFuel()
+        {
+            dummyCarNeedFuel = (dummyCarCount > 1000) ? true : false;
             dummyCarCount = (dummyCarCount > 1000) ? (ushort)0 : dummyCarCount;
+        }
+
+        public static void RefreshCargoFuel()
+        {
+            cargoNeedFuel = (cargoCount > 1500) ? true : false;
             cargoCount = (cargoCount > 1500) ? (ushort)0 : cargoCount;
+        }
+
+        public static void RefreshCarFuel()
+        {
+            carNeedFuel = (carCount > 1500) ? true : false;
             carCount = (carCount > 1500) ? (ushort)0 : carCount;
         }
     }
