@@ -19,7 +19,6 @@ namespace RealGasStation.Patch
         public static void Postfix(ushort buildingID)
         {
             MainDataStore.petrolBuffer[buildingID] = 0;
-            MainDataStore.tempVehicleForFuelCount[buildingID] = 0;
             MainDataStore.finalVehicleForFuelCount[buildingID] = 0;
             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
             offer.Building = buildingID;

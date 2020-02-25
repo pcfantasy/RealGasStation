@@ -8,7 +8,6 @@ namespace RealGasStation.Util
     public class MainDataStore
     {
         public static ushort[] TargetGasBuilding = new ushort[65536];
-        public static byte[] tempVehicleForFuelCount = new byte[49152];
         public static byte[] finalVehicleForFuelCount = new byte[49152];
         public static byte[] preTranferReason = new byte[65536];
         public static ushort[] petrolBuffer = new ushort[49152];
@@ -20,9 +19,6 @@ namespace RealGasStation.Util
         public static ushort lastVehicle = 0;
         public static ushort lastBuilding = 0;
         public static byte lastLanguage = 0;
-
-        public static byte[] saveData = new byte[262144];
-        public static byte[] saveDataForMoreVehicle = new byte[196608];
 
         public static void DataInit()
         {
@@ -36,7 +32,6 @@ namespace RealGasStation.Util
 
             for (int i = 0; i < MainDataStore.petrolBuffer.Length; i++)
             {
-                tempVehicleForFuelCount[i] = 0;
                 finalVehicleForFuelCount[i] = 0;
                 petrolBuffer[i] = 0;
                 isBuildingReleased[i] = false;
@@ -48,8 +43,9 @@ namespace RealGasStation.Util
             }
         }
 
-        public static void save()
+        public static void Save(ref byte[] saveData)
         {
+            //212992
             int i = 0;
             ushort[] TargetGasBuildingLegacy = new ushort[16384];
             byte[] preTranferReasonLegacy = new byte[16384];
@@ -61,13 +57,22 @@ namespace RealGasStation.Util
                 preTranferReasonLegacy[j] = preTranferReason[j];
                 alreadyAskForFuelLegacy[j] = alreadyAskForFuel[j];
             }
-            SaveAndRestore.save_ushorts(ref i, TargetGasBuildingLegacy, ref saveData);
-            SaveAndRestore.save_bytes(ref i, preTranferReasonLegacy, ref saveData);
-            SaveAndRestore.save_ushorts(ref i, petrolBuffer, ref saveData);
-            SaveAndRestore.save_bools(ref i, alreadyAskForFuelLegacy, ref saveData);
-            SaveAndRestore.save_bytes(ref i, tempVehicleForFuelCount, ref saveData);
-            SaveAndRestore.save_bytes(ref i, finalVehicleForFuelCount, ref saveData);
-            i = 0;
+            SaveAndRestore.SaveData(ref i, TargetGasBuildingLegacy, ref saveData);
+            SaveAndRestore.SaveData(ref i, preTranferReasonLegacy, ref saveData);
+            SaveAndRestore.SaveData(ref i, petrolBuffer, ref saveData);
+            SaveAndRestore.SaveData(ref i, alreadyAskForFuelLegacy, ref saveData);
+            SaveAndRestore.SaveData(ref i, finalVehicleForFuelCount, ref saveData);
+
+            if (i != saveData.Length)
+            {
+                DebugLog.LogToFileOnly($"MainDataStore Save Error: saveData.Length = {saveData.Length} + i = {i}");
+            }
+        }
+
+        public static void SaveForMoreVehicle(ref byte[] saveData)
+        {
+            //196608
+            int i = 0;
             ushort[] TargetGasBuildingMoreVehicle = new ushort[49152];
             byte[] preTranferReasonMoreVehicle = new byte[49152];
             bool[] alreadyAskForFuelMoreVehicle = new bool[49152];
@@ -77,23 +82,28 @@ namespace RealGasStation.Util
                 preTranferReasonMoreVehicle[j] = preTranferReason[j + 16384];
                 alreadyAskForFuelMoreVehicle[j] = alreadyAskForFuel[j + 16384];
             }
-            SaveAndRestore.save_ushorts(ref i, TargetGasBuildingMoreVehicle, ref saveDataForMoreVehicle);
-            SaveAndRestore.save_bytes(ref i, preTranferReasonMoreVehicle, ref saveDataForMoreVehicle);
-            SaveAndRestore.save_bools(ref i, alreadyAskForFuelMoreVehicle, ref saveDataForMoreVehicle);
+            SaveAndRestore.SaveData(ref i, TargetGasBuildingMoreVehicle, ref saveData);
+            SaveAndRestore.SaveData(ref i, preTranferReasonMoreVehicle, ref saveData);
+            SaveAndRestore.SaveData(ref i, alreadyAskForFuelMoreVehicle, ref saveData);
+
+            if (i != saveData.Length)
+            {
+                DebugLog.LogToFileOnly($"MainDataStore SaveForMoreVehicle Error: saveData.Length = {saveData.Length} + i = {i}");
+            }
         }
 
-        public static void load()
+        public static void Load(ref byte[] saveData)
         {
+            //212992
             int i = 0;
             ushort[] TargetGasBuildingLegacy = new ushort[16384];
             byte[] preTranferReasonLegacy = new byte[16384];
             bool[] alreadyAskForFuelLegacy = new bool[16384];
-            TargetGasBuildingLegacy = SaveAndRestore.load_ushorts(ref i, saveData, TargetGasBuildingLegacy.Length);
-            preTranferReasonLegacy = SaveAndRestore.load_bytes(ref i, saveData, preTranferReasonLegacy.Length);
-            petrolBuffer = SaveAndRestore.load_ushorts(ref i, saveData, petrolBuffer.Length);
-            alreadyAskForFuelLegacy = SaveAndRestore.load_bools(ref i, saveData, alreadyAskForFuelLegacy.Length);
-            tempVehicleForFuelCount = SaveAndRestore.load_bytes(ref i, saveData, tempVehicleForFuelCount.Length);
-            finalVehicleForFuelCount = SaveAndRestore.load_bytes(ref i, saveData, finalVehicleForFuelCount.Length);
+            SaveAndRestore.LoadData(ref i, saveData, ref TargetGasBuildingLegacy);
+            SaveAndRestore.LoadData(ref i, saveData, ref preTranferReasonLegacy);
+            SaveAndRestore.LoadData(ref i, saveData, ref petrolBuffer);
+            SaveAndRestore.LoadData(ref i, saveData, ref alreadyAskForFuelLegacy);
+            SaveAndRestore.LoadData(ref i, saveData, ref finalVehicleForFuelCount);
             //for legacy, other 49152 will be loaded in other place
             for (int j = 0; j < 16384; j++)
             {
@@ -101,23 +111,33 @@ namespace RealGasStation.Util
                 preTranferReason[j] = preTranferReasonLegacy[j];
                 alreadyAskForFuel[j] = alreadyAskForFuelLegacy[j];
             }
+
+            if (i != saveData.Length)
+            {
+                DebugLog.LogToFileOnly($"MainDataStore Load Error: saveData.Length = {saveData.Length} + i = {i}");
+            }
         }
-        public static void loadForMoreVehicle()
+        public static void LoadForMoreVehicle(ref byte[] saveData)
         {
+            //196608
             int i = 0;
             ushort[] TargetGasBuildingMoreVehicle = new ushort[49152];
             byte[] preTranferReasonMoreVehicle = new byte[49152];
             bool[] alreadyAskForFuelMoreVehicle = new bool[49152];
-            TargetGasBuildingMoreVehicle = SaveAndRestore.load_ushorts(ref i, saveDataForMoreVehicle, TargetGasBuildingMoreVehicle.Length);
-            preTranferReasonMoreVehicle = SaveAndRestore.load_bytes(ref i, saveDataForMoreVehicle, preTranferReasonMoreVehicle.Length);
-            alreadyAskForFuelMoreVehicle = SaveAndRestore.load_bools(ref i, saveDataForMoreVehicle, alreadyAskForFuelMoreVehicle.Length);
+            SaveAndRestore.LoadData(ref i, saveData, ref TargetGasBuildingMoreVehicle);
+            SaveAndRestore.LoadData(ref i, saveData, ref preTranferReasonMoreVehicle);
+            SaveAndRestore.LoadData(ref i, saveData, ref alreadyAskForFuelMoreVehicle);
             for (int j = 0; j < 49152; j++)
             {
                 TargetGasBuilding[j + 16384] = TargetGasBuildingMoreVehicle[j];
                 preTranferReason[j + 16384] = preTranferReasonMoreVehicle[j];
                 alreadyAskForFuel[j + 16384] = alreadyAskForFuelMoreVehicle[j];
             }
-            DebugLog.LogToFileOnly("saveDataForMoreVehicle in MainDataStore is " + i.ToString());
+
+            if (i != saveData.Length)
+            {
+                DebugLog.LogToFileOnly($"LoadForMoreVehicle Load Error: saveData.Length = {saveData.Length} + i = {i}");
+            }
         }
     }
 }
