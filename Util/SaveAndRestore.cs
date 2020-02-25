@@ -122,7 +122,7 @@ namespace RealGasStation.Util
             if (Loader.CurrentLoadMode == LoadMode.LoadGame || Loader.CurrentLoadMode == LoadMode.NewGame)
             {
                 DebugLog.LogToFileOnly("StartSave");
-                var saveData = new byte[212992];
+                var saveData = new byte[126992];
                 MainDataStore.Save(ref saveData);
                 SaveAndRestore._serializableData.SaveData("RealGasStation MainDataStore", saveData);
                 saveData = new byte[196608];

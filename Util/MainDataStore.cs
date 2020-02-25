@@ -45,7 +45,7 @@ namespace RealGasStation.Util
 
         public static void Save(ref byte[] saveData)
         {
-            //212992
+            //126992
             int i = 0;
             ushort[] TargetGasBuildingLegacy = new ushort[16384];
             byte[] preTranferReasonLegacy = new byte[16384];
@@ -94,7 +94,7 @@ namespace RealGasStation.Util
 
         public static void Load(ref byte[] saveData)
         {
-            //212992
+            //126992
             int i = 0;
             ushort[] TargetGasBuildingLegacy = new ushort[16384];
             byte[] preTranferReasonLegacy = new byte[16384];

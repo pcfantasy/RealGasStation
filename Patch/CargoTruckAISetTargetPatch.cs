@@ -21,7 +21,7 @@ namespace RealGasStation.Patch
         [HarmonyPriority(Priority.First)]
         public static bool Prefix(ref CargoTruckAI __instance, ushort vehicleID, ref Vehicle data, ushort targetBuilding)
         {
-            if ((data.m_transferType == 213) || (data.m_transferType == 212))
+            if ((data.m_transferType == 127) || (data.m_transferType == 126))
             {
                 if (targetBuilding == data.m_targetBuilding)
                 {

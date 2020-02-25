@@ -15,7 +15,7 @@ namespace RealGasStation.CustomManager
         public static bool _init = false;
         public static void StartGasTransfer(ushort vehicleID, ref Vehicle data, TransferManager.TransferReason material, TransferManager.TransferOffer offer)
         {
-            if ((material == (TransferManager.TransferReason)213) || (material == (TransferManager.TransferReason)212))
+            if ((material == (TransferManager.TransferReason)127) || (material == (TransferManager.TransferReason)126))
             {
                 if (data.Info.m_vehicleAI is CargoTruckAI)
                 {
@@ -30,7 +30,7 @@ namespace RealGasStation.CustomManager
                             CargoTruckAI AI = (CargoTruckAI)data.Info.m_vehicleAI;
                             MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
                             MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
-                            data.m_transferType = 213;
+                            data.m_transferType = 127;
                             AI.SetTarget(vehicleID, ref data, offer.Building);
                             MainDataStore.finalVehicleForFuelCount[offer.Building]++;
                         }
@@ -58,7 +58,7 @@ namespace RealGasStation.CustomManager
                                     PassengerCarAI AI = (PassengerCarAI)data.Info.m_vehicleAI;
                                     MainDataStore.preTranferReason[vehicleID] = data.m_transferType;
                                     MainDataStore.TargetGasBuilding[vehicleID] = offer.Building;
-                                    data.m_transferType = 212;
+                                    data.m_transferType = 126;
                                     AI.SetTarget(vehicleID, ref data, offer.Building);
                                     MainDataStore.finalVehicleForFuelCount[offer.Building]++;
                                 }
@@ -162,12 +162,12 @@ namespace RealGasStation.CustomManager
             if (frameIndex == 117)
             {
                 //fuel demand
-                MatchOffers((TransferReason)212);
+                MatchOffers((TransferReason)126);
             }
             else if (frameIndex == 173)
             {
                 //fuel demand
-                MatchOffers((TransferReason)213);
+                MatchOffers((TransferReason)127);
             }
         }
 

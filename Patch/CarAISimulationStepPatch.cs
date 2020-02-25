@@ -156,7 +156,7 @@ namespace RealGasStation.Patch
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
                                             offer.Active = true;
-                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)213, offer);
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)127, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
                                         }
                                         else
@@ -175,7 +175,7 @@ namespace RealGasStation.Patch
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
                                             offer.Active = true;
-                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)213, offer);
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)127, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
                                         }
                                         else
@@ -209,7 +209,7 @@ namespace RealGasStation.Patch
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
                                             offer.Active = true;
-                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)212, offer);
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)126, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
                                         }
                                         else
@@ -228,7 +228,7 @@ namespace RealGasStation.Patch
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
                                             offer.Active = true;
-                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)212, offer);
+                                            Singleton<TransferManager>.instance.AddOutgoingOffer((TransferManager.TransferReason)126, offer);
                                             MainDataStore.alreadyAskForFuel[i] = true;
                                         }
                                         else
