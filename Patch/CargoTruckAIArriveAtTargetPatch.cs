@@ -23,7 +23,7 @@ namespace RealGasStation.Patch
         [HarmonyPriority(Priority.First)]
         public static bool Prefix(ref CargoTruckAI __instance, ushort vehicleID, ref Vehicle data, ref bool __result)
         {
-            if ((data.m_transferType == 113) || (data.m_transferType == 112))
+            if ((data.m_transferType == 213) || (data.m_transferType == 212))
             {
                 if (!MainDataStore.alreadyPaidForFuel[vehicleID])
                 {

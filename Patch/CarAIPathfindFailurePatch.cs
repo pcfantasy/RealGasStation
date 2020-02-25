@@ -15,7 +15,7 @@ namespace RealGasStation.Patch
         public static void Postfix(ushort vehicleID, ref Vehicle data)
         {
             ushort i = vehicleID;
-            if ((data.m_transferType == 112) || (data.m_transferType == 113))
+            if ((data.m_transferType == 212) || (data.m_transferType == 213))
             {
                 if (data.Info.m_vehicleAI is CargoTruckAI && (data.m_targetBuilding != 0))
                 {

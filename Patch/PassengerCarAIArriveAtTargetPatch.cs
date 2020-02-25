@@ -24,7 +24,7 @@ namespace RealGasStation.Patch
         public static bool Prefix(ref PassengerCarAI __instance, ushort vehicleID, ref Vehicle data, ref bool __result)
         {
             //RealGasStation Mod related
-            if (data.m_transferType == 112 || data.m_transferType == 113)
+            if (data.m_transferType == 212 || data.m_transferType == 213)
             {
                 if (!MainDataStore.alreadyPaidForFuel[vehicleID])
                 {

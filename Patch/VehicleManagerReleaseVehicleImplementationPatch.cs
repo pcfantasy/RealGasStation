@@ -15,7 +15,7 @@ namespace RealGasStation.Patch
         public static void Prefix(ushort vehicle, ref Vehicle data)
         {
             //DebugLog.LogToFileOnly($"remove vehicle {vehicle} MainDataStore.TargetGasBuilding[vehicle] {MainDataStore.TargetGasBuilding[vehicle]} data.m_targetBuilding {data.m_targetBuilding}");
-            if (data.m_transferType == 112 || data.m_transferType == 113)
+            if (data.m_transferType == 212 || data.m_transferType == 213)
             {
                 if (MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicle]] > 0)
                     MainDataStore.finalVehicleForFuelCount[MainDataStore.TargetGasBuilding[vehicle]]--;

@@ -23,8 +23,8 @@ namespace RealGasStation.Patch
             MainDataStore.finalVehicleForFuelCount[buildingID] = 0;
             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
             offer.Building = buildingID;
-            Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)112, offer);
-            Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)113, offer);
+            Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)212, offer);
+            Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)213, offer);
         }
     }
 }

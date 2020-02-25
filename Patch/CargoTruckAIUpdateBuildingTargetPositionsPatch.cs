@@ -30,7 +30,7 @@ namespace RealGasStation.Patch
                         BuildingManager instance2 = Singleton<BuildingManager>.instance;
                         BuildingInfo info2 = instance2.m_buildings.m_buffer[(int)MainDataStore.TargetGasBuilding[leaderID]].Info;
                         float distance = Vector3.Distance(instance2.m_buildings.m_buffer[(int)MainDataStore.TargetGasBuilding[leaderID]].m_position, leaderData.GetLastFramePosition());
-                        if (((leaderData.m_transferType == 113) || (leaderData.m_transferType == 112)) && (distance < 50))
+                        if (((leaderData.m_transferType == 213) || (leaderData.m_transferType == 212)) && (distance < 50))
                         {
                             if (leaderID == vehicleID)
                             {
