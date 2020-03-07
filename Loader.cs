@@ -43,11 +43,6 @@ namespace RealGasStation
                     InitDetour();
                     HarmonyInitDetour();
                     SetupGui();
-                    for (int i = 0; i < Singleton<VehicleManager>.instance.m_vehicles.m_size; i++)
-                    {
-                        CarAISimulationStepPatch.watingPathTime[i] = 0;
-                        CarAISimulationStepPatch.stuckTime[i] = 0;
-                    }
                     if (mode == LoadMode.NewGame)
                     {
                         DebugLog.LogToFileOnly("New Game");
