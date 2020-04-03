@@ -1,19 +1,12 @@
 ﻿using ColossalFramework;
-using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using Harmony;
 using ICities;
-using RealGasStation.CustomAI;
 using RealGasStation.CustomManager;
-using RealGasStation.NewAI;
 using RealGasStation.UI;
 using RealGasStation.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using UnityEngine;
 
 namespace RealGasStation
 {
@@ -45,7 +38,6 @@ namespace RealGasStation
             base.OnBeforeSimulationFrame();
             if (Loader.CurrentLoadMode == LoadMode.LoadGame || Loader.CurrentLoadMode == LoadMode.NewGame)
             {
-                VehicleManager instance1 = Singleton<VehicleManager>.instance;
                 if (RealGasStation.IsEnabled)
                 {
                     CheckDetour();

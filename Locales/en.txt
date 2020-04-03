@@ -6,3 +6,4 @@ INCOMING_VEHICLE_COUNT	Incoming Vehicle Count
 ACCEPT_ALL_VEHICLE	Accept all vehicle
 ACCEPT_HEAVY_VEHICLE	Accept heavy vehicle
 ACCEPT_SMALL_VEHICLE	Accept small vehicle
+NORMAL_BUILDING	Normal Building

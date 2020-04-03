@@ -17,7 +17,7 @@ namespace RealGasStation.Util
         public static bool[] alreadyPaidForFuel = new bool[65536];
 
         public static ushort lastVehicle = 0;
-        public static ushort lastBuilding = 0;
+        public static ushort lastBuildingID = 0;
         public static byte lastLanguage = 0;
 
         public static void DataInit()

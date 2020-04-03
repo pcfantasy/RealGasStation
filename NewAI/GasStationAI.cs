@@ -51,12 +51,12 @@ namespace RealGasStation.NewAI
                 }
             }
 
-            if ((MainDataStore.resourceCategory[buildingID] == 2) || (MainDataStore.resourceCategory[buildingID] == 0))
+            if ((MainDataStore.resourceCategory[buildingID] == 3) || (MainDataStore.resourceCategory[buildingID] == 1))
             {
                 //Fuel
                 incomingTransferReason = (TransferManager.TransferReason)126;
                 num34 = MainDataStore.petrolBuffer[buildingID] - MainDataStore.finalVehicleForFuelCount[buildingID] * 400;
-                if ((MainDataStore.resourceCategory[buildingID] == 0))
+                if ((MainDataStore.resourceCategory[buildingID] == 1))
                     num34 >>= 1;
                 if (buildingData.m_flags.IsFlagSet(Building.Flags.Active) && buildingData.m_flags.IsFlagSet(Building.Flags.Completed))
                 {
@@ -78,12 +78,12 @@ namespace RealGasStation.NewAI
                 }
             }
 
-            if ((MainDataStore.resourceCategory[buildingID] == 1) || (MainDataStore.resourceCategory[buildingID] == 0))
+            if ((MainDataStore.resourceCategory[buildingID] == 2) || (MainDataStore.resourceCategory[buildingID] == 1))
             {
                 //Fuel for Heavy
                 incomingTransferReason = (TransferManager.TransferReason)127;
                 num34 = MainDataStore.petrolBuffer[buildingID] - MainDataStore.finalVehicleForFuelCount[buildingID] * 400;
-                if ((MainDataStore.resourceCategory[buildingID] == 0))
+                if ((MainDataStore.resourceCategory[buildingID] == 1))
                     num34 >>= 1;
                 if (buildingData.m_flags.IsFlagSet(Building.Flags.Active) && buildingData.m_flags.IsFlagSet(Building.Flags.Completed))
                 {
@@ -138,13 +138,10 @@ namespace RealGasStation.NewAI
 
         public static bool IsGasBuilding(ushort id)
         {
-            BuildingManager instance = Singleton<BuildingManager>.instance;
-            int num = instance.m_buildings.m_buffer[id].Info.m_buildingAI.GetConstructionCost();
-            if (num == 508600)
+            if (MainDataStore.resourceCategory[id] != 0)
             {
                 return true;
             }
-
             return false;
         }
     }
