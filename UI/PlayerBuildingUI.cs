@@ -1,10 +1,5 @@
-﻿using System.Collections.Generic;
-using ColossalFramework.UI;
+﻿using ColossalFramework.UI;
 using UnityEngine;
-using ColossalFramework;
-using System;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using RealGasStation.Util;
 using RealGasStation.NewAI;
 
@@ -51,7 +46,6 @@ namespace RealGasStation.UI
             this.ShowOnGui();
             base.Hide();
         }
-
 
         private void ShowOnGui()
         {
@@ -104,7 +98,6 @@ namespace RealGasStation.UI
                         buildingTypeDD.items = new string[] { Localization.Get("NORMAL_BUILDING"), Localization.Get("ACCEPT_ALL_VEHICLE"), Localization.Get("ACCEPT_HEAVY_VEHICLE"), Localization.Get("ACCEPT_SMALL_VEHICLE") };
                         if (buildingTypeDD.selectedIndex != MainDataStore.resourceCategory[MainDataStore.lastBuildingID])
                             buildingTypeDD.selectedIndex = MainDataStore.resourceCategory[MainDataStore.lastBuildingID];
-                        Hide();
                     }
                     refeshOnce = false;
                 }
@@ -113,8 +106,6 @@ namespace RealGasStation.UI
                     this.Hide();
                 }
             }
-
         }
-
     }
 }

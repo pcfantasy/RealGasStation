@@ -1,11 +1,6 @@
-﻿using ColossalFramework;
-using ColossalFramework.UI;
+﻿using ColossalFramework.UI;
 using RealGasStation.NewAI;
 using RealGasStation.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace RealGasStation.UI
@@ -76,10 +71,7 @@ namespace RealGasStation.UI
                 relativePosition = new Vector3(playerBuildingInfo.size.x - width - 90, playerBuildingInfo.size.y - height);
                 base.Show();
             }
-            else
-            {
-                base.Hide();
-            }
+
             base.Update();
         }
     }

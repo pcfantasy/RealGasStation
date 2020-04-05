@@ -138,6 +138,23 @@ namespace RealGasStation.NewAI
 
         public static bool IsGasBuilding(ushort id)
         {
+            var buildingData = Singleton<BuildingManager>.instance.m_buildings.m_buffer[id];
+            if (buildingData.Info.m_buildingAI is ParkBuildingAI)
+            {
+                return false;
+            }
+
+            if (buildingData.Info.m_buildingAI is CampusBuildingAI)
+            {
+                return false;
+            }
+
+            PlayerBuildingAI AI = buildingData.Info.m_buildingAI as PlayerBuildingAI;
+            if (AI.RequireRoadAccess() == false)
+            {
+                return false;
+            }
+
             if (MainDataStore.resourceCategory[id] != 0)
             {
                 return true;
