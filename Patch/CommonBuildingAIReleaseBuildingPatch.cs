@@ -1,11 +1,7 @@
 ﻿using ColossalFramework;
 using Harmony;
 using RealGasStation.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace RealGasStation.Patch
 {
@@ -21,7 +17,7 @@ namespace RealGasStation.Patch
             MainDataStore.petrolBuffer[buildingID] = 0;
             MainDataStore.resourceCategory[buildingID] = 0;
             MainDataStore.finalVehicleForFuelCount[buildingID] = 0;
-            TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+            TransferManager.TransferOffer offer = default;
             offer.Building = buildingID;
             Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)126, offer);
             Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)127, offer);

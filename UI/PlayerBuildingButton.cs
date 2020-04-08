@@ -66,7 +66,7 @@ namespace RealGasStation.UI
                 BuildingID = WorldInfoPanel.GetCurrentInstanceID();
             }
 
-            if (GasStationAI.IsGasBuilding(Building) && Loader.isGuiRunning)
+            if (GasStationAI.IsGasBuilding(Building, true) && Loader.isGuiRunning)
             {
                 relativePosition = new Vector3(playerBuildingInfo.size.x - width - 90, playerBuildingInfo.size.y - height);
                 base.Show();

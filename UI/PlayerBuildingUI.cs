@@ -83,22 +83,22 @@ namespace RealGasStation.UI
                 {
                     MainDataStore.lastBuildingID = WorldInfoPanel.GetCurrentInstanceID().Building;
 
-                    if (GasStationAI.IsGasBuilding(MainDataStore.lastBuildingID) == true)
+                    if (GasStationAI.IsGasBuilding(MainDataStore.lastBuildingID, true) == true)
                     {
                         this.Petrol.text = string.Format(Localization.Get("PETROL_STORED") + " [{0}]", MainDataStore.petrolBuffer[MainDataStore.lastBuildingID]);
                         this.inComingVehicleCount.text = string.Format(Localization.Get("INCOMING_VEHICLE_COUNT") + " [{0}]", MainDataStore.finalVehicleForFuelCount[MainDataStore.lastBuildingID]);
-                        buildingTypeDD.items = new string[] { Localization.Get("NORMAL_BUILDING"), Localization.Get("ACCEPT_ALL_VEHICLE"), Localization.Get("ACCEPT_HEAVY_VEHICLE"), Localization.Get("ACCEPT_SMALL_VEHICLE") };
-                        if (buildingTypeDD.selectedIndex != MainDataStore.resourceCategory[MainDataStore.lastBuildingID])
-                            buildingTypeDD.selectedIndex = MainDataStore.resourceCategory[MainDataStore.lastBuildingID];
                     }
                     else
                     {
                         this.Petrol.text = "";
                         this.inComingVehicleCount.text = "";
-                        buildingTypeDD.items = new string[] { Localization.Get("NORMAL_BUILDING"), Localization.Get("ACCEPT_ALL_VEHICLE"), Localization.Get("ACCEPT_HEAVY_VEHICLE"), Localization.Get("ACCEPT_SMALL_VEHICLE") };
-                        if (buildingTypeDD.selectedIndex != MainDataStore.resourceCategory[MainDataStore.lastBuildingID])
-                            buildingTypeDD.selectedIndex = MainDataStore.resourceCategory[MainDataStore.lastBuildingID];
                     }
+
+                    if (buildingType.text != Localization.Get("BUILDING_TYPE"))
+                        buildingTypeDD.items = new string[] { Localization.Get("NORMAL_BUILDING"), Localization.Get("ACCEPT_ALL_VEHICLE"), Localization.Get("ACCEPT_HEAVY_VEHICLE"), Localization.Get("ACCEPT_SMALL_VEHICLE") };
+                    if (buildingTypeDD.selectedIndex != MainDataStore.resourceCategory[MainDataStore.lastBuildingID])
+                        buildingTypeDD.selectedIndex = MainDataStore.resourceCategory[MainDataStore.lastBuildingID];
+                    buildingType.text = Localization.Get("BUILDING_TYPE");
                     refeshOnce = false;
                 }
                 else
