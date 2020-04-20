@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 
 namespace RealGasStation.Util
 {
@@ -7,7 +7,7 @@ namespace RealGasStation.Util
         public const string ID = "pcfantasy.realgasstation";
         public static void Apply()
         {
-            var harmony = HarmonyInstance.Create(ID);
+            var harmony = new Harmony(HarmonyDetours.ID);
             harmony.PatchAll();
             Loader.HarmonyDetourFailed = false;
             DebugLog.LogToFileOnly("Harmony patches applied");
@@ -15,7 +15,7 @@ namespace RealGasStation.Util
 
         public static void DeApply()
         {
-            var harmony = HarmonyInstance.Create(ID);
+            var harmony = new Harmony(HarmonyDetours.ID);
             harmony.UnpatchAll(ID);
             DebugLog.LogToFileOnly("Harmony patches DeApplied");
         }

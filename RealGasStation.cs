@@ -1,4 +1,5 @@
-﻿using ICities;
+﻿using CitiesHarmony.API;
+using ICities;
 using System.IO;
 
 namespace RealGasStation
@@ -23,6 +24,7 @@ namespace RealGasStation
             IsEnabled = true;
             FileStream fs = File.Create("RealGasStation.txt");
             fs.Close();
+            HarmonyHelper.EnsureHarmonyInstalled();
         }
 
         public void OnDisabled()

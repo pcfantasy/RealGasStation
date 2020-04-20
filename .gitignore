@@ -9,3 +9,6 @@
 .vs/RealGasStation/v16/Server/sqlite3/storage.ide-shm
 .vs/RealGasStation/v16/Server/sqlite3/storage.ide-wal
 obj/Release/RealGasStation.csproj.CopyComplete
+
+packages/*
+obj/Release/build.force

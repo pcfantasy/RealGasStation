@@ -35,11 +35,14 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>..\0Harmony.dll</HintPath>
+    <Reference Include="0Harmony, Version=2.0.0.9, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Lib.Harmony.2.0.0.9\lib\net35\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>F:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="CitiesHarmony.API, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\CitiesHarmony.API.1.0.4\lib\net35\CitiesHarmony.API.dll</HintPath>
     </Reference>
     <Reference Include="ColossalManaged">
       <HintPath>F:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
@@ -96,14 +99,17 @@
     <Content Include="Locales\zh.txt" />
     <Content Include="PreviewImage.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "D:\Mod\RealGasStation\bin\Release\RealGasStation.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\RealGasStation.dll"
-copy "D:\Mod\RealGasStation\bin\Release\0Harmony.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\0Harmony.dll"
-rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Locales"
+    <PostBuildEvent>rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958"
+mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958"
+copy "D:\Mod\RealGasStation\bin\Release\RealGasStation.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\RealGasStation.dll"
+copy "D:\Mod\RealGasStation\bin\Release\CitiesHarmony.API.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\CitiesHarmony.API.dll"
 mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Locales"
 copy "D:\Mod\RealGasStation\Locales\*.txt" "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Locales"
-rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Icon"
 mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Icon"
 copy "D:\Mod\RealGasStation\Icon\*.png" "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\Icon"
 copy "D:\Mod\RealGasStation\PreviewImage.png"  "F:\SteamLibrary\steamapps\workshop\content\255710\1623509958\PreviewImage.png"</PostBuildEvent>
