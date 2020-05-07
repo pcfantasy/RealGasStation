@@ -20,9 +20,23 @@ namespace RealGasStation.Patch
                 typeof(Vehicle).MakeByRefType(),
                 typeof(int)}, null);
         }
-        public static void Prefix(ushort vehicleID, ref Vehicle vehicleData, ref Vehicle.Frame frameData, ushort leaderID, ref Vehicle leaderData, int lodPhysics)
+        public static void Prefix(ushort vehicleID, ref Vehicle vehicleData)
         {
-            VehicleStatus(vehicleID, ref vehicleData);
+            bool canAddCargoOffer = true;
+            bool canAddCarOffer = true;
+            if (Loader.isRealCityV10)
+            {
+                RealCityUtil.InitDelegate();
+                if (RealCityUtil.GetRealCityV10())
+                {
+                    if (RealCityUtil.GetOutsideGovermentMoney() < 0)
+                        canAddCargoOffer = false;
+                    if (RealCityUtil.GetOutsideTouristMoney() < 0)
+                        canAddCargoOffer = false;
+                }
+            }
+
+            VehicleStatus(vehicleID, ref vehicleData, canAddCargoOffer, canAddCarOffer);
         }
 
         public static ushort GetDriverInstance(ushort vehicleID, ref Vehicle data)
@@ -55,7 +69,7 @@ namespace RealGasStation.Patch
             return 0;
         }
 
-        public static void VehicleStatus(int i, ref Vehicle vehicle)
+        public static void VehicleStatus(int i, ref Vehicle vehicle, bool canCargoForFuel, bool canCarForFuel)
         {
             if (i < Singleton<VehicleManager>.instance.m_vehicles.m_size)
             {
@@ -66,7 +80,7 @@ namespace RealGasStation.Patch
                     VehicleManager instance = Singleton<VehicleManager>.instance;
                     if (!vehicle.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (vehicle.m_cargoParent == 0) && vehicle.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.GoingBack) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.Parking))
                     {
-                        if (vehicle.Info.m_vehicleAI is CargoTruckAI && (vehicle.m_targetBuilding != 0))
+                        if (vehicle.Info.m_vehicleAI is CargoTruckAI && (vehicle.m_targetBuilding != 0) && canCargoForFuel)
                         {
                             if (!MainDataStore.alreadyAskForFuel[i])
                             {
@@ -118,7 +132,7 @@ namespace RealGasStation.Patch
                                 }
                             }
                         }
-                        else if (vehicle.Info.m_vehicleAI is PassengerCarAI && vehicle.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow)
+                        else if (vehicle.Info.m_vehicleAI is PassengerCarAI && vehicle.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow && !canCarForFuel)
                         {
                             if (!MainDataStore.alreadyAskForFuel[i])
                             {

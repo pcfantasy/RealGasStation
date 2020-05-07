@@ -76,6 +76,7 @@
     <Compile Include="Patch\CarAISimulationStepPatch.cs" />
     <Compile Include="Patch\PlayerBuildingAISimulationStepPatch.cs" />
     <Compile Include="Patch\CommonBuildingAIReleaseBuildingPatch.cs" />
+    <Compile Include="Util\RealCityUtil.cs" />
     <Compile Include="Util\FastDelegateFactory.cs" />
     <Compile Include="Util\DebugLog.cs" />
     <Compile Include="RealGasStation.cs" />

@@ -23,6 +23,7 @@ namespace RealGasStation
         public static bool HarmonyDetourFailed = true;
         public static bool isGuiRunning = false;
         public static bool isRealCityRunning = false;
+        public static bool isRealCityV10 = false;
         public static PlayerBuildingButton PBButton;
         public static string m_atlasName = "RealGasStation";
         public static bool m_atlasLoaded;
@@ -126,6 +127,19 @@ namespace RealGasStation
         public void InitDetour()
         {
             isRealCityRunning = CheckRealCityIsLoaded();
+            if (isRealCityRunning)
+            {
+                Version RealCity_Version = Assembly.Load("RealCity").GetName().Version;
+                if (RealCity_Version > new Version(10, 0, 0, 0))
+                {
+                    DebugLog.LogToFileOnly($"Detect RealCity V10, version = {RealCity_Version}");
+                    isRealCityV10 = true;
+                }
+                else
+                {
+                    isRealCityV10 = false;
+                }
+            }
             DetourInited = true;
         }
 
