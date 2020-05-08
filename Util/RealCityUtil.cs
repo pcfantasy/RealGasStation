@@ -7,6 +7,9 @@ namespace RealGasStation.Util
         public delegate bool RealCityGetRealCityV10();
         public static RealCityGetRealCityV10 GetRealCityV10;
 
+        public delegate float RealCityGetResourcePrice(TransferManager.TransferReason material);
+        public static RealCityGetResourcePrice GetResourcePrice;
+
         public delegate float RealCityGetOutsideTouristMoney();
         public static RealCityGetOutsideTouristMoney GetOutsideTouristMoney;
 
@@ -24,6 +27,8 @@ namespace RealGasStation.Util
         {
             if (GetRealCityV10 != null)
                 return;
+            if (GetResourcePrice != null)
+                return;
             if (GetOutsideTouristMoney != null)
                 return;
             if (GetOutsideGovermentMoney != null)
@@ -33,6 +38,7 @@ namespace RealGasStation.Util
             if (SetOutsideGovermentMoney != null)
                 return;
             GetRealCityV10 = FastDelegateFactory.Create<RealCityGetRealCityV10>(Assembly.Load("RealCity").GetType("RealCity.RealCity"), "GetRealCityV10", instanceMethod: false);
+            GetResourcePrice = FastDelegateFactory.Create<RealCityGetResourcePrice>(Assembly.Load("RealCity").GetType("RealCity.CustomAI.RealCityIndustryBuildingAI"), "GetResourcePrice", instanceMethod: false);
             GetOutsideTouristMoney = FastDelegateFactory.Create<RealCityGetOutsideTouristMoney>(Assembly.Load("RealCity").GetType("RealCity.RealCity"), "GetOutsideTouristMoney", instanceMethod: false);
             GetOutsideGovermentMoney = FastDelegateFactory.Create<RealCityGetOutsideGovermentMoney>(Assembly.Load("RealCity").GetType("RealCity.RealCity"), "GetOutsideGovermentMoney", instanceMethod: false);
             SetOutsideTouristMoney = FastDelegateFactory.Create<RealCitySetOutsideTouristMoney>(Assembly.Load("RealCity").GetType("RealCity.RealCity"), "SetOutsideTouristMoney", instanceMethod: false);

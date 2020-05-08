@@ -66,7 +66,8 @@ namespace RealGasStation.Patch
             {
                 if (Loader.isRealCityRunning)
                 {
-                    int money = (int)(400f * CustomCargoTruckAI.GetResourcePrice(TransferManager.TransferReason.Petrol) + 1000);
+                    RealCityUtil.InitDelegate();
+                    int money = (int)(400f * RealCityUtil.GetResourcePrice(TransferManager.TransferReason.Petrol) + 1000);
                     Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, money, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level1);
                 }
             }

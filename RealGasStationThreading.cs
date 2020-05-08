@@ -13,15 +13,6 @@ namespace RealGasStation
     public class RealGasStationThreading : ThreadingExtensionBase
     {
         public static bool isFirstTime = true;
-        public static FieldInfo _reduceVehicle = null;
-        public static Assembly RealCity = null;
-        public static Type RealCityClass = null;
-        public static object RealCityInstance = null;
-        public static bool reduceVehicle = false;
-        public static Type MainDataStoreClass = null;
-        public static object MainDataStoreInstance = null;
-        public static FieldInfo _reduceCargoDiv = null;
-        public static int reduceCargoDiv = 1;
         public static bool dummyCargoNeedFuel = false;
         public static bool dummyCarNeedFuel = false;
         public static bool cargoNeedFuel = false;
@@ -45,39 +36,11 @@ namespace RealGasStation
             }
         }
 
-        public void DetourAfterLoad()
-        {
-            //This is for Detour Other Mod method
-            DebugLog.LogToFileOnly("Init DetourAfterLoad");
-            bool detourFailed = false;
-
-            if (Loader.isRealCityRunning)
-            {
-                RealCity = Assembly.Load("RealCity");
-                RealCityClass = RealCity.GetType("RealCity.RealCity");
-                RealCityInstance = Activator.CreateInstance(RealCityClass);
-                _reduceVehicle = RealCityClass.GetField("reduceVehicle", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-                MainDataStoreClass = RealCity.GetType("RealCity.Util.MainDataStore");
-                MainDataStoreInstance = Activator.CreateInstance(MainDataStoreClass);
-                _reduceCargoDiv = MainDataStoreClass.GetField("reduceCargoDiv", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-            }
-
-            if (detourFailed)
-            {
-                DebugLog.LogToFileOnly("DetourAfterLoad failed");
-            }
-            else
-            {
-                DebugLog.LogToFileOnly("DetourAfterLoad successful");
-            }
-        }
-
         public void CheckDetour()
         {
             if (isFirstTime && Loader.DetourInited && Loader.HarmonyDetourInited)
             {
                 isFirstTime = false;
-                DetourAfterLoad();
                 if (Loader.DetourInited)
                 {
                     DebugLog.LogToFileOnly("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Checking detours.");
@@ -134,26 +97,6 @@ namespace RealGasStation
                     if (num4 == 255)
                     {
                         PlayerBuildingUI.refeshOnce = true;
-                        if (!isFirstTime)
-                        {
-                            if (Loader.isRealCityRunning)
-                            {
-                                reduceVehicle = (bool)_reduceVehicle.GetValue(RealCityInstance);
-                                if (reduceVehicle)
-                                {
-                                    reduceCargoDiv = (int)_reduceCargoDiv.GetValue(MainDataStoreInstance);
-                                }
-                                else
-                                {
-                                    reduceCargoDiv = 1;
-                                }
-                            }
-                            else
-                            {
-                                reduceVehicle = false;
-                                reduceCargoDiv = 1;
-                            }
-                        }
                     }
 
                     CustomTransferManager.CustomSimulationStepImpl();

@@ -75,7 +75,8 @@ namespace RealGasStation.Patch
 
                                 if (Loader.isRealCityRunning)
                                 {
-                                    float productionValue = vehicleData.m_transferSize * CustomCargoTruckAI.GetResourcePrice((TransferManager.TransferReason)vehicleData.m_transferType);
+                                    RealCityUtil.InitDelegate();
+                                    float productionValue = vehicleData.m_transferSize * RealCityUtil.GetResourcePrice((TransferManager.TransferReason)vehicleData.m_transferType);
                                     Singleton<EconomyManager>.instance.FetchResource(EconomyManager.Resource.ResourcePrice, (int)productionValue, ItemClass.Service.PlayerIndustry, ItemClass.SubService.PlayerIndustryOil, ItemClass.Level.Level1);
                                 }
                                 vehicleData.m_transferSize = 0;
@@ -115,7 +116,8 @@ namespace RealGasStation.Patch
             {
                 if (Loader.isRealCityRunning)
                 {
-                    int money = (int)(400f * CustomCargoTruckAI.GetResourcePrice(TransferManager.TransferReason.Petrol) + 1000);
+                    RealCityUtil.InitDelegate();
+                    int money = (int)(400f * RealCityUtil.GetResourcePrice(TransferManager.TransferReason.Petrol) + 1000);
                     Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, money, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
                 }
             }
