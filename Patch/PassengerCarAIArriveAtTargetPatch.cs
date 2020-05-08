@@ -68,12 +68,6 @@ namespace RealGasStation.Patch
                 {
                     int money = (int)(400f * CustomCargoTruckAI.GetResourcePrice(TransferManager.TransferReason.Petrol) + 1000);
                     Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, money, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level1);
-                    if (Loader.isRealCityV10)
-                    {
-                        RealCityUtil.InitDelegate();
-                        if (RealCityUtil.GetRealCityV10())
-                            RealCityUtil.SetOutsideTouristMoney(RealCityUtil.GetOutsideTouristMoney() - money);
-                    }
                 }
             }
         }

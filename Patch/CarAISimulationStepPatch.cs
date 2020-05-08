@@ -77,7 +77,6 @@ namespace RealGasStation.Patch
                 int num4 = (int)(currentFrameIndex & 255u);
                 if (((num4 >> 4) & 15u) == (i & 15u))
                 {
-                    VehicleManager instance = Singleton<VehicleManager>.instance;
                     if (!vehicle.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (vehicle.m_cargoParent == 0) && vehicle.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.GoingBack) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.Parking))
                     {
                         if (vehicle.Info.m_vehicleAI is CargoTruckAI && (vehicle.m_targetBuilding != 0) && canCargoForFuel)
@@ -90,14 +89,13 @@ namespace RealGasStation.Patch
                                 }
                                 else
                                 {
-                                    System.Random rand = new System.Random();
                                     if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic))
                                     {
                                         RealGasStationThreading.RefreshDummyCargoFuel();
                                         if (RealGasStationThreading.dummyCargoNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                            offer.Priority = rand.Next(8);
+                                            offer.Priority = (i & 7);
                                             offer.Vehicle = (ushort)i;
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
@@ -116,7 +114,7 @@ namespace RealGasStation.Patch
                                         if (RealGasStationThreading.cargoNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                            offer.Priority = rand.Next(8);
+                                            offer.Priority = (i & 7);
                                             offer.Vehicle = (ushort)i;
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
@@ -142,7 +140,6 @@ namespace RealGasStation.Patch
                                 }
                                 else
                                 {
-                                    System.Random rand = new System.Random();
                                     ushort citizen = GetDriverInstance((ushort)i, ref vehicle);
                                     if (Singleton<CitizenManager>.instance.m_citizens.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_citizen].m_flags.IsFlagSet(Citizen.Flags.DummyTraffic))
                                     {
@@ -150,7 +147,7 @@ namespace RealGasStation.Patch
                                         if (RealGasStationThreading.dummyCarNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                            offer.Priority = rand.Next(8);
+                                            offer.Priority = (i & 7);
                                             offer.Vehicle = (ushort)i;
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
@@ -169,7 +166,7 @@ namespace RealGasStation.Patch
                                         if (RealGasStationThreading.carNeedFuel)
                                         {
                                             TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
-                                            offer.Priority = rand.Next(8);
+                                            offer.Priority = (i & 7);
                                             offer.Vehicle = (ushort)i;
                                             offer.Position = vehicle.GetLastFramePosition();
                                             offer.Amount = 1;
