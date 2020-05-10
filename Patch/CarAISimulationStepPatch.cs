@@ -32,7 +32,7 @@ namespace RealGasStation.Patch
                     if (RealCityUtil.GetOutsideGovermentMoney() < 0)
                         canAddCargoOffer = false;
                     if (RealCityUtil.GetOutsideTouristMoney() < 0)
-                        canAddCargoOffer = false;
+                        canAddCarOffer = false;
                 }
             }
 
@@ -79,7 +79,7 @@ namespace RealGasStation.Patch
                 {
                     if (!vehicle.m_flags.IsFlagSet(Vehicle.Flags.Arriving) && (vehicle.m_cargoParent == 0) && vehicle.m_flags.IsFlagSet(Vehicle.Flags.Spawned) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.GoingBack) && !vehicle.m_flags.IsFlagSet(Vehicle.Flags.Parking))
                     {
-                        if (vehicle.Info.m_vehicleAI is CargoTruckAI && (vehicle.m_targetBuilding != 0) && canCargoForFuel)
+                        if (vehicle.Info.m_vehicleAI is CargoTruckAI && (vehicle.m_targetBuilding != 0))
                         {
                             if (!MainDataStore.alreadyAskForFuel[i])
                             {
@@ -89,7 +89,7 @@ namespace RealGasStation.Patch
                                 }
                                 else
                                 {
-                                    if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic))
+                                    if (vehicle.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic) && canCargoForFuel)
                                     {
                                         RealGasStationThreading.RefreshDummyCargoFuel();
                                         if (RealGasStationThreading.dummyCargoNeedFuel)
@@ -130,7 +130,7 @@ namespace RealGasStation.Patch
                                 }
                             }
                         }
-                        else if (vehicle.Info.m_vehicleAI is PassengerCarAI && vehicle.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow && !canCarForFuel)
+                        else if (vehicle.Info.m_vehicleAI is PassengerCarAI && vehicle.Info.m_class.m_subService == ItemClass.SubService.ResidentialLow)
                         {
                             if (!MainDataStore.alreadyAskForFuel[i])
                             {
@@ -141,7 +141,7 @@ namespace RealGasStation.Patch
                                 else
                                 {
                                     ushort citizen = GetDriverInstance((ushort)i, ref vehicle);
-                                    if (Singleton<CitizenManager>.instance.m_citizens.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_citizen].m_flags.IsFlagSet(Citizen.Flags.DummyTraffic))
+                                    if (Singleton<CitizenManager>.instance.m_citizens.m_buffer[Singleton<CitizenManager>.instance.m_instances.m_buffer[citizen].m_citizen].m_flags.IsFlagSet(Citizen.Flags.DummyTraffic) && canCarForFuel)
                                     {
                                         RealGasStationThreading.RefreshDummyCarFuel();
                                         if (RealGasStationThreading.dummyCarNeedFuel)

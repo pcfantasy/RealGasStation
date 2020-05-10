@@ -72,9 +72,11 @@ namespace RealGasStation.Patch
             {
                 if (Loader.isRealCityRunning)
                 {
-                    RealCityUtil.InitDelegate();
                     int money = (int)(400f * RealCityUtil.GetResourcePrice(TransferManager.TransferReason.Petrol) + 1000);
-                    Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, money, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
+                    if (data.m_flags.IsFlagSet(Vehicle.Flags.DummyTraffic))
+                        Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, money, ItemClass.Service.Vehicles, ItemClass.SubService.PlayerIndustryOil, ItemClass.Level.Level2);
+                    else
+                        Singleton<EconomyManager>.instance.AddResource(EconomyManager.Resource.PublicIncome, money, ItemClass.Service.Vehicles, ItemClass.SubService.None, ItemClass.Level.Level2);
                 }
             }
         }
