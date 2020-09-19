@@ -129,7 +129,6 @@ namespace RealGasStation.Util
                 MainDataStore.SaveForMoreVehicle(ref saveData);
                 SaveAndRestore._serializableData.SaveData("RealGasStation saveDataForMoreVehicle", saveData);
                 SaveAndRestore._serializableData.SaveData("RealGasStation resourceCategory", MainDataStore.resourceCategory);
-                
             }
         }
 
