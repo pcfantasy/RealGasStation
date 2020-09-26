@@ -26,17 +26,14 @@ namespace RealGasStation.Util
         public static void InitDelegate()
         {
             if (GetRealCityV10 != null)
-                return;
-            if (GetResourcePrice != null)
-                return;
-            if (GetOutsideTouristMoney != null)
-                return;
-            if (GetOutsideGovermentMoney != null)
-                return;
-            if (SetOutsideTouristMoney != null)
-                return;
-            if (SetOutsideGovermentMoney != null)
-                return;
+                if (GetResourcePrice != null)
+                    if (GetOutsideTouristMoney != null)
+                        if (GetOutsideGovermentMoney != null)
+                            if (SetOutsideTouristMoney != null)
+                                if (SetOutsideGovermentMoney != null)
+                                    return;
+
+            DebugLog.LogToFileOnly("Try to InitDelegate in RealCityUtil");
             GetRealCityV10 = FastDelegateFactory.Create<RealCityGetRealCityV10>(Assembly.Load("RealCity").GetType("RealCity.RealCity"), "GetRealCityV10", instanceMethod: false);
             GetResourcePrice = FastDelegateFactory.Create<RealCityGetResourcePrice>(Assembly.Load("RealCity").GetType("RealCity.CustomAI.RealCityIndustryBuildingAI"), "GetResourcePrice", instanceMethod: false);
             GetOutsideTouristMoney = FastDelegateFactory.Create<RealCityGetOutsideTouristMoney>(Assembly.Load("RealCity").GetType("RealCity.RealCity"), "GetOutsideTouristMoney", instanceMethod: false);
